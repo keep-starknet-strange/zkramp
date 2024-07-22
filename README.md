@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="https://github.com/keep-starknet-strange/choam/raw/main/resources/img/logo.png" alt="StarkWare" maxHeight="300" />
+<img src="https://github.com/keep-starknet-strange/choam/raw/main/resources/img/logo.png" alt="CHOAM" height="300" />
 
 <a href="https://github.com/keep-starknet-strange/choam/actions/workflows/ci.yaml">
 <img alt="GitHub Workflow Status (with event)" src="https://img.shields.io/github/actions/workflow/status/keep-starknet-strange/choam/ci.yaml?style=for-the-badge" height=30 /></a>
