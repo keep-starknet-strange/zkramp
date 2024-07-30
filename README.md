@@ -2,6 +2,9 @@
 
 <img src="https://github.com/keep-starknet-strange/choam/raw/main/resources/img/logo.png" alt="CHOAM" height="300" />
 
+<br />
+<br />
+
 <a href="https://github.com/keep-starknet-strange/choam/actions/workflows/ci.yaml">
 <img alt="GitHub Workflow Status (with event)" src="https://img.shields.io/github/actions/workflow/status/keep-starknet-strange/choam/ci.yaml?style=for-the-badge" height=30 /></a>
 <a href="https://codecov.io/gh/keep-starknet-strange/choam" >
@@ -30,3 +33,16 @@
 </div>
 
 # CHOAM
+
+## A trustless P2P fiat onramp powered by ZK proofs on Starknet 🎟️
+
+The concept was initially conceived and developed by [ZKP2P](https://zkp2p.xyz) for EVM chains, and CHOAM is making it accessible on Starknet by implementing it in Cairo.
+
+## Flowchart 🎡
+
+![](/resources/img/main-diagram.png)
+
+
+## Next steps 🔎
+
+In the flowchart above, the notary is a centralized entity running on a server. Therefore, it can generate false attestations and thus steal the money deposited in the contracts. The next major step will therefore be to decentralize the notarization process.
