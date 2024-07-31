@@ -1,0 +1,25 @@
+{
+  "projectName": "zkramp",
+  "projectOwner": "starkware",
+  "repoType": "github",
+  "repoHost": "https://github.com",
+  "files": [
+    "README.md"
+  ],
+  "imageSize": 100,
+  "commit": true,
+  "commitConvention": "eslint",
+  "contributors": [
+    {
+      "login": "0xChqrles",
+      "name": "Chqrles",
+      "avatar_url": "https://avatars.githubusercontent.com/u/19663399?v=4",
+      "profile": "https://rules.art/",
+      "contributions": [
+        "code"
+      ]
+    }
+  ],
+  "contributorsPerLine": 7,
+  "linkToUsage": true
+}
