@@ -1,8 +1,4 @@
 <div align="center">
-<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors-)
-<!-- ALL-CONTRIBUTORS-BADGE:END -->
-
 <img src="https://github.com/keep-starknet-strange/zkramp/raw/main/resources/img/logo.png" alt="zkRamp" height="300" />
 
 <br />
