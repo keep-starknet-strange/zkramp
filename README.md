@@ -17,11 +17,11 @@
 
 <div align="center">
   <h3>
-    <a href="#">
-      App
+    <a href="https://zkramp.fi">
+      Website
     </a>
     <span> | </span>
-    <a href="https://t.me/">
+    <a href="https://t.me/+hlNRN4PmGrExYTY8">
       Telegram
     </a>
     <span> | </span>
@@ -62,7 +62,7 @@ In the flowchart above, the notary is a centralized entity running on a server. 
 
 ## Contributors ✨
 
-Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/docs/en/emoji-key)):
+Thanks goes to these wonderful people. Follow the [contributors guide](https://github.com/keep-starknet-strange/zkramp/blob/main/CONTRIBUTING.md) if you'd like to take part.
 
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
 <!-- prettier-ignore-start -->
