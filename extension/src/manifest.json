@@ -1,0 +1,27 @@
+{
+  "manifest_version": 3,
+  "name": "zkRamp",
+  "version": "1.0",
+  "description": "Official zkRamp.fi extension",
+  "action": {
+    "default_title": "Toggle zkRamp Sidebar"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "side_panel": {
+    "default_path": "index.html"
+  },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self';"
+  },
+  "permissions": [
+    "offscreen",
+    "storage",
+    "webRequest",
+    "activeTab",
+    "sidePanel",
+    "tabs",
+    "scripting"
+  ]
+}
