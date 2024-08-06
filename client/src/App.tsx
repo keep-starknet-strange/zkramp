@@ -1,3 +1,5 @@
+import { goerli, mainnet } from '@starknet-react/chains'
+import { argent, braavos, publicProvider, StarknetConfig, useInjectedConnectors } from '@starknet-react/core'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import Layout from 'src/components/Layout'
 
@@ -15,5 +17,17 @@ const router = createBrowserRouter([
 ])
 
 export default function App() {
-  return <RouterProvider router={router} />
+  const chains = [goerli, mainnet]
+  const provider = publicProvider()
+  const { connectors } = useInjectedConnectors({
+    recommended: [argent(), braavos()],
+    includeRecommended: 'onlyIfNoConnectors',
+    order: 'random',
+  })
+
+  return (
+    <StarknetConfig chains={chains} provider={provider} connectors={connectors}>
+      <RouterProvider router={router} />
+    </StarknetConfig>
+  )
 }
