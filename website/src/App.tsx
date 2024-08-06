@@ -2,6 +2,7 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import Layout from 'src/components/Layout'
 
 import HomePage from './pages/Home'
+import Swap from './pages/Swap'
 
 const router = createBrowserRouter([
   {
@@ -9,6 +10,14 @@ const router = createBrowserRouter([
     element: (
       <Layout>
         <HomePage />
+      </Layout>
+    ),
+  },
+  {
+    path: '/swap',
+    element: (
+      <Layout>
+        <Swap />
       </Layout>
     ),
   },
