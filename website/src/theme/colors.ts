@@ -21,10 +21,6 @@ export const darkTheme = {
   bg1: '#000000',
   bg2: '#121216',
 
-  surface: '#0D0D12',
-
-  border: '#636373',
-
   neutral1: colors.neutral1_dark,
   neutral2: colors.neutral2_dark,
 }

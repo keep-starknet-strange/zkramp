@@ -33,7 +33,4 @@ export const ThemedText = {
   SubHeader(props: TextProps) {
     return <TextWrapper fontWeight={400} fontSize={20} color="neutral2" lineHeight="24px" {...props} />
   },
-  Normal(props: TextProps) {
-    return <TextWrapper fontWeight={400} fontSize={16} color="neutral2" {...props} />
-  },
 }
