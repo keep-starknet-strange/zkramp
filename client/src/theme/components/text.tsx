@@ -34,4 +34,8 @@ export const ThemedText = {
   BodyPrimary(props: TextProps) {
     return <TextWrapper fontWeight={400} fontSize={16} color="neutral2" fontFamily="Montserrat" {...props} />
   },
+
+  Title(props: TextProps) {
+    return <TextWrapper fontWeight={600} fontSize={16} color="neutral1" fontFamily="Montserrat" {...props} />
+  },
 }

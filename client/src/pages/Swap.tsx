@@ -1,3 +1,4 @@
+import { PrimaryButton } from 'src/components/Button'
 import { Card } from 'src/components/Card'
 import { Column, Row } from 'src/components/Flex'
 import { ThemedText } from 'src/theme/components'
@@ -47,6 +48,10 @@ export default function SwapPage() {
             <ThemedText.HeadlineSmall>USD</ThemedText.HeadlineSmall>
           </InputCardGroup>
         </Card>
+
+        <PrimaryButton>
+          <ThemedText.Title>Swap</ThemedText.Title>
+        </PrimaryButton>
       </SwapCard>
     </Layout>
   )
