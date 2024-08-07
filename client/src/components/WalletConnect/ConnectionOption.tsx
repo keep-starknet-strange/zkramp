@@ -1,4 +1,5 @@
 import { Connector, useConnect } from '@starknet-react/core'
+import { styled } from 'styled-components'
 
 import { Row } from '../Flex'
 
@@ -7,19 +8,30 @@ interface OptionProps {
   activate: () => void
 }
 
+const OptionRow = styled(Row)`
+  width: 100%;
+  cursor: pointer;
+  padding: 12px;
+  border-radius: 10px;
+  &:hover {
+    background-color: ${({ theme }) => theme.white};
+    color: ${({ theme }) => theme.black};
+  }
+`
+
 function Option({ connection, activate }: OptionProps) {
   const icon = connection.icon.dark
   const isSvg = icon?.startsWith('<svg')
 
   return (
-    <Row gap={12} onClick={activate}>
+    <OptionRow gap={12} onClick={activate}>
       {isSvg ? (
         <img width="32" height="32" dangerouslySetInnerHTML={{ __html: icon ?? '' }} /> /* display svg */
       ) : (
         <img width="32" height="32" src={connection.icon.dark} />
       )}
-      <p>{connection.name}</p>
-    </Row>
+      <p style={{ margin: '0' }}>{connection.name}</p>
+    </OptionRow>
   )
 }
 

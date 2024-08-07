@@ -1,6 +1,7 @@
 import { useAccount, useConnect } from '@starknet-react/core'
 import { useEffect } from 'react'
 import { useWalletConnectModal } from 'src/hooks/useModal'
+import { styled } from 'styled-components'
 
 import { Column } from '../Flex'
 import Content from '../Modal/Content'
@@ -21,17 +22,21 @@ export default function WalletConnectModal() {
 
   if (!isOpen) return null
 
+  const FullWidthColumn = styled(Column)`
+    width: 100%;
+  `
+
   return (
     <Portal>
       <Overlay onClick={toggle} />
       <Content title="Connect wallet" close={toggle}>
-        <Column gap={12}>
+        <FullWidthColumn gap={12}>
           {connectors
             .filter((connector) => connector.available())
             .map((connector) => (
               <L2Option key={connector.id} connection={connector} />
             ))}
-        </Column>
+        </FullWidthColumn>
       </Content>
     </Portal>
   )
