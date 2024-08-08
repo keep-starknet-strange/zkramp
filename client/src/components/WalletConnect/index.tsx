@@ -1,5 +1,6 @@
 import ConnectWalletButton from '../ConnectWalletButton'
-import WalletConnectModal from './Modal'
+import WalletConnectModal from './OptionsModal'
+import { WalletOverview } from './WalletOverview'
 
 // eslint-disable-next-line import/no-unused-modules
 export default function WalletConnect() {
@@ -7,6 +8,7 @@ export default function WalletConnect() {
     <>
       <ConnectWalletButton label="Connect Wallet" backgroundColor="#fff" textColor="#000" />
       <WalletConnectModal />
+      <WalletOverview />
     </>
   )
 }

@@ -3,6 +3,7 @@ import { useBoundStore } from 'src/state'
 import { ModalType } from 'src/state/application'
 import { useShallow } from 'zustand/react/shallow'
 
+// eslint-disable-next-line import/no-unused-modules
 export function useCloseModal(): () => void {
   const { closeModals } = useBoundStore(useShallow((state) => ({ closeModals: state.closeModals })))
 
@@ -22,5 +23,5 @@ function useModal(modal: ModalType): [boolean, () => void] {
 }
 
 export const useWalletConnectModal = () => useModal(ModalType.WALLET_CONNECT)
-
+// eslint-disable-next-line import/no-unused-modules
 export const useWalletOverviewModal = () => useModal(ModalType.WALLET_OVERVIEW)
