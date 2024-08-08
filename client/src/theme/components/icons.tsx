@@ -13,3 +13,9 @@ export const Close = (props: SVGProps) => (
     <line x1="3.2" y1="2.8" x2="12.8" y2="13.2" stroke="currentColor" strokeLinecap="round" strokeWidth="2" />
   </svg>
 )
+
+export const Starknet = (props: SVGProps) => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="currentColor" {...props}>
+    <path d="M20.5,20.9,17,31.4a1.1,1.1,0,0,1-1.5.5,1.2,1.2,0,0,1-.5-.5L11.5,20.9a.8.8,0,0,0-.4-.4L.6,17a1.1,1.1,0,0,1-.5-1.5L.6,15l10.5-3.5a.8.8,0,0,0,.4-.4L15,.6A1.1,1.1,0,0,1,16.5.1l.5.5,3.5,10.5.4.4L31.4,15a1.1,1.1,0,0,1,.5,1.5,1.2,1.2,0,0,1-.5.5L20.9,20.5Z" />
+  </svg>
+)

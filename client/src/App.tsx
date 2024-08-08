@@ -2,6 +2,7 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import Layout from 'src/components/Layout'
 
 import SwapPage from './pages/Swap'
+import StarknetProvider from './providers/StarknetProvider'
 
 const router = createBrowserRouter([
   {
@@ -15,5 +16,9 @@ const router = createBrowserRouter([
 ])
 
 export default function App() {
-  return <RouterProvider router={router} />
+  return (
+    <StarknetProvider>
+      <RouterProvider router={router} />
+    </StarknetProvider>
+  )
 }

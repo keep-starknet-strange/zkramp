@@ -13,3 +13,17 @@ export const PrimaryButton = styled.button`
     cursor: default;
   }
 `
+
+// eslint-disable-next-line import/no-unused-modules
+export const OutlineButton = styled.button`
+  border-radius: 12px;
+  padding: 12px 24px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  background: transparent;
+  border: 1px solid ${({ theme }) => theme.white};
+  color: ${({ theme }) => theme.white};
+`
