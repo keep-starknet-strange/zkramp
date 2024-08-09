@@ -1,11 +1,13 @@
 #[starknet::component]
 pub mod TLSProcessorComponent {
     use core::num::traits::zero::Zero;
-    use zkramp::components::processors::tls::interface;
-    use zkramp::contracts::nullifier_registry::interface::{NullifierRegistryABIDispatcher, NullifierRegistryABIDispatcherTrait};
     use openzeppelin::access::ownable::OwnableComponent;
     use openzeppelin::access::ownable::ownable::OwnableComponent::InternalTrait as OwnableInternalTrait;
     use starknet::{ContractAddress, get_caller_address};
+    use zkramp::components::processors::tls::interface;
+    use zkramp::contracts::nullifier_registry::interface::{
+        NullifierRegistryABIDispatcher, NullifierRegistryABIDispatcherTrait
+    };
 
     //
     // Storage
@@ -43,9 +45,9 @@ pub mod TLSProcessorComponent {
         +Drop<TContractState>,
         impl Ownable: OwnableComponent::HasComponent<TContractState>
     > of interface::ITLSProcessor<ComponentState<TContractState>> {
-        /// @notice ONLY OWNER: Sets the timestamp buffer for validated TLS calls. This is the amount of time in seconds
-        /// that the timestamp can be off by and still be considered valid. Necessary to build in flexibility with L2
-        /// timestamps.
+        /// @notice ONLY OWNER: Sets the timestamp buffer for validated TLS calls. This is the
+        /// amount of time in seconds that the timestamp can be off by and still be considered
+        /// valid. Necessary to build in flexibility with L2 timestamps.
         ///
         /// @param timestamp_buffer    The timestamp buffer for validated TLS calls
         ///
@@ -93,11 +95,15 @@ pub mod TLSProcessorComponent {
             assert(caller == ramp, Errors::NOT_RAMP);
         }
 
-        fn _validate_TLS_endpoint(self: @ComponentState<TContractState>, expected_endpoint: ByteArray, endpoint: ByteArray) {
+        fn _validate_TLS_endpoint(
+            self: @ComponentState<TContractState>, expected_endpoint: ByteArray, endpoint: ByteArray
+        ) {
             assert(expected_endpoint == endpoint, Errors::BAD_ENDPOINT);
         }
 
-        fn _validate_TLS_host(self: @ComponentState<TContractState>, expected_host: ByteArray, host: ByteArray) {
+        fn _validate_TLS_host(
+            self: @ComponentState<TContractState>, expected_host: ByteArray, host: ByteArray
+        ) {
             assert(expected_host == host, Errors::BAD_HOST);
         }
 
@@ -108,8 +114,9 @@ pub mod TLSProcessorComponent {
             nullifier_registry.add_nullifier(:nullifier);
         }
 
-        fn _validate_signature(self: @ComponentState<TContractState>, ) {
-            // TODO: verifiy signature, can we use SNIP-12?
+        fn _validate_signature(
+            self: @ComponentState<TContractState>,
+        ) { // TODO: verifiy signature, can we use SNIP-12?
         }
     }
 }
