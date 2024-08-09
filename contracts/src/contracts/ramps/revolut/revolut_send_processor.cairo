@@ -1,9 +1,9 @@
 #[starknet::contract]
 pub mod RevolutSendProcessor {
-    use zkramp::components::processors::TLSProcessorComponent;
-    use zkramp::contracts::nullifier_registry::interface::NullifierRegistryABIDispatcher;
     use openzeppelin::access::ownable::OwnableComponent;
     use starknet::ContractAddress;
+    use zkramp::components::processors::TLSProcessorComponent;
+    use zkramp::contracts::nullifier_registry::interface::NullifierRegistryABIDispatcher;
 
     component!(path: TLSProcessorComponent, storage: tls_processor, event: TLSProcessorEvent);
     component!(path: OwnableComponent, storage: ownable, event: OwnableEvent);
