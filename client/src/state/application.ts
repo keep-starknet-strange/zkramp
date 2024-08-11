@@ -22,7 +22,7 @@ interface Actions {
 
 export const createApplicationSlice: StateCreator<StoreState, [['zustand/immer', never]], [], ApplicationSlice> = (
   set,
-  get,
+  get
 ) => ({
   modal: null,
 
