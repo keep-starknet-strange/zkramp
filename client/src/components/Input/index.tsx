@@ -20,8 +20,6 @@ const StyledInput = styled.input`
 
   &:focus {
     outline: none;
-    // border-color: #66afe9;
-    // box-shadow: 0 0 5px rgba(102, 175, 233, 0.5);
   }
 `
 

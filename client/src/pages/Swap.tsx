@@ -48,7 +48,6 @@ export default function SwapPage() {
           </InputCardGroup>
 
           <InputCardGroup gap={16}>
-            {/* <input type="text" placeholder="0" style={{ flex: 1 }} /> */}
             <CurrencyInput placeholder="0" value={inputRequestValue} onChange={handleRequestChange} />
             <ThemedText.HeadlineSmall>USDC</ThemedText.HeadlineSmall>
           </InputCardGroup>
@@ -60,7 +59,6 @@ export default function SwapPage() {
           </InputCardGroup>
 
           <InputCardGroup gap={16}>
-            {/* <input type="text" placeholder="0" style={{ flex: 1 }} /> */}
             <CurrencyInput placeholder="0" value={inputSendValue} onChange={handleSendChange} />
             <ThemedText.HeadlineSmall>USD</ThemedText.HeadlineSmall>
           </InputCardGroup>
