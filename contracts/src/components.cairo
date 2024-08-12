@@ -1,2 +1,2 @@
 pub mod processors;
-pub mod registers;
+pub mod registry;

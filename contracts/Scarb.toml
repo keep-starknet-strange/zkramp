@@ -5,7 +5,7 @@ edition = "2023_11"
 
 [dependencies]
 starknet = "2.6.4"
-openzeppelin = { git = "https://github.com/openzeppelin/cairo-contracts", tag = "v0.14.0" }
+openzeppelin = { git = "https://github.com/openzeppelin/cairo-contracts", tag = "v0.15.0" }
 
 [tool.fmt]
 sort-module-level-items = true
