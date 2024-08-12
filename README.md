@@ -73,6 +73,7 @@ Thanks goes to these wonderful people. Follow the [contributors guide](https://g
       <td align="center" valign="top" width="14.28%"><a href="https://rules.art/"><img src="https://avatars.githubusercontent.com/u/19663399?v=4?s=100" width="100px;" alt="Chqrles"/><br /><sub><b>Chqrles</b></sub></a><br /><a href="https://github.com/starkware/zkramp/commits?author=0xChqrles" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://ugureren.net/"><img src="https://avatars.githubusercontent.com/u/86152092?v=4?s=100" width="100px;" alt="Uğur Eren"/><br /><sub><b>Uğur Eren</b></sub></a><br /><a href="https://github.com/starkware/zkramp/commits?author=ugur-eren" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/lindsaymoralesb"><img src="https://avatars.githubusercontent.com/u/87027508?v=4?s=100" width="100px;" alt="Lindsay Morales"/><br /><sub><b>Lindsay Morales</b></sub></a><br /><a href="https://github.com/starkware/zkramp/commits?author=lindsaymoralesb" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/chachaleo"><img src="https://avatars.githubusercontent.com/u/49371958?v=4?s=100" width="100px;" alt="Charlotte"/><br /><sub><b>Charlotte</b></sub></a><br /><a href="https://github.com/starkware/zkramp/commits?author=chachaleo" title="Code">💻</a></td>
     </tr>
   </tbody>
   <tfoot>
