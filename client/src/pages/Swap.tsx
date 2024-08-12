@@ -1,6 +1,8 @@
+import { ChangeEvent, useState } from 'react'
 import { PrimaryButton } from 'src/components/Button'
 import { Card } from 'src/components/Card'
 import { Column, Row } from 'src/components/Flex'
+import { CurrencyInput } from 'src/components/Input'
 import { ThemedText } from 'src/theme/components'
 import { styled } from 'styled-components'
 
@@ -21,6 +23,19 @@ const SwapCard = styled(Card)`
 `
 
 export default function SwapPage() {
+  const [inputRequestValue, setInputRequestValue] = useState<string>('')
+  const [inputSendValue, setInputSendValue] = useState<string>('')
+
+  const handleRequestChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const inputValue = event.target.value
+    const numericValue = inputValue.replace(/[^0-9]/g, '')
+    setInputRequestValue(numericValue)
+  }
+  const handleSendChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const inputValue = event.target.value
+    const numericValue = inputValue.replace(/[^0-9]/g, '')
+    setInputSendValue(numericValue)
+  }
   return (
     <Layout>
       <SwapCard gap={16} alignItems="flex-start">
@@ -33,7 +48,8 @@ export default function SwapPage() {
           </InputCardGroup>
 
           <InputCardGroup gap={16}>
-            <input type="text" placeholder="0" style={{ flex: 1 }} />
+            {/* <input type="text" placeholder="0" style={{ flex: 1 }} /> */}
+            <CurrencyInput placeholder="0" value={inputRequestValue} onChange={handleRequestChange} />
             <ThemedText.HeadlineSmall>USDC</ThemedText.HeadlineSmall>
           </InputCardGroup>
         </Card>
@@ -44,7 +60,8 @@ export default function SwapPage() {
           </InputCardGroup>
 
           <InputCardGroup gap={16}>
-            <input type="text" placeholder="0" style={{ flex: 1 }} />
+            {/* <input type="text" placeholder="0" style={{ flex: 1 }} /> */}
+            <CurrencyInput placeholder="0" value={inputSendValue} onChange={handleSendChange} />
             <ThemedText.HeadlineSmall>USD</ThemedText.HeadlineSmall>
           </InputCardGroup>
         </Card>
