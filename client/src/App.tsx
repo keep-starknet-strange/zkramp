@@ -1,6 +1,7 @@
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import Layout from 'src/components/Layout'
 
+import RegisterPage from './pages/RegisterPage'
 import SwapPage from './pages/Swap'
 import StarknetProvider from './providers/StarknetProvider'
 
@@ -10,6 +11,14 @@ const router = createBrowserRouter([
     element: (
       <Layout>
         <SwapPage />
+      </Layout>
+    ),
+  },
+  {
+    path: '/register',
+    element: (
+      <Layout>
+        <RegisterPage />
       </Layout>
     ),
   },

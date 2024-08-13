@@ -20,6 +20,6 @@ export const useBoundStore = create<StoreState>()(
           ;(acc as any)[key] = state[key]
           return acc
         }, {} as StoreState),
-    },
-  ),
+    }
+  )
 )
