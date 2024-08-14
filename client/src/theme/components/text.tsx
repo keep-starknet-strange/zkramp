@@ -27,6 +27,10 @@ export const ThemedText = {
     return <TextWrapper {...props} />
   },
 
+  HeadlineLarge(props: TextProps) {
+    return <TextWrapper fontWeight={500} fontSize={36} color="neutral1" fontFamily="Montserrat" {...props} />
+  },
+
   HeadlineSmall(props: TextProps) {
     return <TextWrapper fontWeight={500} fontSize={20} color="neutral1" fontFamily="Montserrat" {...props} />
   },

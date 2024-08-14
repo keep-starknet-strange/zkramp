@@ -5,14 +5,14 @@ const colors = {
   black: '#000000',
 
   neutral1_dark: '#ffffff',
-  neutral2_dark: 'rgba(235, 235, 245, 0.45)',
+  neutral2_dark: 'rgba(240, 247, 244, 0.5)',
 }
 
 const commonTheme = {
   white: colors.white,
   black: colors.black,
 
-  accent1: '#5E5CE6',
+  accent1: '#FF3864',
 }
 
 export const darkTheme = {
@@ -20,10 +20,11 @@ export const darkTheme = {
 
   bg1: '#000000',
   bg2: '#121216',
+  bg3: '#181F25',
 
   surface: '#0D0D12',
 
-  border: '#636373',
+  border: 'rgba(240, 247, 244, 0.1)',
 
   neutral1: colors.neutral1_dark,
   neutral2: colors.neutral2_dark,
