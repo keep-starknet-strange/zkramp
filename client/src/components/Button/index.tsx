@@ -2,10 +2,11 @@ import styled from 'styled-components'
 
 export const PrimaryButton = styled.button`
   width: 100%;
-  padding: ${({ theme }) => theme.grids.md};
+  padding: 16px;
   background-color: ${({ theme }) => theme.accent1};
   border: 0;
-  border-radius: 6px;
+  border-radius: 12px;
+  font-weight: 500;
   cursor: pointer;
 
   &:disabled {

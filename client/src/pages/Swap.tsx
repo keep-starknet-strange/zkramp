@@ -1,73 +1,154 @@
 import { ChangeEvent, useState } from 'react'
 import { PrimaryButton } from 'src/components/Button'
-import { Card } from 'src/components/Card'
+import { CurrencyButton } from 'src/components/CurrencyButton'
 import { Column, Row } from 'src/components/Flex'
 import { CurrencyInput } from 'src/components/Input'
 import { ThemedText } from 'src/theme/components'
+import { ArrowDown } from 'src/theme/components/icons'
 import { styled } from 'styled-components'
+
+import EURLogo from '../assets/eur.png'
+import RevolutLogo from '../assets/revolut.png'
+import USDCLogo from '../assets/usdc.png'
 
 const Layout = styled(Column)`
   margin: 0 auto;
   justify-content: center;
-  gap: 16px;
   height: 100vh;
 `
 
-const InputCardGroup = styled(Row)`
+const Content = styled(Column)`
+  max-width: 460px;
   width: 100%;
-  justify-content: space-between;
 `
 
-const SwapCard = styled(Card)`
-  width: 460px;
+const Headline = styled(Row)`
+  width: 100%;
+  justify-content: space-between;
+  margin-bottom: ${({ theme }) => theme.grids.md};
+`
+
+const PlatformCard = styled(Row)`
+  border: 1px solid ${({ theme }) => theme.border};
+  border-radius: 12px;
+
+  img {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+  }
+
+  > div {
+    padding: ${({ theme }) => theme.grids.sm} ${({ theme }) => theme.grids.md};
+  }
+`
+
+const SwapCards = styled(Column)`
+  position: relative;
+  width: 100%;
+`
+
+const SwapCard = styled(Row)`
+  width: 100%;
+  background-color: ${({ theme }) => theme.bg3};
+  border-radius: 12px;
+  padding: ${({ theme }) => theme.grids.md} 16px;
+`
+
+const SwapCardContent = styled(Column)`
+  flex: 1;
+  align-items: flex-start;
+
+  input {
+    width: 100%;
+    padding-top: ${({ theme }) => theme.grids.md};
+    padding-bottom: ${({ theme }) => theme.grids.lg};
+    font-size: 42px;
+    font-weight: 600;
+    color: ${({ theme }) => theme.neutral1};
+
+    &::placeholder {
+      color: ${({ theme }) => theme.neutral2};
+    }
+  }
+`
+
+const ChangeButton = styled.button`
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: ${({ theme }) => theme.neutral1};
+  transform: translateX(-50%) translateY(-50%);
+  background-color: ${({ theme }) => theme.bg3};
+  border: 4px solid ${({ theme }) => theme.bg2};
+  border-radius: 6px;
+  padding: 6px;
+  cursor: pointer;
 `
 
 export default function SwapPage() {
-  const [inputRequestValue, setInputRequestValue] = useState<string>('')
-  const [inputSendValue, setInputSendValue] = useState<string>('')
+  const [inputRequestValue, setInputRequestValue] = useState('')
+  const [inputSendValue, setInputSendValue] = useState('')
 
   const handleRequestChange = (event: ChangeEvent<HTMLInputElement>) => {
     const inputValue = event.target.value
     const numericValue = inputValue.replace(/[^0-9]/g, '')
     setInputRequestValue(numericValue)
   }
+
   const handleSendChange = (event: ChangeEvent<HTMLInputElement>) => {
     const inputValue = event.target.value
     const numericValue = inputValue.replace(/[^0-9]/g, '')
     setInputSendValue(numericValue)
   }
+
   return (
     <Layout>
-      <SwapCard gap={16} alignItems="flex-start">
-        <ThemedText.HeadlineSmall>Swap</ThemedText.HeadlineSmall>
+      <Content gap={12}>
+        <Headline>
+          <ThemedText.HeadlineLarge>Swap</ThemedText.HeadlineLarge>
 
-        <Card gap={12} bg="surface">
-          <InputCardGroup gap={16}>
-            <ThemedText.BodyPrimary>Requesting</ThemedText.BodyPrimary>
-            <ThemedText.BodyPrimary>Balance: 0</ThemedText.BodyPrimary>
-          </InputCardGroup>
+          <PlatformCard>
+            <img src={RevolutLogo} alt="Revolut" />
 
-          <InputCardGroup gap={16}>
-            <CurrencyInput placeholder="0" value={inputRequestValue} onChange={handleRequestChange} />
-            <ThemedText.HeadlineSmall>USDC</ThemedText.HeadlineSmall>
-          </InputCardGroup>
-        </Card>
+            <Column alignItems="flex-start">
+              <ThemedText.Title fontWeight={400}>Revolut</ThemedText.Title>
+              <ThemedText.BodyPrimary fontSize={12}>Platform</ThemedText.BodyPrimary>
+            </Column>
+          </PlatformCard>
+        </Headline>
 
-        <Card gap={12} bg="surface">
-          <InputCardGroup gap={16}>
-            <ThemedText.BodyPrimary>You send</ThemedText.BodyPrimary>
-          </InputCardGroup>
+        <SwapCards gap={4}>
+          <SwapCard as="label">
+            <SwapCardContent>
+              <ThemedText.BodyPrimary fontSize={12}>Send</ThemedText.BodyPrimary>
+              <CurrencyInput placeholder="0.0" value={inputSendValue} onChange={handleSendChange} />
+            </SwapCardContent>
 
-          <InputCardGroup gap={16}>
-            <CurrencyInput placeholder="0" value={inputSendValue} onChange={handleSendChange} />
-            <ThemedText.HeadlineSmall>USD</ThemedText.HeadlineSmall>
-          </InputCardGroup>
-        </Card>
+            <CurrencyButton availableCurrencies={{ EUR: { img: EURLogo, name: 'EUR' } }} selectedCurrency="EUR" />
+          </SwapCard>
+
+          <SwapCard as="label">
+            <SwapCardContent>
+              <ThemedText.BodyPrimary fontSize={12}>Receive</ThemedText.BodyPrimary>
+              <CurrencyInput placeholder="0.0" value={inputRequestValue} onChange={handleRequestChange} />
+            </SwapCardContent>
+
+            <CurrencyButton availableCurrencies={{ USDC: { img: USDCLogo, name: 'USDC' } }} selectedCurrency="USDC" />
+          </SwapCard>
+
+          <ChangeButton>
+            <ArrowDown width={18} height={18} />
+          </ChangeButton>
+        </SwapCards>
 
         <PrimaryButton>
           <ThemedText.Title>Swap</ThemedText.Title>
         </PrimaryButton>
-      </SwapCard>
+      </Content>
     </Layout>
   )
 }
