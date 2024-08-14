@@ -1,19 +1,31 @@
-#[starknet::interface]
-trait IRegisterContract<ContractState> {
-    fn register_user(ref self: ContractState, revolut_ID: felt252);
-}
-
 #[starknet::component]
-mod RegistryComponent {
-    use starknet::storage::Map;
+pub mod RegistryComponent {
+    use core::num::traits::Zero;
+use starknet::storage::Map;
     use starknet::{ContractAddress, get_caller_address};
     use zkramp::components::registry::interface::OffchainId;
     use zkramp::components::registry::interface;
+
+    //
+    // Storage
+    //
 
     #[storage]
     struct Storage {
         Registry_registrations: Map::<(ContractAddress, OffchainId), bool>,
     }
+
+    //
+    // Errors
+    //
+
+    pub mod Errors {
+        pub const ZERO_ADDRESS_CALLER: felt252 = 'Caller is the zero address';
+    }
+
+    //
+    // Registry impl
+    //
 
     #[embeddable_as(RegistryImpl)]
     impl Registry<
@@ -29,6 +41,9 @@ mod RegistryComponent {
 
         fn register(ref self: ComponentState<TContractState>, offchain_id: OffchainId) {
             let caller = get_caller_address();
+
+            // verify caller
+            assert(caller.is_non_zero(), Errors::ZERO_ADDRESS_CALLER);
 
             // TODO: caller a processor to verify the proof of registration
 
