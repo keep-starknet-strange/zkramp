@@ -88,22 +88,29 @@ const ChangeButton = styled.button`
 `
 
 export default function SwapPage() {
-  const [sendCurrency, setSendCurrency] = useState<FIAT_CURRENCY>(FIAT_CURRENCY.EUR)
-  const [receiveCurrency, setReceiveCurreny] = useState<TOKEN_CURRENCY>(TOKEN_CURRENCY.USDC)
+  const [swapType, setSwapType] = useState<'fiatToToken' | 'tokenToFiat'>('fiatToToken')
+  const [fiatCurrency, setFiatCurrency] = useState<FIAT_CURRENCY>(FIAT_CURRENCY.EUR)
+  const [tokenCurrency, setTokenCurrency] = useState<TOKEN_CURRENCY>(TOKEN_CURRENCY.USDC)
 
-  const [inputRequestValue, setInputRequestValue] = useState('')
   const [inputSendValue, setInputSendValue] = useState('')
+  const [inputReceiveValue, setInputReceiveValue] = useState('')
 
-  const handleRequestChange = (event: ChangeEvent<HTMLInputElement>) => {
+  const handleReceiveChange = (event: ChangeEvent<HTMLInputElement>) => {
     const inputValue = event.target.value
     const numericValue = inputValue.replace(/[^0-9]/g, '')
-    setInputRequestValue(numericValue)
+    setInputReceiveValue(numericValue)
   }
 
   const handleSendChange = (event: ChangeEvent<HTMLInputElement>) => {
     const inputValue = event.target.value
     const numericValue = inputValue.replace(/[^0-9]/g, '')
     setInputSendValue(numericValue)
+  }
+
+  const handleChangeClick = () => {
+    setSwapType(swapType === 'fiatToToken' ? 'tokenToFiat' : 'fiatToToken')
+    setInputSendValue(inputReceiveValue)
+    setInputReceiveValue(inputSendValue)
   }
 
   return (
@@ -129,19 +136,27 @@ export default function SwapPage() {
               <CurrencyInput placeholder="0.0" value={inputSendValue} onChange={handleSendChange} />
             </SwapCardContent>
 
-            <CurrencyButton availableCurrencies={FIAT_CURRENCIES} selectedCurrency={sendCurrency} />
+            {swapType === 'fiatToToken' ? (
+              <CurrencyButton availableCurrencies={FIAT_CURRENCIES} selectedCurrency={fiatCurrency} />
+            ) : (
+              <CurrencyButton availableCurrencies={TOKEN_CURRENCIES} selectedCurrency={tokenCurrency} />
+            )}
           </SwapCard>
 
           <SwapCard as="label">
             <SwapCardContent>
               <ThemedText.BodyPrimary fontSize={12}>Receive</ThemedText.BodyPrimary>
-              <CurrencyInput placeholder="0.0" value={inputRequestValue} onChange={handleRequestChange} />
+              <CurrencyInput placeholder="0.0" value={inputReceiveValue} onChange={handleReceiveChange} />
             </SwapCardContent>
 
-            <CurrencyButton availableCurrencies={TOKEN_CURRENCIES} selectedCurrency={receiveCurrency} />
+            {swapType === 'fiatToToken' ? (
+              <CurrencyButton availableCurrencies={TOKEN_CURRENCIES} selectedCurrency={tokenCurrency} />
+            ) : (
+              <CurrencyButton availableCurrencies={FIAT_CURRENCIES} selectedCurrency={fiatCurrency} />
+            )}
           </SwapCard>
 
-          <ChangeButton>
+          <ChangeButton onClick={handleChangeClick}>
             <ArrowDown width={18} height={18} />
           </ChangeButton>
         </SwapCards>
