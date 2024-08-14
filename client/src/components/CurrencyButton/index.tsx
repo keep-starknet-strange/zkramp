@@ -1,3 +1,4 @@
+import { Currency } from 'src/constants/currencies'
 import { ThemedText } from 'src/theme/components'
 import { ChevronDown } from 'src/theme/components/icons'
 import styled from 'styled-components'
@@ -18,11 +19,6 @@ const CurrencyCard = styled(Row)`
     border-radius: 28px;
   }
 `
-
-type Currency = {
-  img: string
-  name: string
-}
 
 type CurrencyButtonProps<
   TSymbols extends string,

@@ -1,15 +1,13 @@
 import { ChangeEvent, useState } from 'react'
+import RevolutLogo from 'src/assets/revolut.png'
 import { PrimaryButton } from 'src/components/Button'
 import { CurrencyButton } from 'src/components/CurrencyButton'
 import { Column, Row } from 'src/components/Flex'
 import { CurrencyInput } from 'src/components/Input'
+import { FIAT_CURRENCIES, FIAT_CURRENCY, TOKEN_CURRENCIES, TOKEN_CURRENCY } from 'src/constants/currencies'
 import { ThemedText } from 'src/theme/components'
 import { ArrowDown } from 'src/theme/components/icons'
 import { styled } from 'styled-components'
-
-import EURLogo from '../assets/eur.png'
-import RevolutLogo from '../assets/revolut.png'
-import USDCLogo from '../assets/usdc.png'
 
 const Layout = styled(Column)`
   margin: 0 auto;
@@ -90,6 +88,9 @@ const ChangeButton = styled.button`
 `
 
 export default function SwapPage() {
+  const [sendCurrency, setSendCurrency] = useState<FIAT_CURRENCY>(FIAT_CURRENCY.EUR)
+  const [receiveCurrency, setReceiveCurreny] = useState<TOKEN_CURRENCY>(TOKEN_CURRENCY.USDC)
+
   const [inputRequestValue, setInputRequestValue] = useState('')
   const [inputSendValue, setInputSendValue] = useState('')
 
@@ -128,7 +129,7 @@ export default function SwapPage() {
               <CurrencyInput placeholder="0.0" value={inputSendValue} onChange={handleSendChange} />
             </SwapCardContent>
 
-            <CurrencyButton availableCurrencies={{ EUR: { img: EURLogo, name: 'EUR' } }} selectedCurrency="EUR" />
+            <CurrencyButton availableCurrencies={FIAT_CURRENCIES} selectedCurrency={sendCurrency} />
           </SwapCard>
 
           <SwapCard as="label">
@@ -137,7 +138,7 @@ export default function SwapPage() {
               <CurrencyInput placeholder="0.0" value={inputRequestValue} onChange={handleRequestChange} />
             </SwapCardContent>
 
-            <CurrencyButton availableCurrencies={{ USDC: { img: USDCLogo, name: 'USDC' } }} selectedCurrency="USDC" />
+            <CurrencyButton availableCurrencies={TOKEN_CURRENCIES} selectedCurrency={receiveCurrency} />
           </SwapCard>
 
           <ChangeButton>
