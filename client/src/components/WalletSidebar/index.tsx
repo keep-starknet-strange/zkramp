@@ -1,4 +1,4 @@
-import { useAccount } from '@starknet-react/core'
+import { useAccount, useDisconnect } from '@starknet-react/core'
 import { Link } from 'react-router-dom'
 import { ThemedText } from 'src/theme/components'
 import { DoubleChevronRight, Logout, StarknetLogo, UserCheck } from 'src/theme/components/icons'
@@ -61,8 +61,13 @@ const LinkItem = styled(Row)`
   }
 `
 
-export default function WalletSidebar() {
+type WalletSidebarProps = {
+  onClose?: () => void
+}
+
+export default function WalletSidebar({ onClose }: WalletSidebarProps) {
   const { address } = useAccount()
+  const { disconnect } = useDisconnect()
 
   if (!address) return
 
@@ -77,7 +82,7 @@ export default function WalletSidebar() {
             </ThemedText.Title>
           </Row>
 
-          <CloseButton>
+          <CloseButton onClick={onClose}>
             <DoubleChevronRight width={24} height={24} />
           </CloseButton>
         </WalletInfo>
@@ -88,7 +93,7 @@ export default function WalletSidebar() {
             <ThemedText.BodyPrimary>Registration</ThemedText.BodyPrimary>
           </LinkItem>
 
-          <LinkItem as="button">
+          <LinkItem as="button" onClick={() => disconnect()}>
             <Logout width={28} height={28} color="#FF3442" />
             <ThemedText.BodyPrimary>Disconnect</ThemedText.BodyPrimary>
           </LinkItem>

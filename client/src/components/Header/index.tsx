@@ -8,6 +8,7 @@ import styled from 'styled-components'
 import { ConnectButton } from '../Button'
 import { ConnectWalletModal } from '../ConnectWalletModal'
 import { Row } from '../Flex'
+import WalletSidebar from '../WalletSidebar'
 
 const Container = styled(Row)`
   justify-content: space-between;
@@ -38,7 +39,9 @@ const ConnectWalletDropdown = styled(ConnectWalletModal)`
 const AccountChip = styled(Row)`
   padding: 6px 8px;
   background-color: ${({ theme }) => theme.bg3};
+  border: none;
   border-radius: 99px;
+  cursor: pointer;
 `
 
 const AccountStatusIcon = styled.div`
@@ -50,11 +53,19 @@ const AccountStatusIcon = styled.div`
 
 export default function Header() {
   const [connectDropdownShown, setConnectDropdownShown] = useState(false)
+  const [walletSidebarShown, setWalletSidebarShown] = useState(false)
 
   const { address } = useAccount()
 
   const toggleConnectDropdown = () => {
     setConnectDropdownShown((prev) => !prev)
+  }
+
+  const showWalletSidebar = () => {
+    setWalletSidebarShown(true)
+  }
+  const hideWalletSidebar = () => {
+    setWalletSidebarShown(false)
   }
 
   return (
@@ -74,7 +85,7 @@ export default function Header() {
       </Row>
 
       {address ? (
-        <AccountChip gap={4}>
+        <AccountChip as="button" gap={4} onClick={showWalletSidebar}>
           <AccountStatusIcon />
 
           <ThemedText.Title fontWeight={400}>
@@ -88,6 +99,8 @@ export default function Header() {
           {connectDropdownShown && <ConnectWalletDropdown />}
         </ConnectContainer>
       )}
+
+      {walletSidebarShown && <WalletSidebar onClose={hideWalletSidebar} />}
     </Container>
   )
 }
