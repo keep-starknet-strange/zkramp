@@ -29,6 +29,31 @@ const RegisterCard = styled(Card)`
 
 export default function RegisterPage() {
   const [displayRegister, setDisplayRegister] = useState(false)
+  const [zkrampClient, setZkrampClient] = useState(null)
+
+  const handleExtension = async () => {
+    try {
+      // @ts-ignore
+      if (!window.zkramp) {
+        console.log('Please install zkramp first')
+        return
+      }
+      if (!zkrampClient) {
+        // @ts-ignore
+        const client = await zkramp.connect()
+        setZkrampClient(client)
+        // Substitute extractData for the future function to get revolut ID
+        const response = await client.extractData('secret')
+        console.log('response', response)
+      } else {
+        // Substitute extractData for the future function to get revolut ID
+        const response = await (zkrampClient as any).extractData('secret')
+        console.log('response', response)
+      }
+    } catch (error) {
+      console.error('Error connecting to zkramp:', error)
+    }
+  }
 
   return (
     <Layout>
@@ -58,7 +83,7 @@ export default function RegisterPage() {
               existing Revtag.
             </Card>
 
-            <PrimaryButton>
+            <PrimaryButton onClick={handleExtension}>
               <ThemedText.Title>Open Sidebar</ThemedText.Title>
             </PrimaryButton>
           </RegisterCard>
