@@ -28,6 +28,8 @@ module.exports = {
   entry: {
     main: './src/entries/UI',
     background: './src/entries/Background',
+    content: './src/entries/Content/content.ts',
+    contentScript: './src/entries/Content/index.ts',
   },
   performance: {
     hints: false,
