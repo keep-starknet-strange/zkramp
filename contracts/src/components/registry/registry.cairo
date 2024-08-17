@@ -1,7 +1,7 @@
 #[starknet::component]
 pub mod RegistryComponent {
     use core::num::traits::Zero;
-use starknet::storage::Map;
+    use starknet::storage::Map;
     use starknet::{ContractAddress, get_caller_address};
     use zkramp::components::registry::interface::OffchainId;
     use zkramp::components::registry::interface;
@@ -21,6 +21,23 @@ use starknet::storage::Map;
 
     pub mod Errors {
         pub const ZERO_ADDRESS_CALLER: felt252 = 'Caller is the zero address';
+    }
+
+    //
+    // Registration Event
+    //
+
+    #[event]
+    #[derive(Drop, starknet::Event)]
+    pub enum Event {
+        RegistrationEvent: RegistrationEvent,
+    }
+
+    #[derive(Drop, starknet::Event)]
+    pub struct RegistrationEvent {
+        #[key]
+        caller: ContractAddress,
+        offchain_id: OffchainId,
     }
 
     //
@@ -48,7 +65,10 @@ use starknet::storage::Map;
             // TODO: caller a processor to verify the proof of registration
 
             // save registration
-            self.Registry_registrations.write((caller, offchain_id), true)
+            self.Registry_registrations.write((caller, offchain_id.clone()), true);
+
+            // emit registration event
+            self.emit(RegistrationEvent { caller : caller, offchain_id : offchain_id });
         }
     }
 }
