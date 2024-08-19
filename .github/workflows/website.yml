@@ -17,13 +17,13 @@ jobs:
           node-version: '18'
       
       - name: Install dependencies
-        run: npm install
+        run: yarn install
         working-directory: website
       
       - name: Build the project
-        run: npm run build
+        run: yarn build
         working-directory: website
 
       - name: Run linting
-        run: npm run lint
+        run: yarn lint
         working-directory: website
