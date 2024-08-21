@@ -6,7 +6,6 @@ use zkramp::components::registry::registry_mock::RegistryMock;
 use zkramp::tests::constants;
 use zkramp::tests::utils;
 
-
 /// Deploys the registry mock contract.
 fn setup_contracts() -> IRegistryDispatcher {
     // deploy registry

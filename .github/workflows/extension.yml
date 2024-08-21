@@ -1,0 +1,29 @@
+name: extension
+
+on: [push, pull_request]
+
+permissions: read-all
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '18'
+      
+      - name: Install dependencies
+        run: yarn install
+        working-directory: extension
+      
+      - name: Build the project
+        run: yarn build
+        working-directory: extension
+
+      - name: Run linting
+        run: yarn lint
+        working-directory: extension
