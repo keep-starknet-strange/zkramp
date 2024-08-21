@@ -1,12 +1,14 @@
 use zkramp::components::registry::interface::{IRegistryDispatcher, IRegistryDispatcherTrait};
 use zkramp::components::registry::registry_mock::RegistryMock;
-use zkramp::tests::utils;
 use zkramp::tests::constants;
+use zkramp::tests::utils;
 
 /// Deploys the registry mock contract.
 fn setup_contracts() -> IRegistryDispatcher {
     // deploy registry
-    let registry_contract_address = utils::deploy(RegistryMock::TEST_CLASS_HASH, calldata: array![]);
+    let registry_contract_address = utils::deploy(
+        RegistryMock::TEST_CLASS_HASH, calldata: array![]
+    );
 
     IRegistryDispatcher { contract_address: registry_contract_address }
 }
