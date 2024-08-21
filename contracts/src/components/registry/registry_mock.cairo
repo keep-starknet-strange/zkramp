@@ -39,8 +39,7 @@ pub mod RegistryMock {
     //
 
     #[constructor]
-    fn constructor(ref self: ContractState) {
-        // Nothing to be done
+    fn constructor(ref self: ContractState) { // Nothing to be done
     }
 }
 

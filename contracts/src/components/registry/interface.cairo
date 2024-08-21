@@ -2,7 +2,7 @@ use core::hash::HashStateExTrait;
 use starknet::ContractAddress;
 use zkramp::utils::hash::HashSerializable;
 
-#[derive(Drop, Serde, Clone)]
+#[derive(Drop, Serde, Clone, Debug, PartialEq)]
 pub enum OffchainId {
     Revolut: ByteArray
 }

@@ -28,16 +28,16 @@ pub mod RegistryComponent {
     //
 
     #[event]
-    #[derive(Drop, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub enum Event {
         RegistrationEvent: RegistrationEvent,
     }
 
-    #[derive(Drop, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub struct RegistrationEvent {
         #[key]
-        caller: ContractAddress,
-        offchain_id: OffchainId,
+        pub caller: ContractAddress,
+        pub offchain_id: OffchainId,
     }
 
     //
@@ -68,7 +68,7 @@ pub mod RegistryComponent {
             self.Registry_registrations.write((caller, offchain_id.clone()), true);
 
             // emit registration event
-            self.emit(RegistrationEvent { caller : caller, offchain_id : offchain_id });
+            self.emit(RegistrationEvent { caller: caller, offchain_id: offchain_id });
         }
     }
 }
