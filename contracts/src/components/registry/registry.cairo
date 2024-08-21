@@ -68,7 +68,7 @@ pub mod RegistryComponent {
             self.Registry_registrations.write((caller, offchain_id.clone()), true);
 
             // emit registration event
-            self.emit(RegistrationEvent { caller : caller, offchain_id : offchain_id });
+            self.emit(RegistrationEvent { caller: caller, offchain_id: offchain_id });
         }
     }
 }
