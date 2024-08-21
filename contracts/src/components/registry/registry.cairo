@@ -28,16 +28,16 @@ pub mod RegistryComponent {
     //
 
     #[event]
-    #[derive(Drop, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub enum Event {
         RegistrationEvent: RegistrationEvent,
     }
 
-    #[derive(Drop, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub struct RegistrationEvent {
         #[key]
-        caller: ContractAddress,
-        offchain_id: OffchainId,
+        pub caller: ContractAddress,
+        pub offchain_id: OffchainId,
     }
 
     //
