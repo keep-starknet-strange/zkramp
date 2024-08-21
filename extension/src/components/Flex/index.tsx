@@ -13,6 +13,7 @@ export const Row = styled.div<{
   align-items: ${({ alignItems = 'center' }) => alignItems};
 `
 
+// eslint-disable-next-line import/no-unused-modules
 export const Column = styled.div<{
   gap?: number
   justify?: 'stretch' | 'center' | 'start' | 'end' | 'flex-start' | 'flex-end' | 'space-between' | 'space-around'
