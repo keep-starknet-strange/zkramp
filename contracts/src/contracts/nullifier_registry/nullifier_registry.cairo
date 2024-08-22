@@ -10,7 +10,8 @@ pub mod NullifierRegistry {
 
     #[storage]
     pub struct Storage {
-        writers: Map<ContractAddress, bool>,
+        writers: Map<u64, ContractAddress>,
+        writers_count: u64,
         is_nullified: Map<u256, bool>,
         is_writers: Map<ContractAddress, bool>
     }
@@ -57,33 +58,44 @@ pub mod NullifierRegistry {
             // emit event here
             self.emit(NullifierAdded { nullifier: nullifier, writer: get_caller_address(), });
         }
+
         fn add_write_permissions(ref self: ContractState, new_writer: ContractAddress) {
             assert(self.is_writers.read(new_writer), 'The Address is Already a writer');
             self.is_writers.write(new_writer, true);
-            self.writers.write(new_writer, true);
+            self.writers.write(self.writers_count.read() + 1, new_writer);
             // emit event
             self.emit(WriterAdded { writer: new_writer });
         }
+
         fn remove_writer_permissions(ref self: ContractState, remove_writer: ContractAddress) {
             assert!(self.is_writers.read(remove_writer), "Address is not a writer");
             self.is_writers.write(remove_writer, false);
 
-            // pull from writer array
-            self.writers.write(remove_writer, false);
+            let mut i = 0;
+            while i < self.writers_count.read() {
+                if remove_writer == self.writers.read(i) {
+                    self.writers.write(i, 0.try_into().unwrap());
+                }
+                i += 1;
+            };
 
             self.emit(WriterRemoved { writer: remove_writer });
         }
+
         fn is_nullified(self: @ContractState, nullifier: u256) -> bool {
             return self.is_nullified.read(nullifier);
         }
-        //     fn get_writers(self: @ContractState) -> ContractAddress[] {
-    //        let writers =  ArrayTrait::new()
-    //        let all_writers = self.writers.read(true);
-    //        for writer in all_writers.iter() {
-    //     writers.append(writer);
-    // }
 
-        // return writers;
-    //     }
+        fn get_writers(self: @ContractState) -> Array<ContractAddress> {
+            let mut writers = ArrayTrait::<ContractAddress>::new();
+
+            let mut i = 0;
+            while i < self.writers_count.read() {
+                writers.append(self.writers.read(i));
+                i += 1;
+            };
+
+            writers
+        }
     }
 }
