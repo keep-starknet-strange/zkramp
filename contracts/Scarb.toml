@@ -11,6 +11,7 @@ openzeppelin = { git = "https://github.com/openzeppelin/cairo-contracts", tag = 
 
 [dev-dependencies]
 cairo_test = "2.7.0"
+snforge_std = { git = "https://github.com/foundry-rs/starknet-foundry", tag = "v0.22.0" }
 
 [tool.fmt]
 sort-module-level-items = true
