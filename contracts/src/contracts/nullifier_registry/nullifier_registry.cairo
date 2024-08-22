@@ -34,12 +34,12 @@ pub mod NullifierRegistry {
         pub nullifier: u256,
         pub writer: ContractAddress
     }
-      #[derive(Drop, starknet::Event)]
+    #[derive(Drop, starknet::Event)]
     pub struct WriterAdded {
         #[key]
         pub writer: ContractAddress
     }
-        #[derive(Drop, starknet::Event)]
+    #[derive(Drop, starknet::Event)]
     pub struct WriterRemoved {
         #[key]
         pub writer: ContractAddress
@@ -55,26 +55,14 @@ pub mod NullifierRegistry {
 
             self.is_nullified.write(nullifier, true);
             // emit event here
-             self
-                .emit(
-                    NullifierAdded {
-                        nullifier: nullifier,
-                        writer: get_caller_address(),
-                        
-                    }
-                );
+            self.emit(NullifierAdded { nullifier: nullifier, writer: get_caller_address(), });
         }
         fn add_write_permissions(ref self: ContractState, new_writer: ContractAddress) {
             assert(self.is_writers.read(new_writer), 'The Address is Already a writer');
             self.is_writers.write(new_writer, true);
             self.writers.write(new_writer, true);
             // emit event
-            self
-                .emit(
-                    WriterAdded {
-                       writer: new_writer 
-                    }
-                );
+            self.emit(WriterAdded { writer: new_writer });
         }
         fn remove_writer_permissions(ref self: ContractState, remove_writer: ContractAddress) {
             assert!(self.is_writers.read(remove_writer), "Address is not a writer");
@@ -83,12 +71,7 @@ pub mod NullifierRegistry {
             // pull from writer array
             self.writers.write(remove_writer, false);
 
-            self
-                .emit(
-                    WriterRemoved {
-                       writer: remove_writer 
-                    }
-                );
+            self.emit(WriterRemoved { writer: remove_writer });
         }
         fn is_nullified(self: @ContractState, nullifier: u256) -> bool {
             return self.is_nullified.read(nullifier);
