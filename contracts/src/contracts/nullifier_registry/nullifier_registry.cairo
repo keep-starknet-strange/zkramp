@@ -10,6 +10,7 @@ pub mod NullifierRegistry {
 
     #[storage]
     pub struct Storage {
+        // map(index -> writers address)
         writers: Map<u64, ContractAddress>,
         writers_count: u64,
         is_nullified: Map<u256, bool>,
@@ -47,7 +48,10 @@ pub mod NullifierRegistry {
     }
 
 
-    // we need a constructor to initiate the is_writers array
+    #[constructor]
+    fn constructor(ref self: ContractState) {
+        self.writers_count.write(0);
+    }
 
     #[abi(embed_v0)]
     impl NullifierRegistryImpl of INullifierRegistry<ContractState> {
@@ -62,7 +66,8 @@ pub mod NullifierRegistry {
         fn add_write_permissions(ref self: ContractState, new_writer: ContractAddress) {
             assert(self.is_writers.read(new_writer), 'The Address is Already a writer');
             self.is_writers.write(new_writer, true);
-            self.writers.write(self.writers_count.read() + 1, new_writer);
+            self.writers.write(self.writers_count.read(), new_writer);
+            self.writers_count.write(self.writers_count.read() + 1);
             // emit event
             self.emit(WriterAdded { writer: new_writer });
         }
@@ -99,3 +104,36 @@ pub mod NullifierRegistry {
         }
     }
 }
+
+// #[cfg(test)]
+// mod NullifierRegistry_tests {
+//     use snforge_std::{declare, ContractClass, ContractClassTrait};
+//     use starknet::{ContractAddress};
+//     use super::NullifierRegistry;
+//     use zkramp::contracts::nullifier_registry::interface::{
+//         INullifierRegistry, INullifierRegistryDispatcher, INullifierRegistryDispatcherTrait
+//     };
+
+//     fn deploy_NullifierRegistry() -> (ContractAddress, INullifierRegistryDispatcher) {
+//         let mut class = declare("NullifierRegistry").unwrap();
+//         let (contract_address, _) = class.deploy(@array![]).unwrap();
+
+//         (contract_address, INullifierRegistryDispatcher { contract_address })
+//     }
+
+//     fn USER() -> ContractAddress {
+//         123.try_into().unwrap()
+//     }
+
+//     #[test]
+//     fn test_add_write_permissions() {
+//         let (_, dispatcher) = deploy_NullifierRegistry();
+
+//         dispatcher.add_write_permissions(USER().into());
+
+//         let writers = dispatcher.get_writers().span();
+
+//         assert(*writers.at(0) == USER(), 'wrong writer');
+//     }
+// }
+
