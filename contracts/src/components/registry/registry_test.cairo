@@ -1,20 +1,18 @@
-use core::starknet::contract_address_const;
-use starknet::testing::{set_caller_address, set_contract_address};
+use core::starknet::{ContractAddress, contract_address_const};
+use snforge_std::{
+    declare, ContractClassTrait, ContractClass, start_cheat_caller_address, EventSpy,
+    EventSpyAssertionsTrait, spy_events, test_address, EventSpyTrait
+};
 use zkramp::components::registry::interface::{IRegistryDispatcher, IRegistryDispatcherTrait};
-use zkramp::components::registry::registry::{RegistryComponent::{Event, RegistrationEvent},};
-use zkramp::components::registry::registry_mock::RegistryMock;
+use zkramp::components::registry::registry::{
+    RegistryComponent, RegistryComponent::{Event, RegistrationEvent, RegistryImpl}
+};
+use zkramp::components::registry::registry_mock::{
+    RegistryMock, TestingStateDefault, ComponentState
+};
 use zkramp::tests::constants;
 use zkramp::tests::utils;
 
-/// Deploys the registry mock contract.
-fn setup_contracts() -> IRegistryDispatcher {
-    // deploy registry
-    let registry_contract_address = utils::deploy(
-        RegistryMock::TEST_CLASS_HASH, calldata: array![]
-    );
-
-    IRegistryDispatcher { contract_address: registry_contract_address }
-}
 
 //
 // Externals
@@ -22,8 +20,11 @@ fn setup_contracts() -> IRegistryDispatcher {
 
 #[test]
 fn test_is_registered() {
-    set_contract_address(contract_address_const::<'caller'>());
-    let registry = setup_contracts();
+    let test_address: ContractAddress = test_address();
+
+    start_cheat_caller_address(test_address, contract_address_const::<'caller'>());
+
+    let mut registry: ComponentState = Default::default();
 
     registry.register(offchain_id: constants::REVOLUT_ID());
 
@@ -34,28 +35,36 @@ fn test_is_registered() {
 
 #[test]
 fn test_registration_event() {
-    set_contract_address(contract_address_const::<'caller'>());
-    let registry = setup_contracts();
+    let test_address: ContractAddress = test_address();
+    let mut spy = spy_events();
+
+    start_cheat_caller_address(test_address, contract_address_const::<'caller'>());
+
+    let mut registry: ComponentState = Default::default();
 
     registry.register(offchain_id: constants::REVOLUT_ID());
 
-    assert_eq!(
-        starknet::testing::pop_log(registry.contract_address),
-        Option::Some(
-            Event::RegistrationEvent(
-                RegistrationEvent {
-                    caller: contract_address_const::<'caller'>(),
-                    offchain_id: constants::REVOLUT_ID()
-                }
-            )
+    spy
+        .assert_emitted(
+            @array![
+                (
+                    test_address,
+                    Event::RegistrationEvent(
+                        RegistrationEvent {
+                            caller: contract_address_const::<'caller'>(),
+                            offchain_id: constants::REVOLUT_ID()
+                        }
+                    )
+                )
+            ]
         )
-    );
 }
 
 #[test]
-#[should_panic(expected: ('Caller is the zero address', 'ENTRYPOINT_FAILED'))]
+#[should_panic(expected: 'Caller is the zero address')]
 fn test_register_from_zero() {
-    let registry = setup_contracts();
+    let mut registry: ComponentState = Default::default();
 
     registry.register(offchain_id: constants::REVOLUT_ID());
 }
+

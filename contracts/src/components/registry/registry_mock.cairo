@@ -43,8 +43,10 @@ pub mod RegistryMock {
     }
 }
 
-type ComponentState = RegistryComponent::ComponentState<RegistryMock::ContractState>;
+pub type ComponentState = RegistryComponent::ComponentState<RegistryMock::ContractState>;
 
-fn COMPONENT() -> ComponentState {
-    RegistryComponent::component_state_for_testing()
+pub impl TestingStateDefault of Default<ComponentState> {
+    fn default() -> ComponentState {
+        RegistryComponent::component_state_for_testing()
+    }
 }
