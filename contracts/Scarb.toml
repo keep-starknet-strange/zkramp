@@ -10,8 +10,10 @@ starknet = "2.7.0"
 openzeppelin = { git = "https://github.com/openzeppelin/cairo-contracts", tag = "v0.15.0" }
 
 [dev-dependencies]
-cairo_test = "2.7.0"
 snforge_std = { git = "https://github.com/foundry-rs/starknet-foundry", tag = "v0.27.0" }
+
+[scripts]
+test = "snforge test"
 
 [tool.fmt]
 sort-module-level-items = true
