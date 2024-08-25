@@ -144,7 +144,6 @@ mod NullifierRegistry_tests {
         3.try_into().unwrap()
     }
 
-
     #[test]
     fn test_add_write_permissions() {
         let (contract_address, dispatcher, mut spy) = deploy_NullifierRegistry();
