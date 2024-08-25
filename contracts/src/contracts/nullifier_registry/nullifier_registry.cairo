@@ -56,15 +56,17 @@ pub mod NullifierRegistry {
     #[abi(embed_v0)]
     impl NullifierRegistryImpl of INullifierRegistry<ContractState> {
         fn add_nullifier(ref self: ContractState, nullifier: u256) {
-            assert(!self.is_nullified.read(nullifier), 'Nullifier already exists');
+            assert(self.is_writer(get_caller_address()), 'Caller is not a writer');
+            assert(!self.is_nullified(nullifier), 'Nullifier already exists');
 
             self.is_nullified.write(nullifier, true);
             // emit event here
             self.emit(NullifierAdded { nullifier: nullifier, writer: get_caller_address(), });
         }
 
+        //TODO: restrict to only Owner
         fn add_write_permissions(ref self: ContractState, new_writer: ContractAddress) {
-            assert(!self.is_writers.read(new_writer), 'The Address is Already a writer');
+            assert(!self.is_writer(new_writer), 'The Address is Already a writer');
             self.is_writers.write(new_writer, true);
             self.writers.write(self.writers_count.read(), new_writer);
             self.writers_count.write(self.writers_count.read() + 1);
@@ -72,8 +74,9 @@ pub mod NullifierRegistry {
             self.emit(WriterAdded { writer: new_writer });
         }
 
+        //TODO: restrict to only Owner
         fn remove_writer_permissions(ref self: ContractState, remove_writer: ContractAddress) {
-            assert(self.is_writers.read(remove_writer), 'Address is not a writer');
+            assert(self.is_writer(remove_writer), 'Address is not a writer');
             self.is_writers.write(remove_writer, false);
 
             let mut i = 0;
@@ -111,8 +114,11 @@ pub mod NullifierRegistry {
 
 #[cfg(test)]
 mod NullifierRegistry_tests {
-use core::traits::Into;
-use snforge_std::{declare, ContractClass, ContractClassTrait, spy_events, EventSpyAssertionsTrait, start_cheat_caller_address, EventSpy};
+    use core::traits::Into;
+    use snforge_std::{
+        declare, ContractClass, ContractClassTrait, spy_events, EventSpyAssertionsTrait,
+        start_cheat_caller_address, EventSpy
+    };
     use starknet::{ContractAddress};
     use super::NullifierRegistry;
     use zkramp::contracts::nullifier_registry::interface::{
@@ -153,26 +159,29 @@ use snforge_std::{declare, ContractClass, ContractClassTrait, spy_events, EventS
         assert(*writers.at(1) == WRITER_2(), 'wrong writer');
         assert(*writers.at(2) == WRITER_3(), 'wrong writer');
 
-        spy.assert_emitted(@array![  
-        (
-            contract_address,
-            NullifierRegistry::Event::WriterAdded (
-                 NullifierRegistry::WriterAdded {writer: WRITER_1()} 
-            )
-        ),
-        (
-            contract_address,
-            NullifierRegistry::Event::WriterAdded (
-                 NullifierRegistry::WriterAdded {writer: WRITER_2()} 
-            )
-        ),
-        (
-            contract_address,
-            NullifierRegistry::Event::WriterAdded (
-                 NullifierRegistry::WriterAdded {writer: WRITER_3()} 
-            )
-        )
-    ]);
+        spy
+            .assert_emitted(
+                @array![
+                    (
+                        contract_address,
+                        NullifierRegistry::Event::WriterAdded(
+                            NullifierRegistry::WriterAdded { writer: WRITER_1() }
+                        )
+                    ),
+                    (
+                        contract_address,
+                        NullifierRegistry::Event::WriterAdded(
+                            NullifierRegistry::WriterAdded { writer: WRITER_2() }
+                        )
+                    ),
+                    (
+                        contract_address,
+                        NullifierRegistry::Event::WriterAdded(
+                            NullifierRegistry::WriterAdded { writer: WRITER_3() }
+                        )
+                    )
+                ]
+            );
     }
 
     #[test]
@@ -187,25 +196,43 @@ use snforge_std::{declare, ContractClass, ContractClassTrait, spy_events, EventS
     fn test_add_nullifier() {
         let (contract_address, dispatcher, mut spy) = deploy_NullifierRegistry();
 
+        dispatcher.add_write_permissions(WRITER_1());
         start_cheat_caller_address(contract_address, WRITER_1());
 
         dispatcher.add_nullifier(1_u256);
         assert(dispatcher.is_nullified(1_u256), 'should be nullified');
 
-         spy.assert_emitted(@array![  
-        (
-            contract_address,
-            NullifierRegistry::Event::NullifierAdded (
-                 NullifierRegistry::NullifierAdded {nullifier: 1_u256, writer: WRITER_1()} 
-            )
-        )
-    ]);
+        spy
+            .assert_emitted(
+                @array![
+                    (
+                        contract_address,
+                        NullifierRegistry::Event::NullifierAdded(
+                            NullifierRegistry::NullifierAdded {
+                                nullifier: 1_u256, writer: WRITER_1()
+                            }
+                        )
+                    )
+                ]
+            );
+    }
+
+    #[test]
+    #[should_panic(expected: ('Caller is not a writer',))]
+    fn test_add_nullifier_with_non_writer() {
+        let (_, dispatcher, _) = deploy_NullifierRegistry();
+
+        dispatcher.add_nullifier(1_u256);
+        dispatcher.add_nullifier(1_u256);
     }
 
     #[test]
     #[should_panic(expected: ('Nullifier already exists',))]
     fn test_add_nullifier_with_existing_nullifier() {
-        let (_, dispatcher, _) = deploy_NullifierRegistry();
+        let (contract_address, dispatcher, _) = deploy_NullifierRegistry();
+
+        dispatcher.add_write_permissions(WRITER_1());
+        start_cheat_caller_address(contract_address, WRITER_1());
 
         dispatcher.add_nullifier(1_u256);
         dispatcher.add_nullifier(1_u256);
@@ -221,15 +248,17 @@ use snforge_std::{declare, ContractClass, ContractClassTrait, spy_events, EventS
         dispatcher.remove_writer_permissions(WRITER_1());
         assert(!dispatcher.is_writer(WRITER_1()), 'not a writer');
 
-        
-         spy.assert_emitted(@array![  
-        (
-            contract_address,
-            NullifierRegistry::Event::WriterRemoved (
-                 NullifierRegistry::WriterRemoved {writer: WRITER_1()} 
-            )
-        )
-    ]);
+        spy
+            .assert_emitted(
+                @array![
+                    (
+                        contract_address,
+                        NullifierRegistry::Event::WriterRemoved(
+                            NullifierRegistry::WriterRemoved { writer: WRITER_1() }
+                        )
+                    )
+                ]
+            );
     }
 
     #[test]
@@ -248,16 +277,16 @@ use snforge_std::{declare, ContractClass, ContractClassTrait, spy_events, EventS
         let mut x = 1;
         while x <= length {
             let addr: felt252 = x.into();
-                dispatcher.add_write_permissions(addr.try_into().unwrap());
-                x += 1;
-            };
+            dispatcher.add_write_permissions(addr.try_into().unwrap());
+            x += 1;
+        };
 
-            let writers = dispatcher.get_writers();
+        let writers = dispatcher.get_writers();
         assert(writers.len() == length, 'wrong length');
 
         let mut i = 1;
         while i <= length {
-             let addr: felt252 = i.into();
+            let addr: felt252 = i.into();
             assert(*writers.at(i - 1) == addr.try_into().unwrap(), 'wrong address');
             i += 1;
         }
