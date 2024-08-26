@@ -94,6 +94,15 @@ export const ThemedGlobalStyle = createGlobalStyle`
     padding: 0;
   }
 
+  html, body, #root {
+    height: 100%;
+  }
+
+  #root {
+    display: flex;
+    flex-direction: column;
+  }
+
   * {
     box-sizing: border-box;
     font-family: 'Inter';

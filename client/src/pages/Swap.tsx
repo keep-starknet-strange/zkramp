@@ -12,7 +12,7 @@ import { styled } from 'styled-components'
 const Layout = styled(Column)`
   margin: 0 auto;
   justify-content: center;
-  height: 100vh;
+  flex: 1;
 `
 
 const Content = styled(Column)`

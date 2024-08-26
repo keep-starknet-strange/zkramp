@@ -28,3 +28,11 @@ export const OutlineButton = styled.button`
   border: 1px solid ${({ theme }) => theme.white};
   color: ${({ theme }) => theme.white};
 `
+
+export const ConnectButton = styled(PrimaryButton)`
+  width: auto;
+  padding: 14px 32px;
+  background: linear-gradient(360deg, #202a31 0%, #28353e 100%);
+  color: ${({ theme }) => theme.neutral1};
+  font-size: 16px;
+`
