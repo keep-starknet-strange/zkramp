@@ -22,15 +22,13 @@ use zkramp::tests::utils;
 fn test_is_registered() {
     let test_address: ContractAddress = test_address();
 
-    start_cheat_caller_address(test_address, contract_address_const::<'caller'>());
+    start_cheat_caller_address(test_address, constants::CALLER());
 
     let mut registry: ComponentState = Default::default();
 
     registry.register(offchain_id: constants::REVOLUT_ID());
 
-    assert_eq!(
-        registry.is_registered(contract_address_const::<'caller'>(), constants::REVOLUT_ID()), true
-    );
+    assert_eq!(registry.is_registered(constants::CALLER(), constants::REVOLUT_ID()), true);
 }
 
 #[test]
@@ -38,7 +36,7 @@ fn test_registration_event() {
     let test_address: ContractAddress = test_address();
     let mut spy = spy_events();
 
-    start_cheat_caller_address(test_address, contract_address_const::<'caller'>());
+    start_cheat_caller_address(test_address, constants::CALLER());
 
     let mut registry: ComponentState = Default::default();
 
@@ -51,8 +49,7 @@ fn test_registration_event() {
                     test_address,
                     Event::RegistrationEvent(
                         RegistrationEvent {
-                            caller: contract_address_const::<'caller'>(),
-                            offchain_id: constants::REVOLUT_ID()
+                            caller: constants::CALLER(), offchain_id: constants::REVOLUT_ID()
                         }
                     )
                 )
@@ -67,4 +64,3 @@ fn test_register_from_zero() {
 
     registry.register(offchain_id: constants::REVOLUT_ID());
 }
-
