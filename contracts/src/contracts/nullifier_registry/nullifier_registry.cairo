@@ -64,7 +64,7 @@ pub mod NullifierRegistry {
             self.emit(NullifierAdded { nullifier: nullifier, writer: get_caller_address(), });
         }
 
-        //TODO: restrict to only Owner
+
         fn add_write_permissions(ref self: ContractState, new_writer: ContractAddress) {
             assert(!self.is_writer(new_writer), 'The Address is Already a writer');
             self.is_writers.write(new_writer, true);
@@ -74,7 +74,7 @@ pub mod NullifierRegistry {
             self.emit(WriterAdded { writer: new_writer });
         }
 
-        //TODO: restrict to only Owner
+
         fn remove_writer_permissions(ref self: ContractState, remove_writer: ContractAddress) {
             assert(self.is_writer(remove_writer), 'Address is not a writer');
             self.is_writers.write(remove_writer, false);
