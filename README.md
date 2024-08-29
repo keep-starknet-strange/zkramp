@@ -119,6 +119,9 @@ Thanks goes to these wonderful people. Follow the [contributors guide](https://g
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/luiz-lvj"><img src="https://avatars.githubusercontent.com/u/64055364?v=4?s=100" width="100px;" alt="Luiz Vasconcelos Júnior"/><br /><sub><b>Luiz Vasconcelos Júnior</b></sub></a><br /><a href="https://github.com/starkware/zkramp/commits?author=luiz-lvj" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/lana-shanghai"><img src="https://avatars.githubusercontent.com/u/31368580?v=4?s=100" width="100px;" alt="lanaivina"/><br /><sub><b>lanaivina</b></sub></a><br /><a href="https://github.com/starkware/zkramp/commits?author=lana-shanghai" title="Code">💻</a></td>
     </tr>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/BryanBorck"><img src="https://avatars.githubusercontent.com/u/62529683?v=4?s=100" width="100px;" alt="Bryan"/><br /><sub><b>Bryan</b></sub></a><br /><a href="https://github.com/starkware/zkramp/commits?author=BryanBorck" title="Code">💻</a></td>
+    </tr>
   </tbody>
   <tfoot>
     <tr>
