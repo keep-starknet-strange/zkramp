@@ -88,7 +88,7 @@ export default function WalletSidebar({ onClose }: WalletSidebarProps) {
         </WalletInfo>
 
         <Links gap={16}>
-          <LinkItem as={Link} to="/">
+          <LinkItem as={Link} to="/registration">
             <UserCheck width={28} height={28} color="#0047FF" />
             <ThemedText.BodyPrimary>Registration</ThemedText.BodyPrimary>
           </LinkItem>

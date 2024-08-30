@@ -1,12 +1,17 @@
 import styled from 'styled-components'
 
 export const PrimaryButton = styled.button`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
   width: 100%;
   padding: 16px;
   background-color: ${({ theme }) => theme.accent1};
   border: 0;
   border-radius: 12px;
   font-weight: 500;
+  text-decoration: none;
   cursor: pointer;
 
   &:disabled {

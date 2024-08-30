@@ -5,73 +5,57 @@ import { styled } from 'styled-components'
 import { Column, Row } from '../Flex'
 
 const StyledContent = styled.div`
-  border: 3px solid ${({ theme }) => theme.neutral1};
-  padding: 80px 32px;
-  background: ${({ theme }) => theme.bg1};
-  z-index: 1060;
   position: fixed;
-  width: 100%;
-  top: 0;
-  bottom: 0;
+  z-index: 1060;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   display: flex;
   flex-direction: column;
   justify-content: center;
-
-  @media only screen and (min-width: ${({ theme }) => `${theme.breakpoint.xs}px`}) {
-    left: 50%;
-    top: 50%;
-    width: 386px;
-    transform: translate(-50%, -50%);
-    padding: 32px;
-    bottom: unset;
-  }
+  width: 100%;
+  max-width: 480px;
+  padding: 16px;
+  background: ${({ theme }) => theme.bg2};
+  border: 1px solid ${({ theme }) => theme.border};
+  border-radius: 20px;
+  box-shadow: 0px 4px 4px 4px rgba(0, 0, 0, 0.3), 0px 8px 12px 10px rgba(0, 0, 0, 0.15);
 `
 
 const TitleContainer = styled(Row)`
-  position: absolute;
   width: 100%;
-  padding: 0 4px;
-  text-align: center;
-  top: 16px;
-
-  & > div {
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    overflow: hidden;
-    width: 100%;
-  }
-
-  @media only screen and (min-width: ${({ theme }) => `${theme.breakpoint.xs}px`}) {
-    top: -32px;
-    text-align: left;
-  }
 `
 
-const CloseContainer = styled.div`
-  position: absolute;
-  color: ${({ theme }) => theme.neutral1};
+const Title = styled(ThemedText.HeadlineSmall)`
+  width: 100%;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+`
+
+const CloseContainer = styled.button`
   width: 28px;
   height: 28px;
   padding: 4px;
+  background: transparent;
+  color: ${({ theme }) => theme.neutral1};
+  border: none;
   cursor: pointer;
-  border: 3px solid ${({ theme }) => theme.neutral1};
-  top: -3px;
-  right: -3px;
+  transition: color 0.15s linear;
 
   & > svg {
     display: block;
   }
 
   &:hover {
-    background: ${({ theme }) => theme.neutral1};
-    color: ${({ theme }) => theme.bg1};
+    color: ${({ theme }) => theme.neutral2};
   }
 `
 
 interface ContentProps {
   children: React.ReactNode
   title: string
-  close: () => void
+  close?: () => void
 }
 
 export default function Content({ children, title, close }: ContentProps) {
@@ -79,12 +63,14 @@ export default function Content({ children, title, close }: ContentProps) {
     <StyledContent>
       <Column gap={32}>
         <TitleContainer>
-          <ThemedText.HeadlineSmall>{title}</ThemedText.HeadlineSmall>
-        </TitleContainer>
+          <Title>{title}</Title>
 
-        <CloseContainer onClick={close}>
-          <Icons.Close />
-        </CloseContainer>
+          {close && (
+            <CloseContainer onClick={close}>
+              <Icons.Close />
+            </CloseContainer>
+          )}
+        </TitleContainer>
 
         {children}
       </Column>
