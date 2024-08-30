@@ -4,6 +4,7 @@ export const PrimaryButton = styled.button`
   display: flex;
   flex-direction: row;
   align-items: center;
+  justify-content: center;
   width: 100%;
   padding: 16px;
   background-color: ${({ theme }) => theme.accent1};

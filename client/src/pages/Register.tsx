@@ -1,91 +1,112 @@
 import { useState } from 'react'
 import { PrimaryButton } from 'src/components/Button'
-import { Card } from 'src/components/Card'
 import { Column, Row } from 'src/components/Flex'
 import { ThemedText } from 'src/theme/components'
-import { styled } from 'styled-components'
+import { LockClosed, LockOpen } from 'src/theme/components/icons'
+import { styled, useTheme } from 'styled-components'
 
 const Layout = styled(Column)`
+  width: 100%;
   margin: 0 auto;
   justify-content: center;
-  gap: 16px;
-  height: 100vh;
+  flex: 1;
 `
-const RegistrationHeader = styled(Column)`
-  display: flex;
-  justify-content: space-between;
-  flex-direction: row;
+
+const Content = styled(Column)`
+  max-width: 464px;
   width: 100%;
 `
 
-const StatusCardGroup = styled(Row)`
+const Headline = styled(Row)`
   width: 100%;
   justify-content: space-between;
+  margin-bottom: ${({ theme }) => theme.grids.md};
 `
 
-const RegisterCard = styled(Card)`
-  width: 560px;
+const ContentCard = styled(Column)`
+  width: 100%;
+  border-radius: 12px;
+  overflow: hidden;
+`
+
+const NoDataCard = styled(Column)`
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 0;
+  background-color: ${({ theme }) => theme.bg3};
+`
+
+const RevtagCard = styled(Row)`
+  width: 100%;
+  justify-content: space-between;
+  padding: 24px 16px;
+  background-color: ${({ theme }) => theme.bg3};
+`
+
+const ProofCard = styled(Row)`
+  width: 100%;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 16px;
+  background-color: ${({ theme }) => theme.bg2};
 `
 
 export default function RegisterPage() {
-  const [displayRegister, setDisplayRegister] = useState(false)
+  const theme = useTheme()
+  const [revtag, setRevtag] = useState('')
+  const [proven, setProven] = useState(false)
 
   return (
     <Layout>
-      {displayRegister ? (
-        <>
-          <RegisterCard gap={16} alignItems="flex-start">
-            <RegistrationHeader>
-              <ThemedText.Title onClick={() => setDisplayRegister(false)} style={{ cursor: 'pointer' }}>
-                Back
-              </ThemedText.Title>
-              <ThemedText.Title>New Registration</ThemedText.Title>
-              <div></div>
-            </RegistrationHeader>
+      <Content gap={12}>
+        <Headline>
+          <ThemedText.HeadlineLarge>Register</ThemedText.HeadlineLarge>
+        </Headline>
 
-            <Card gap={12} bg="surface">
-              Use the ZKRamp browser assistant to generate proof a valid Revolut account. Submit the proof to complete
-              registration.
-            </Card>
-          </RegisterCard>
-          <RegisterCard gap={16} alignItems="flex-start">
-            <RegistrationHeader>
-              <ThemedText.Title>Registration Proofs</ThemedText.Title>
-            </RegistrationHeader>
+        {!revtag && (
+          <>
+            <ContentCard>
+              <NoDataCard>
+                <ThemedText.Title fontWeight={500}>No data detected</ThemedText.Title>
+              </NoDataCard>
+            </ContentCard>
 
-            <Card gap={12} bg="surface">
-              No Revolut account proofs found. Please follow instructions in the browser sidebar to generate proof of an
-              existing Revtag.
-            </Card>
-
-            <PrimaryButton>
-              <ThemedText.Title>Open Sidebar</ThemedText.Title>
+            <PrimaryButton onClick={() => setRevtag('chqrlesjuzw')}>
+              <ThemedText.Title>Open sidebar</ThemedText.Title>
             </PrimaryButton>
-          </RegisterCard>
-        </>
-      ) : (
-        <>
-          <ThemedText.HeadlineSmall>Revolut Registration</ThemedText.HeadlineSmall>
-          <RegisterCard gap={16} alignItems="flex-start">
-            <Card gap={12} bg="surface">
-              You must register with a valid Revolut account to use ZKRamp. Your account details are hashed to conceal
-              your identity.
-            </Card>
+          </>
+        )}
 
-            <Card gap={12} bg="surface">
-              <StatusCardGroup gap={16}>
-                <ThemedText.BodyPrimary>Status</ThemedText.BodyPrimary>
-              </StatusCardGroup>
+        {revtag && (
+          <>
+            <ContentCard>
+              <RevtagCard>
+                <ThemedText.BodyPrimary>Revtag:</ThemedText.BodyPrimary>
+                <ThemedText.BodyPrimary fontWeight={500}>{revtag}</ThemedText.BodyPrimary>
+              </RevtagCard>
 
-              <StatusCardGroup gap={16}>Not Registered</StatusCardGroup>
-            </Card>
+              <ProofCard>
+                {proven ? (
+                  <LockClosed width={18} height={18} color={theme.green} />
+                ) : (
+                  <LockOpen width={18} height={18} color={theme.neutral2} />
+                )}
 
-            <PrimaryButton onClick={() => setDisplayRegister(true)}>
-              <ThemedText.Title>+ Register</ThemedText.Title>
+                {proven ? (
+                  <ThemedText.BodyPrimary>Proved</ThemedText.BodyPrimary>
+                ) : (
+                  <ThemedText.BodySecondary fontWeight={500}>Unproved</ThemedText.BodySecondary>
+                )}
+              </ProofCard>
+            </ContentCard>
+
+            <PrimaryButton onClick={() => setProven(true)}>
+              <ThemedText.Title>{proven ? 'Complete registration' : 'Generate proof'}</ThemedText.Title>
             </PrimaryButton>
-          </RegisterCard>
-        </>
-      )}
+          </>
+        )}
+      </Content>
     </Layout>
   )
 }
