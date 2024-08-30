@@ -10,7 +10,7 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-      
+
       - name: Set up Scarb
         uses: software-mansion/setup-scarb@v1
 
@@ -21,7 +21,7 @@ jobs:
       - name: Build cairo contracts
         run: scarb build
         working-directory: contracts
-  
+
   tests:
     runs-on: ubuntu-latest
     steps:
@@ -30,7 +30,10 @@ jobs:
 
       - name: Set up Scarb
         uses: software-mansion/setup-scarb@v1
-      
+
+      - name: Set up SNForge
+        uses: foundry-rs/setup-snfoundry@v3
+
       - name: Run cairo tests
-        run: scarb test 
+        run: scarb test
         working-directory: contracts
