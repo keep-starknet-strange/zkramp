@@ -15,7 +15,7 @@ const StyledOverlay = styled.div`
 `
 
 interface OverlayProps {
-  onClick: () => void
+  onClick?: () => void
 }
 
 export default function Overlay({ onClick }: OverlayProps) {

@@ -1,6 +1,7 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { PrimaryButton } from 'src/components/Button'
 import { Column, Row } from 'src/components/Flex'
+import GenerateProofModal from 'src/components/GenerateProofModal'
 import { ThemedText } from 'src/theme/components'
 import { LockClosed, LockOpen } from 'src/theme/components/icons'
 import { styled, useTheme } from 'styled-components'
@@ -55,7 +56,17 @@ const ProofCard = styled(Row)`
 export default function RegisterPage() {
   const theme = useTheme()
   const [revtag, setRevtag] = useState('')
+  const [generatingProof, setGeneratingProof] = useState(false)
   const [proven, setProven] = useState(false)
+
+  useEffect(() => {
+    if (generatingProof) {
+      setTimeout(() => {
+        setProven(true)
+        setGeneratingProof(false)
+      }, 5_000)
+    }
+  }, [generatingProof])
 
   return (
     <Layout>
@@ -101,12 +112,14 @@ export default function RegisterPage() {
               </ProofCard>
             </ContentCard>
 
-            <PrimaryButton onClick={() => setProven(true)}>
+            <PrimaryButton onClick={() => !proven && setGeneratingProof(true)}>
               <ThemedText.Title>{proven ? 'Complete registration' : 'Generate proof'}</ThemedText.Title>
             </PrimaryButton>
           </>
         )}
       </Content>
+
+      {generatingProof && <GenerateProofModal />}
     </Layout>
   )
 }
