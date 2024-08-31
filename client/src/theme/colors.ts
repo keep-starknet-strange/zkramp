@@ -27,6 +27,7 @@ export const darkTheme = {
   surface: '#0D0D12',
 
   border: 'rgba(240, 247, 244, 0.1)',
+  border2: 'rgba(240, 247, 244, 0.5)',
 
   neutral1: colors.neutral1_dark,
   neutral2: colors.neutral2_dark,
