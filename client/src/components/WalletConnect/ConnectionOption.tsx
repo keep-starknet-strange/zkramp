@@ -1,4 +1,5 @@
 import { Connector, useConnect } from '@starknet-react/core'
+import { ThemedText } from 'src/theme/components'
 import { styled } from 'styled-components'
 
 import { Row } from '../Flex'
@@ -13,6 +14,7 @@ const OptionRow = styled(Row)`
   cursor: pointer;
   padding: 12px;
   border-radius: 10px;
+
   &:hover {
     background-color: ${({ theme }) => theme.white};
     color: ${({ theme }) => theme.black};
@@ -30,7 +32,7 @@ function Option({ connection, activate }: OptionProps) {
       ) : (
         <img width="32" height="32" src={connection.icon.dark} />
       )}
-      <p style={{ margin: '0' }}>{connection.name}</p>
+      <ThemedText.BodyPrimary>{connection.name}</ThemedText.BodyPrimary>
     </OptionRow>
   )
 }

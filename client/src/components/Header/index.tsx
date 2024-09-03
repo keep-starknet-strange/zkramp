@@ -17,8 +17,6 @@ const Container = styled(Row)`
 
 const Link = styled(ThemedText.BodyPrimary)`
   color: rgba(255, 255, 255, 0.7);
-  font-weight: 500;
-  font-size: 18px;
   text-decoration: none;
 
   &.active {
@@ -88,9 +86,9 @@ export default function Header() {
         <AccountChip as="button" gap={4} onClick={showWalletSidebar}>
           <AccountStatusIcon />
 
-          <ThemedText.Title fontWeight={400}>
+          <ThemedText.BodyPrimary>
             {address.slice(0, 6)}...{address.slice(-4)}
-          </ThemedText.Title>
+          </ThemedText.BodyPrimary>
         </AccountChip>
       ) : (
         <ConnectContainer>
