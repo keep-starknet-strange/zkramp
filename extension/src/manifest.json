@@ -15,13 +15,18 @@
   "content_security_policy": {
     "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self';"
   },
-  "permissions": [
-    "offscreen",
-    "storage",
-    "webRequest",
-    "activeTab",
-    "sidePanel",
-    "tabs",
-    "scripting"
-  ]
+  "content_scripts": [
+    {
+      "matches": ["http://*/*", "https://*/*", "<all_urls>"],
+      "js": ["contentScript.js"],
+      "css": []
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["content.js"],
+      "matches": ["http://*/*", "https://*/*", "<all_urls>"]
+    }
+  ],
+  "permissions": ["offscreen", "storage", "webRequest", "activeTab", "sidePanel", "tabs", "scripting"]
 }
