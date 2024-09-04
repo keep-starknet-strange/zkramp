@@ -52,6 +52,11 @@ module.exports = {
       },
     },
     {
+      files: ['test/**'],
+      plugins: ['vitest'],
+      extends: ['plugin:vitest/legacy-recommended'],
+    },
+    {
       files: ['*'],
       plugins: ['prettier'],
       extends: ['plugin:prettier/recommended'],

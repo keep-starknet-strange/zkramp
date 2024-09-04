@@ -15,7 +15,7 @@ export type AppConfiguration = {
   }
 }
 
-async function buildApp(config: AppConfiguration): Promise<FastifyInstance> {
+export async function buildApp(config: AppConfiguration): Promise<FastifyInstance> {
   const app = Fastify({ logger: true })
 
   dotenv.config()

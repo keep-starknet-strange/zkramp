@@ -1,10 +1,13 @@
 {
   "name": "backend",
+  "type": "module",
   "scripts": {
-    "start": "tsx src/index.ts",
-    "typecheck": "tsc --noEmit",
-    "drizzle:generate": "drizzle-kit generate",
     "prepare": "yarn drizzle:generate",
+    "start": "tsx src/index.ts",
+    "drizzle:generate": "drizzle-kit generate",
+    "test": "vitest",
+    "coverage": "vitest run --coverage",
+    "typecheck": "tsc --noEmit",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "lint": "eslint . --max-warnings=0",
@@ -18,9 +21,11 @@
     "postgres": "^3.4.4"
   },
   "devDependencies": {
+    "@testcontainers/postgresql": "^10.13.0",
     "@types/node": "^22.5.3",
     "@typescript-eslint/eslint-plugin": "^7.9.0",
     "@typescript-eslint/parser": "^8.4.0",
+    "@vitest/coverage-istanbul": "^2.0.5",
     "drizzle-kit": "^0.24.2",
     "eslint": "^8.0.0",
     "eslint-config-prettier": "^9.1.0",
@@ -29,8 +34,14 @@
     "eslint-plugin-prettier": "^5.1.3",
     "eslint-plugin-simple-import-sort": "^12.1.0",
     "eslint-plugin-unused-imports": "^3.2.0",
+    "eslint-plugin-vitest": "^0.5.4",
     "prettier": "^3.2.5",
     "tsx": "^4.19.0",
-    "typescript": "^5.5.4"
+    "typescript": "^5.5.4",
+    "vite-tsconfig-paths": "^5.0.1",
+    "vitest": "^2.0.5"
+  },
+  "resolutions": {
+    "strip-ansi": "6.0.1"
   }
 }
