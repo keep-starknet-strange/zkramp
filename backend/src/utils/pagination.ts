@@ -1,3 +1,5 @@
+/* eslint-disable import/no-unused-modules */
+
 const CURSOR_SEPARATOR = '%'
 
 export function fromCursorHash(cursor?: string): string[] {
