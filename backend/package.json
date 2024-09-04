@@ -3,8 +3,8 @@
   "scripts": {
     "start": "tsx src/index.ts",
     "typecheck": "tsc --noEmit",
-    "drizzle:generate": "drizzle-kit generate:pg",
-    "prepare": "pnpm drizzle:generate",
+    "drizzle:generate": "drizzle-kit generate",
+    "prepare": "yarn drizzle:generate",
     "lint": "eslint . --max-warnings=0",
     "fix": "eslint . --fix"
   },

@@ -1,0 +1,24 @@
+{
+  "id": "66f63579-4f8b-4113-89fb-59576f31f1e6",
+  "prevId": "00000000-0000-0000-0000-000000000000",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {},
+  "enums": {
+    "public.network_type": {
+      "name": "network_type",
+      "schema": "public",
+      "values": [
+        "mainnet",
+        "sepolia"
+      ]
+    }
+  },
+  "schemas": {},
+  "sequences": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}
