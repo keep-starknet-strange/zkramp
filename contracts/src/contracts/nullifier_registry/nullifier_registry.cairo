@@ -316,7 +316,6 @@ mod NullifierRegistry_tests {
         let writers = nullifierDispatcher.get_writers();
         assert(writers.len() == length, 'wrong length');
         stop_cheat_caller_address(contract_address);
-    
     }
 }
 
