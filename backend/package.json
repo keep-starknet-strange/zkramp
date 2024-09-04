@@ -5,6 +5,8 @@
     "typecheck": "tsc --noEmit",
     "drizzle:generate": "drizzle-kit generate",
     "prepare": "yarn drizzle:generate",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "lint": "eslint . --max-warnings=0",
     "fix": "eslint . --fix"
   },
