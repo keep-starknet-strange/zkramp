@@ -77,9 +77,9 @@ export default function WalletSidebar({ onClose }: WalletSidebarProps) {
         <WalletInfo>
           <Row gap={12}>
             <StarknetLogo width={40} height={40} />
-            <ThemedText.Title fontWeight={500}>
+            <ThemedText.BodyPrimary>
               {address.slice(0, 6)}...{address.slice(-4)}
-            </ThemedText.Title>
+            </ThemedText.BodyPrimary>
           </Row>
 
           <CloseButton onClick={onClose}>

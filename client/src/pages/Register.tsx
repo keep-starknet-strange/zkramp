@@ -1,27 +1,22 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { PrimaryButton } from 'src/components/Button'
 import { Column, Row } from 'src/components/Flex'
 import GenerateProofModal from 'src/components/GenerateProofModal'
+import { useProofGenerationModal } from 'src/hooks/useModal'
 import { ThemedText } from 'src/theme/components'
 import { LockClosed, LockOpen } from 'src/theme/components/icons'
 import { styled, useTheme } from 'styled-components'
 
-const Layout = styled(Column)`
-  width: 100%;
-  margin: 0 auto;
-  justify-content: center;
-  flex: 1;
-`
-
 const Content = styled(Column)`
   max-width: 464px;
   width: 100%;
+  margin: 120px auto 0;
 `
 
 const Headline = styled(Row)`
   width: 100%;
   justify-content: space-between;
-  margin-bottom: ${({ theme }) => theme.grids.md};
+  margin-bottom: 12px;
 `
 
 const ContentCard = styled(Column)`
@@ -54,22 +49,17 @@ const ProofCard = styled(Row)`
 `
 
 export default function RegisterPage() {
+  // theme
   const theme = useTheme()
-  const [revtag, setRevtag] = useState('')
-  const [generatingProof, setGeneratingProof] = useState(false)
-  const [proven, setProven] = useState(false)
 
-  useEffect(() => {
-    if (generatingProof) {
-      setTimeout(() => {
-        setProven(true)
-        setGeneratingProof(false)
-      }, 5_000)
-    }
-  }, [generatingProof])
+  // modal
+  const [, toggleProofGenerationModal] = useProofGenerationModal()
+
+  const [revtag, setRevtag] = useState('')
+  const [proven] = useState(false)
 
   return (
-    <Layout>
+    <>
       <Content gap={12}>
         <Headline>
           <ThemedText.HeadlineLarge>Register</ThemedText.HeadlineLarge>
@@ -79,13 +69,11 @@ export default function RegisterPage() {
           <>
             <ContentCard>
               <NoDataCard>
-                <ThemedText.Title fontWeight={500}>No data detected</ThemedText.Title>
+                <ThemedText.BodyPrimary fontWeight={500}>No data detected</ThemedText.BodyPrimary>
               </NoDataCard>
             </ContentCard>
 
-            <PrimaryButton onClick={() => setRevtag('chqrlesjuzw')}>
-              <ThemedText.Title>Open sidebar</ThemedText.Title>
-            </PrimaryButton>
+            <PrimaryButton onClick={() => setRevtag('chqrlesjuzw')}>Open sidebar</PrimaryButton>
           </>
         )}
 
@@ -107,19 +95,21 @@ export default function RegisterPage() {
                 {proven ? (
                   <ThemedText.BodyPrimary>Proved</ThemedText.BodyPrimary>
                 ) : (
-                  <ThemedText.BodySecondary fontWeight={500}>Unproved</ThemedText.BodySecondary>
+                  <ThemedText.BodySecondary>Unproved</ThemedText.BodySecondary>
                 )}
               </ProofCard>
             </ContentCard>
 
-            <PrimaryButton onClick={() => !proven && setGeneratingProof(true)}>
-              <ThemedText.Title>{proven ? 'Complete registration' : 'Generate proof'}</ThemedText.Title>
-            </PrimaryButton>
+            {proven ? (
+              <PrimaryButton>Complete registration</PrimaryButton>
+            ) : (
+              <PrimaryButton onClick={toggleProofGenerationModal}>Generate proof</PrimaryButton>
+            )}
           </>
         )}
       </Content>
 
-      {generatingProof && <GenerateProofModal />}
-    </Layout>
+      <GenerateProofModal />
+    </>
   )
 }
