@@ -5,11 +5,14 @@
     "deploy": "tsx src/deploy.ts"
   },
   "dependencies": {
+    "chalk": "^5.3.0",
     "dotenv": "^16.4.5",
+    "signale": "^1.4.0",
     "starknet": "^6.11.0"
   },
   "devDependencies": {
     "@types/node": "^22.5.4",
+    "@types/signale": "^1.4.7",
     "prettier": "^3.3.3",
     "tsx": "^4.19.0",
     "typescript": "^5.5.4"
