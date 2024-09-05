@@ -1,0 +1,29 @@
+name: Indexers
+
+on:
+  push:
+    paths: [indexers/**]
+  pull_request:
+    paths: [indexers/**]
+
+permissions: read-all
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Deno
+        uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
+
+      - name: Check formatting
+        run: deno fmt --check
+        working-directory: indexers
+
+      - name: Lint
+        run: deno lint
+        working-directory: indexers
