@@ -47,7 +47,7 @@ export const ConnectWalletModal = (props: React.ComponentPropsWithoutRef<typeof 
 
   return (
     <Container gap={16} {...props}>
-      <ThemedText.Title fontWeight={400}>Connect wallet</ThemedText.Title>
+      <ThemedText.HeadlineSmall fontWeight={400}>Connect wallet</ThemedText.HeadlineSmall>
 
       <ConnectorsList gap={4}>
         {connectors
@@ -56,7 +56,7 @@ export const ConnectWalletModal = (props: React.ComponentPropsWithoutRef<typeof 
             <ConnectorCard as="button" key={connector.id} gap={16} onClick={() => connect({ connector })}>
               <img src={connector.icon.dark} alt={connector.name} width={32} height={32} />
 
-              <ThemedText.Title fontWeight={400}>{connector.name}</ThemedText.Title>
+              <ThemedText.BodyPrimary>{connector.name}</ThemedText.BodyPrimary>
             </ConnectorCard>
           ))}
       </ConnectorsList>

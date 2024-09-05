@@ -25,3 +25,5 @@ function useModal(modal: ModalType): [boolean, () => void] {
 export const useWalletConnectModal = () => useModal(ModalType.WALLET_CONNECT)
 // eslint-disable-next-line import/no-unused-modules
 export const useWalletOverviewModal = () => useModal(ModalType.WALLET_OVERVIEW)
+
+export const useProofGenerationModal = () => useModal(ModalType.PROOF_GENERATION)

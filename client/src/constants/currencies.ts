@@ -6,23 +6,15 @@ export type Currency = {
   name: string
 }
 
-export enum FIAT_CURRENCY {
-  EUR = 'EUR',
-}
-
-export enum TOKEN_CURRENCY {
-  USDC = 'USDC',
-}
-
 export const FIAT_CURRENCIES = {
-  [FIAT_CURRENCY.EUR]: {
+  EUR: {
     img: EURLogo,
     name: 'EUR',
   },
 }
 
 export const TOKEN_CURRENCIES = {
-  [TOKEN_CURRENCY.USDC]: {
+  USDC: {
     img: USDCLogo,
     name: 'USDC',
   },
