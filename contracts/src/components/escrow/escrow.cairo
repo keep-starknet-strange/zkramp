@@ -24,9 +24,9 @@ pub mod EscrowComponent {
         pub const INSUFFICIENT_BALANCE: felt252 = 'Insufficient deposit balance';
     }
 
-    // *************************************************************************
-    //                              EVENTS
-    // *************************************************************************
+    //
+    //  EVENTS
+    //
     #[event]
     #[derive(Drop, starknet::Event)]
     pub enum Event {
@@ -34,7 +34,7 @@ pub mod EscrowComponent {
         UnLocked: UnLocked
     }
 
-    /// @notice Emitted when the escrow is locked
+    /// Emitted when the escrow is locked
     #[derive(Drop, starknet::Event)]
     pub struct Locked {
         #[key]
@@ -43,7 +43,7 @@ pub mod EscrowComponent {
         pub amount: u256,
     }
 
-    /// @notice Emitted when the escrow is unlocked
+    /// Emitted when the escrow is unlocked
     #[derive(Drop, starknet::Event)]
     pub struct UnLocked {
         #[key]
@@ -77,7 +77,7 @@ pub mod EscrowComponent {
             self.deposits.write((from, token), amount + locked_amount);
 
             // emit event
-            self.emit(Locked { token: token, from: from, amount: amount });
+            self.emit(Locked { token, from, amount });
         }
 
         fn unlock_to(
@@ -104,7 +104,7 @@ pub mod EscrowComponent {
             // update locked amount
             self.deposits.write((from, token), locked_amount - amount);
             // emit event
-            self.emit(UnLocked { token: token, from: from, to: to, amount: amount });
+            self.emit(UnLocked { token, from, to, amount });
         }
     }
 }
