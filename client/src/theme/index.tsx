@@ -42,17 +42,8 @@ const fonts = {
   code: 'courier, courier new, serif',
 }
 
-const gapValues = {
-  xs: '4px',
-  sm: '8px',
-  md: '12px',
-  lg: '24px',
-  xl: '32px',
-}
-
 function getSettings() {
   return {
-    grids: gapValues,
     fonts,
 
     // shadows

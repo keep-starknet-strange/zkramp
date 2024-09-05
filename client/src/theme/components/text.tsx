@@ -28,11 +28,11 @@ export const ThemedText = {
   },
 
   HeadlineLarge(props: TextProps) {
-    return <TextWrapper fontWeight={500} fontSize={36} color="neutral1" fontFamily="Montserrat" {...props} />
+    return <TextWrapper fontWeight={485} fontSize={36} color="neutral1" fontFamily="Montserrat" {...props} />
   },
 
   HeadlineSmall(props: TextProps) {
-    return <TextWrapper fontWeight={500} fontSize={20} color="neutral1" fontFamily="Montserrat" {...props} />
+    return <TextWrapper fontWeight={485} fontSize={18} color="neutral1" fontFamily="Montserrat" {...props} />
   },
 
   BodyPrimary(props: TextProps) {
@@ -40,10 +40,10 @@ export const ThemedText = {
   },
 
   BodySecondary(props: TextProps) {
-    return <TextWrapper fontWeight={400} fontSize={14} color="neutral2" fontFamily="Montserrat" {...props} />
+    return <TextWrapper fontWeight={485} fontSize={16} color="neutral2" fontFamily="Montserrat" {...props} />
   },
 
-  Title(props: TextProps) {
-    return <TextWrapper fontWeight={600} fontSize={16} color="neutral1" fontFamily="Montserrat" {...props} />
+  Subtitle(props: TextProps) {
+    return <TextWrapper fontWeight={400} fontSize={12} color="neutral2" fontFamily="Montserrat" {...props} />
   },
 }

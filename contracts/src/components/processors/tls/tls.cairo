@@ -3,10 +3,13 @@ pub mod TLSProcessorComponent {
     use core::num::traits::zero::Zero;
     use openzeppelin::access::ownable::OwnableComponent;
     use openzeppelin::access::ownable::ownable::OwnableComponent::InternalTrait as OwnableInternalTrait;
-    use starknet::{ContractAddress, get_caller_address};
+    use starknet::{
+        ContractAddress, get_caller_address, get_block_timestamp,
+        storage::{Map, StorageMapReadAccess, StorageMapWriteAccess}
+    };
     use zkramp::components::processors::tls::interface;
     use zkramp::contracts::nullifier_registry::interface::{
-        NullifierRegistryABIDispatcher, NullifierRegistryABIDispatcherTrait
+        INullifierRegistryDispatcher, INullifierRegistryDispatcherTrait
     };
 
     //
@@ -18,7 +21,7 @@ pub mod TLSProcessorComponent {
         TLSProcessor_ramp_address: ContractAddress,
         TLSProcessor_enpoint: ByteArray,
         TLSProcessor_host: ByteArray,
-        TLSProcessor_nullifier_registry: NullifierRegistryABIDispatcher,
+        TLSProcessor_nullifier_registry: INullifierRegistryDispatcher,
         TLSProcessor_timestamp_buffer: felt252,
     }
 
@@ -74,7 +77,7 @@ pub mod TLSProcessorComponent {
         fn initializer(
             ref self: ComponentState<TContractState>,
             ramp_address: ContractAddress,
-            nullifier_registry: NullifierRegistryABIDispatcher,
+            nullifier_registry: INullifierRegistryDispatcher,
             timestamp_buffer: felt252,
             enpoint: ByteArray,
             host: ByteArray

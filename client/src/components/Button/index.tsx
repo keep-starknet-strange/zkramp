@@ -6,13 +6,16 @@ export const PrimaryButton = styled.button`
   align-items: center;
   justify-content: center;
   width: 100%;
-  padding: 16px;
+  padding: 19px 16px;
   background-color: ${({ theme }) => theme.accent1};
   border: 0;
   border-radius: 12px;
   font-weight: 500;
   text-decoration: none;
   cursor: pointer;
+  color: ${({ theme }) => theme.neutral1};
+  font-size: 16px;
+  font-weight: 485;
 
   &:disabled {
     background-color: ${({ theme }) => theme.surface};
