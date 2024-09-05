@@ -22,8 +22,7 @@ export const config = {
   filter,
   sinkType: 'postgres',
   sinkOptions: {
-    connectionString: '',
-    tableName: '',
+    tableName: 'indexer_locked',
   },
 }
 
