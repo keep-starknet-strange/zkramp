@@ -25,6 +25,35 @@ pub mod EscrowComponent {
     }
 
     //
+    //  EVENTS
+    //
+    #[event]
+    #[derive(Drop, starknet::Event)]
+    pub enum Event {
+        Locked: Locked,
+        UnLocked: UnLocked
+    }
+
+    /// Emitted when the escrow is locked
+    #[derive(Drop, starknet::Event)]
+    pub struct Locked {
+        #[key]
+        pub token: ContractAddress,
+        pub from: ContractAddress,
+        pub amount: u256,
+    }
+
+    /// Emitted when the escrow is unlocked
+    #[derive(Drop, starknet::Event)]
+    pub struct UnLocked {
+        #[key]
+        pub token: ContractAddress,
+        pub from: ContractAddress,
+        pub to: ContractAddress,
+        pub amount: u256,
+    }
+
+    //
     // Escrow impl
     //
 
@@ -46,6 +75,9 @@ pub mod EscrowComponent {
             erc20_dispatcher.transfer_from(from, get_contract_address(), amount);
 
             self.deposits.write((from, token), amount + locked_amount);
+
+            // emit event
+            self.emit(Locked { token, from, amount });
         }
 
         fn unlock_to(
@@ -71,6 +103,8 @@ pub mod EscrowComponent {
 
             // update locked amount
             self.deposits.write((from, token), locked_amount - amount);
+            // emit event
+            self.emit(UnLocked { token, from, to, amount });
         }
     }
 }
