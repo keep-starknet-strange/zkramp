@@ -3,7 +3,7 @@ import { apibara } from './deps.ts'
 export const getCommonValues = (
   header: apibara.BlockHeader,
   event: apibara.Event,
-  transaction: apibara.Transaction
+  transaction: apibara.Transaction,
 ) => {
   const { blockNumber, blockHash, timestamp } = header
 
