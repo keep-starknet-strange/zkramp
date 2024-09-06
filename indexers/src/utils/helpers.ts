@@ -3,12 +3,11 @@ import { apibara } from './deps.ts'
 export const getCommonValues = (
   header: apibara.BlockHeader,
   event: apibara.Event,
-  transaction: apibara.Transaction,
+  transaction: apibara.Transaction
 ) => {
   const { blockNumber, blockHash, timestamp } = header
 
   const transactionHash = transaction.meta.hash
-  const eventId = `${transactionHash}_${event.index ?? 0}`
   const IndexInBlock = (transaction.meta.transactionIndex ?? 0) * 1_000 + (event.index ?? 0)
 
   return {
@@ -19,7 +18,5 @@ export const getCommonValues = (
     block_timestamp: timestamp,
     transaction_hash: transactionHash,
     index_in_block: IndexInBlock,
-
-    id: eventId,
   }
 }

@@ -32,6 +32,8 @@ export default function transform({ header, events }: apibara.Block) {
     .map(({ event, transaction }) => {
       if (!event.data || !event.keys) return null
 
+      const eventId = `${transaction.meta.hash}_${event.index ?? 0}`
+
       const tokenAddress = event.keys[1]
       const [fromAddress, amountLow, amountHigh] = event.data
 
@@ -42,6 +44,8 @@ export default function transform({ header, events }: apibara.Block) {
 
       return {
         ...getCommonValues(header!, event, transaction),
+
+        id: eventId,
 
         token_address: tokenAddress,
         from_address: fromAddress,
