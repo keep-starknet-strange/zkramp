@@ -5,6 +5,8 @@ import { fileURLToPath } from 'node:url'
 import signale from 'signale'
 import { json } from 'starknet'
 
+import { Contract } from '../types/contract'
+
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
@@ -28,7 +30,7 @@ export const getContracts = async () => {
   return contracts
 }
 
-export const getContract = async (contractName: string) => {
+export const getContract = async (contractName: string): Promise<Contract> => {
   const contracts = await getContracts()
 
   const contract = contracts.find((contract) => contract.includes(contractName))
@@ -42,6 +44,7 @@ export const getContract = async (contractName: string) => {
   const compiledClassPath = join(TARGET_PATH, `${contract}.compiled_contract_class.json`)
 
   return {
+    name: contractName,
     classPath,
     compiledClassPath,
     classFile: json.parse(await fs.readFile(classPath, 'ascii')),
