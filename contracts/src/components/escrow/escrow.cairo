@@ -5,11 +5,12 @@ pub mod EscrowComponent {
     use starknet::{ContractAddress, get_contract_address};
     use zkramp::components::escrow::interface;
 
-#[derive(Drop, Serde, starknet::Store, Clone)]
-pub struct LockFund {
-    pub amount: u256,
-    pub lock_fund_id: u256,
-}
+    #[derive(Drop, Serde, starknet::Store, Clone)]
+    pub struct LockFund {
+        pub amount: u256,
+        pub duration: u256,
+        pub lock_fund_id: u256,
+    }
 
     //
     // Storage
@@ -50,6 +51,8 @@ pub struct LockFund {
         pub token: ContractAddress,
         pub from: ContractAddress,
         pub amount: u256,
+        pub duration: u256,
+        pub lock_fund_id: u256,
     }
 
     /// Emitted when the escrow is unlocked
@@ -74,7 +77,8 @@ pub struct LockFund {
             ref self: ComponentState<TContractState>,
             from: ContractAddress,
             token: ContractAddress,
-            amount: u256
+            amount: u256,
+            duration: u256,
         ) {
             let locked_amount = self.deposits.read((from, token));
 
@@ -84,19 +88,18 @@ pub struct LockFund {
             erc20_dispatcher.transfer_from(from, get_contract_address(), amount);
 
             self.deposits.write((from, token), amount + locked_amount);
-            
-            let lock_fund_id = self.lock_fund_id_count.read();
-            // lock the funds
-            let lock_fund: LockFund {
-                amount: amount,
-                lock_fund_id: lock_fund_id + 1
 
-            };
+            let lock_fund_id = self.lock_fund_id_count.read();
+            let new_update_count_id = lock_fund_id + 1;
+            // lock the funds
+            let lock_fund = LockFund { amount, duration, lock_fund_id: new_update_count_id };
 
             self.lock_funds.write(from, lock_fund);
 
+            self.lock_fund_id_count.write(new_update_count_id);
+
             // emit event
-            self.emit(Locked { token, from, amount });
+            self.emit(Locked { token, from, amount, duration, lock_fund_id:new_update_count_id });
         }
 
         fn unlock_to(
