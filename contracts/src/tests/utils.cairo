@@ -1,8 +1,4 @@
-use core::traits::TryInto;
-
-use openzeppelin::presets::interfaces::{
-    ERC20UpgradeableABIDispatcher, ERC20UpgradeableABIDispatcherTrait
-};
+use openzeppelin::presets::interfaces::{ERC20UpgradeableABIDispatcher};
 
 use openzeppelin::utils::serde::SerializedAppend;
 
@@ -26,4 +22,3 @@ pub fn setup_erc20(recipient: ContractAddress) -> ERC20UpgradeableABIDispatcher 
 
     ERC20UpgradeableABIDispatcher { contract_address: contract_address }
 }
-

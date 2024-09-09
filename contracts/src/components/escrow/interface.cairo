@@ -1,4 +1,3 @@
-use core::hash::HashStateExTrait;
 use starknet::ContractAddress;
 
 #[starknet::interface]
@@ -12,4 +11,3 @@ pub trait IEscrow<TState> {
         amount: u256
     );
 }
-

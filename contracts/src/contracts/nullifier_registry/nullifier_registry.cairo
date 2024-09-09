@@ -4,12 +4,10 @@ pub mod NullifierRegistry {
     use core::option::OptionTrait;
     use openzeppelin::access::ownable::OwnableComponent;
     use starknet::{
-        ContractAddress, get_caller_address, get_block_timestamp,
-        storage::{Map, Vec, StorageMapReadAccess, StorageMapWriteAccess, VecTrait, MutableVecTrait}
+        ContractAddress, get_caller_address,
+        storage::{Map, Vec, StorageMapReadAccess, StorageMapWriteAccess, MutableVecTrait}
     };
-    use zkramp::contracts::nullifier_registry::interface::{
-        INullifierRegistry, INullifierRegistryDispatcher, INullifierRegistryDispatcherTrait
-    };
+    use zkramp::contracts::nullifier_registry::interface::{INullifierRegistry};
 
     component!(path: OwnableComponent, storage: ownable, event: OwnableEvent);
 
@@ -134,13 +132,11 @@ pub mod NullifierRegistry {
 mod NullifierRegistry_tests {
     use core::traits::Into;
     use snforge_std::{
-        declare, ContractClass, ContractClassTrait, spy_events, EventSpyAssertionsTrait,
-        start_cheat_caller_address, stop_cheat_caller_address, EventSpy
+        declare, ContractClassTrait, start_cheat_caller_address, stop_cheat_caller_address
     };
     use starknet::{ContractAddress};
-    use super::NullifierRegistry;
     use zkramp::contracts::nullifier_registry::interface::{
-        INullifierRegistry, INullifierRegistryDispatcher, INullifierRegistryDispatcherTrait
+        INullifierRegistryDispatcher, INullifierRegistryDispatcherTrait
     };
 
     const OWNER_ADDR: felt252 = 0x1;
@@ -318,4 +314,3 @@ mod NullifierRegistry_tests {
         stop_cheat_caller_address(contract_address);
     }
 }
-

@@ -1,4 +1,3 @@
-use core::hash::HashStateExTrait;
 use starknet::ContractAddress;
 use zkramp::utils::hash::HashSerializable;
 
