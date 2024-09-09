@@ -99,7 +99,7 @@ pub mod EscrowComponent {
             self.lock_fund_id_count.write(new_update_count_id);
 
             // emit event
-            self.emit(Locked { token, from, amount, duration, lock_fund_id:new_update_count_id });
+            self.emit(Locked { token, from, amount, duration, lock_fund_id: new_update_count_id });
         }
 
         fn unlock_to(
