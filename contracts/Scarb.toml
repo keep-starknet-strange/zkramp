@@ -19,6 +19,7 @@ sort-module-level-items = true
 [[target.starknet-contract]]
 sierra = true
 casm = true
+build-external-contracts = ["openzeppelin::presets::ERC20Upgradeable"]
 
 [scripts]
 test = "snforge test"

@@ -1,10 +1,29 @@
-use starknet::{SyscallResultTrait, syscalls};
+use core::traits::TryInto;
 
-pub fn deploy(contract_class_hash: felt252, calldata: Array<felt252>) -> starknet::ContractAddress {
-    let (address, _) = syscalls::deploy_syscall(
-        contract_class_hash.try_into().unwrap(), 0, calldata.span(), false
-    )
-        .unwrap_syscall();
+use openzeppelin::presets::interfaces::{
+    ERC20UpgradeableABIDispatcher, ERC20UpgradeableABIDispatcherTrait
+};
 
-    address
+use openzeppelin::utils::serde::SerializedAppend;
+
+use snforge_std::{declare, ContractClassTrait};
+use starknet::ContractAddress;
+
+use super::constants;
+
+
+pub fn setup_erc20(recipient: ContractAddress) -> ERC20UpgradeableABIDispatcher {
+    let mut calldata = array![];
+
+    calldata.append_serde(constants::NAME());
+    calldata.append_serde(constants::SYMBOL());
+    calldata.append_serde(constants::SUPPLY); // 1 ETH
+    calldata.append_serde(recipient);
+    calldata.append_serde(recipient);
+
+    let contract = declare("ERC20Upgradeable").unwrap();
+    let (contract_address, _) = contract.deploy(@calldata).unwrap();
+
+    ERC20UpgradeableABIDispatcher { contract_address: contract_address }
 }
+
