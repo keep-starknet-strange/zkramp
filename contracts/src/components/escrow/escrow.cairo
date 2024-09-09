@@ -57,7 +57,7 @@ pub mod EscrowComponent {
     // Escrow impl
     //
 
-    #[embeddable_as(RegistryImpl)]
+    #[embeddable_as(EscrowImpl)]
     impl Escrow<
         TContractState, +HasComponent<TContractState>, +Drop<TContractState>,
     > of interface::IEscrow<ComponentState<TContractState>> {
