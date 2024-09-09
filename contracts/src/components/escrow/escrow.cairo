@@ -73,6 +73,9 @@ pub mod EscrowComponent {
     impl Escrow<
         TContractState, +HasComponent<TContractState>, +Drop<TContractState>,
     > of interface::IEscrow<ComponentState<TContractState>> {
+        fn init_lock_count(ref self: ComponentState<TContractState>) {
+            self.lock_fund_id_count.write(0);
+        }
         fn lock_from(
             ref self: ComponentState<TContractState>,
             from: ContractAddress,

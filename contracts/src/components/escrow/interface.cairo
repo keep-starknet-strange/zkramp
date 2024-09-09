@@ -17,5 +17,7 @@ pub trait IEscrow<TState> {
         token: ContractAddress,
         amount: u256
     );
+
+    fn init_lock_count(ref self: TState);
 }
 
