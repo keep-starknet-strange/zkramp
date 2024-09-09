@@ -5,6 +5,12 @@ pub mod EscrowComponent {
     use starknet::{ContractAddress, get_contract_address};
     use zkramp::components::escrow::interface;
 
+#[derive(Drop, Serde, starknet::Store, Clone)]
+pub struct LockFund {
+    pub amount: u256,
+    pub lock_fund_id: u256,
+}
+
     //
     // Storage
     //
@@ -13,6 +19,9 @@ pub mod EscrowComponent {
     struct Storage {
         // (owner, token) -> amount
         deposits: Map::<(ContractAddress, ContractAddress), u256>,
+        // (owner, (amount, Id_number))
+        lock_funds: Map<ContractAddress, LockFund>,
+        lock_fund_id_count: u256
     }
 
     //
@@ -75,6 +84,16 @@ pub mod EscrowComponent {
             erc20_dispatcher.transfer_from(from, get_contract_address(), amount);
 
             self.deposits.write((from, token), amount + locked_amount);
+            
+            let lock_fund_id = self.lock_fund_id_count.read();
+            // lock the funds
+            let lock_fund: LockFund {
+                amount: amount,
+                lock_fund_id: lock_fund_id + 1
+
+            };
+
+            self.lock_funds.write(from, lock_fund);
 
             // emit event
             self.emit(Locked { token, from, amount });
