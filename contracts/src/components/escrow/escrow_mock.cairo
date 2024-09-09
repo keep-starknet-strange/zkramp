@@ -2,10 +2,7 @@ use super::escrow::EscrowComponent;
 
 #[starknet::contract]
 pub mod EscrowMock {
-    use starknet::ContractAddress;
-    use starknet::account::Call;
     use zkramp::components::escrow::escrow::EscrowComponent;
-    use zkramp::components::escrow::interface::IEscrow;
 
     component!(path: EscrowComponent, storage: escrow, event: EscrowEvent);
 

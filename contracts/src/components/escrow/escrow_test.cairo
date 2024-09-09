@@ -3,7 +3,7 @@ use core::starknet::get_contract_address;
 use openzeppelin::presets::interfaces::ERC20UpgradeableABIDispatcherTrait;
 
 use zkramp::components::escrow::escrow::EscrowComponent::EscrowImpl;
-use zkramp::components::escrow::escrow_mock::{EscrowMock, TestingStateDefault, ComponentState};
+use zkramp::components::escrow::escrow_mock::{TestingStateDefault, ComponentState};
 
 use zkramp::tests::constants;
 use zkramp::tests::utils;
@@ -28,4 +28,3 @@ fn test_lock_unlock() {
 
     assert_eq!(escrow.deposits.read((constants::OWNER(), token_dispatcher.contract_address)), 0);
 }
-

@@ -2,9 +2,6 @@ use super::registry::RegistryComponent;
 
 #[starknet::contract]
 pub mod RegistryMock {
-    use starknet::ContractAddress;
-    use starknet::account::Call;
-    use zkramp::components::registry::interface::IRegistry;
     use zkramp::components::registry::registry::RegistryComponent;
 
     component!(path: RegistryComponent, storage: registry, event: RegistryEvent);

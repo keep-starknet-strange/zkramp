@@ -1,18 +1,10 @@
-use core::starknet::{ContractAddress, contract_address_const};
-use snforge_std::{
-    declare, ContractClassTrait, ContractClass, start_cheat_caller_address, EventSpy,
-    EventSpyAssertionsTrait, spy_events, test_address, EventSpyTrait
-};
-use zkramp::components::registry::interface::{IRegistryDispatcher, IRegistryDispatcherTrait};
+use core::starknet::ContractAddress;
+use snforge_std::{start_cheat_caller_address, EventSpyAssertionsTrait, spy_events, test_address};
 use zkramp::components::registry::registry::{
-    RegistryComponent, RegistryComponent::{Event, RegistrationEvent, RegistryImpl}
+    RegistryComponent::{Event, RegistrationEvent, RegistryImpl}
 };
-use zkramp::components::registry::registry_mock::{
-    RegistryMock, TestingStateDefault, ComponentState
-};
+use zkramp::components::registry::registry_mock::{TestingStateDefault, ComponentState};
 use zkramp::tests::constants;
-use zkramp::tests::utils;
-
 
 //
 // Externals

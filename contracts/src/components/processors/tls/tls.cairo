@@ -3,10 +3,7 @@ pub mod TLSProcessorComponent {
     use core::num::traits::zero::Zero;
     use openzeppelin::access::ownable::OwnableComponent;
     use openzeppelin::access::ownable::ownable::OwnableComponent::InternalTrait as OwnableInternalTrait;
-    use starknet::{
-        ContractAddress, get_caller_address, get_block_timestamp,
-        storage::{Map, StorageMapReadAccess, StorageMapWriteAccess}
-    };
+    use starknet::{ContractAddress, get_caller_address,};
     use zkramp::components::processors::tls::interface;
     use zkramp::contracts::nullifier_registry::interface::{
         INullifierRegistryDispatcher, INullifierRegistryDispatcherTrait
