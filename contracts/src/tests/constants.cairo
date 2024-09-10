@@ -13,6 +13,14 @@ pub fn CALLER() -> ContractAddress {
     contract_address_const::<'caller'>()
 }
 
+pub fn SPENDER() -> ContractAddress {
+    contract_address_const::<'soender'>()
+}
+
+pub fn RECIPIENT() -> ContractAddress {
+    contract_address_const::<'recipient'>()
+}
+
 pub fn OWNER() -> ContractAddress {
     contract_address_const::<'owner'>()
 }

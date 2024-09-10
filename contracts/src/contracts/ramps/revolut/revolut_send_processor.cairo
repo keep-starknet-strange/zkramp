@@ -59,8 +59,6 @@ pub mod RevolutSendProcessor {
         self.ownable.initializer(:owner);
 
         // initialize TLS processor
-        self
-            .tls_processor
-            .initializer(:ramp_address, :nullifier_registry, :timestamp_buffer, :enpoint, :host);
+        self.tls_processor.initializer(:ramp_address, :nullifier_registry, :timestamp_buffer, :enpoint, :host);
     }
 }
