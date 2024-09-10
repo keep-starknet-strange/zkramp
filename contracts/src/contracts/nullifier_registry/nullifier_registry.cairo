@@ -131,9 +131,7 @@ pub mod NullifierRegistry {
 #[cfg(test)]
 mod NullifierRegistry_tests {
     use core::traits::Into;
-    use snforge_std::{
-        declare, ContractClassTrait, start_cheat_caller_address, stop_cheat_caller_address
-    };
+    use snforge_std::{declare, ContractClassTrait, start_cheat_caller_address, stop_cheat_caller_address};
     use starknet::{ContractAddress};
     use zkramp::contracts::nullifier_registry::interface::{
         INullifierRegistryDispatcher, INullifierRegistryDispatcherTrait
@@ -145,9 +143,7 @@ mod NullifierRegistry_tests {
     fn deploy_NullifierRegistry(owner: felt252) -> ContractAddress {
         let mut nullifier_constructor_calldata = array![owner];
         let mut nullifier_contract = declare("NullifierRegistry").unwrap();
-        let (contract_address, _) = nullifier_contract
-            .deploy(@nullifier_constructor_calldata)
-            .unwrap();
+        let (contract_address, _) = nullifier_contract.deploy(@nullifier_constructor_calldata).unwrap();
 
         contract_address
     }

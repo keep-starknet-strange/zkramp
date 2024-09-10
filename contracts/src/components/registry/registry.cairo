@@ -49,9 +49,7 @@ pub mod RegistryComponent {
         TContractState, +HasComponent<TContractState>, +Drop<TContractState>,
     > of interface::IRegistry<ComponentState<TContractState>> {
         fn is_registered(
-            self: @ComponentState<TContractState>,
-            contract_address: ContractAddress,
-            offchain_id: OffchainId
+            self: @ComponentState<TContractState>, contract_address: ContractAddress, offchain_id: OffchainId
         ) -> bool {
             self.Registry_registrations.read((contract_address, offchain_id))
         }

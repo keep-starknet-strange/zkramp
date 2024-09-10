@@ -1,8 +1,6 @@
 use core::starknet::ContractAddress;
 use snforge_std::{start_cheat_caller_address, EventSpyAssertionsTrait, spy_events, test_address};
-use zkramp::components::registry::registry::{
-    RegistryComponent::{Event, RegistrationEvent, RegistryImpl}
-};
+use zkramp::components::registry::registry::{RegistryComponent::{Event, RegistrationEvent, RegistryImpl}};
 use zkramp::components::registry::registry_mock::{TestingStateDefault, ComponentState};
 use zkramp::tests::constants;
 
@@ -40,9 +38,7 @@ fn test_registration_event() {
                 (
                     test_address,
                     Event::RegistrationEvent(
-                        RegistrationEvent {
-                            caller: constants::CALLER(), offchain_id: constants::REVOLUT_ID()
-                        }
+                        RegistrationEvent { caller: constants::CALLER(), offchain_id: constants::REVOLUT_ID() }
                     )
                 )
             ]
