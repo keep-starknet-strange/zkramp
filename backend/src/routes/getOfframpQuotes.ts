@@ -1,7 +1,7 @@
-import type { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify'
-import { locked } from '@/db/schema'
+import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
 
 import type { Database } from '@/db/drizzle'
+import { locked } from '@/db/schema'
 
 export function getOfframpQuotes(fastify: FastifyInstance) {
   fastify.get('/get-offramp-quotes', async (request, reply) => handleGetOfframpQuotes(fastify.db, request, reply))
