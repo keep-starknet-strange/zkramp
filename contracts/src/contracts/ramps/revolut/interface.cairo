@@ -7,7 +7,7 @@ struct Proof {
 }
 
 #[starknet::interface]
-trait zkRampABI<TState> {
+pub trait zkRampABI<TState> {
     // check if a contract address is linked to an offchain ID
     fn is_registered(self: @TState, contract_address: ContractAddress, offchain_id: OffchainId) -> bool;
 
