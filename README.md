@@ -122,6 +122,7 @@ Thanks goes to these wonderful people. Follow the [contributors guide](https://g
     <tr>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/BryanBorck"><img src="https://avatars.githubusercontent.com/u/62529683?v=4?s=100" width="100px;" alt="Bryan"/><br /><sub><b>Bryan</b></sub></a><br /><a href="https://github.com/starkware/zkramp/commits?author=BryanBorck" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/manlikeHB"><img src="https://avatars.githubusercontent.com/u/109147010?v=4?s=100" width="100px;" alt="Yusuf Habib"/><br /><sub><b>Yusuf Habib</b></sub></a><br /><a href="https://github.com/starkware/zkramp/commits?author=manlikeHB" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="http://mubarak23.github.io/"><img src="https://avatars.githubusercontent.com/u/7858376?v=4?s=100" width="100px;" alt="Mubarak Muhammad Aminu"/><br /><sub><b>Mubarak Muhammad Aminu</b></sub></a><br /><a href="https://github.com/starkware/zkramp/commits?author=mubarak23" title="Code">💻</a></td>
     </tr>
   </tbody>
   <tfoot>
