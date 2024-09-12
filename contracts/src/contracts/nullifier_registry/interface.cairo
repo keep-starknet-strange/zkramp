@@ -1,4 +1,4 @@
-use starknet::{ContractAddress, storage::{Map, StorageMapReadAccess, StorageMapWriteAccess}};
+use starknet::ContractAddress;
 
 #[starknet::interface]
 pub trait INullifierRegistry<TContractState> {

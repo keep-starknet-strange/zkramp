@@ -3,10 +3,7 @@ pub mod TLSProcessorComponent {
     use core::num::traits::zero::Zero;
     use openzeppelin::access::ownable::OwnableComponent;
     use openzeppelin::access::ownable::ownable::OwnableComponent::InternalTrait as OwnableInternalTrait;
-    use starknet::{
-        ContractAddress, get_caller_address, get_block_timestamp,
-        storage::{Map, StorageMapReadAccess, StorageMapWriteAccess}
-    };
+    use starknet::{ContractAddress, get_caller_address,};
     use zkramp::components::processors::tls::interface;
     use zkramp::contracts::nullifier_registry::interface::{
         INullifierRegistryDispatcher, INullifierRegistryDispatcherTrait
@@ -54,9 +51,7 @@ pub mod TLSProcessorComponent {
         ///
         /// @param timestamp_buffer    The timestamp buffer for validated TLS calls
         ///
-        fn set_timestamp_buffer(
-            ref self: ComponentState<TContractState>, timestamp_buffer: felt252
-        ) {
+        fn set_timestamp_buffer(ref self: ComponentState<TContractState>, timestamp_buffer: felt252) {
             // assert only owner
             let mut ownable_component = get_dep_component!(@self, Ownable);
             ownable_component.assert_only_owner();
@@ -104,9 +99,7 @@ pub mod TLSProcessorComponent {
             assert(expected_endpoint == endpoint, Errors::BAD_ENDPOINT);
         }
 
-        fn _validate_TLS_host(
-            self: @ComponentState<TContractState>, expected_host: ByteArray, host: ByteArray
-        ) {
+        fn _validate_TLS_host(self: @ComponentState<TContractState>, expected_host: ByteArray, host: ByteArray) {
             assert(expected_host == host, Errors::BAD_HOST);
         }
 
@@ -117,9 +110,7 @@ pub mod TLSProcessorComponent {
             nullifier_registry.add_nullifier(:nullifier);
         }
 
-        fn _validate_signature(
-            self: @ComponentState<TContractState>,
-        ) { // TODO: verifiy signature, can we use SNIP-12?
+        fn _validate_signature(self: @ComponentState<TContractState>,) { // TODO: verifiy signature, can we use SNIP-12?
         }
     }
 }

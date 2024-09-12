@@ -57,15 +57,12 @@ pub mod EscrowComponent {
     // Escrow impl
     //
 
-    #[embeddable_as(RegistryImpl)]
+    #[embeddable_as(EscrowImpl)]
     impl Escrow<
         TContractState, +HasComponent<TContractState>, +Drop<TContractState>,
     > of interface::IEscrow<ComponentState<TContractState>> {
         fn lock_from(
-            ref self: ComponentState<TContractState>,
-            from: ContractAddress,
-            token: ContractAddress,
-            amount: u256
+            ref self: ComponentState<TContractState>, from: ContractAddress, token: ContractAddress, amount: u256
         ) {
             let locked_amount = self.deposits.read((from, token));
 
