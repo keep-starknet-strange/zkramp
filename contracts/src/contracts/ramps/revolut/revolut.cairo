@@ -1,5 +1,6 @@
 #[starknet::contract]
 pub mod RevolutRamp {
+    use core::poseidon::PoseidonTrait;
     use openzeppelin::access::ownable::OwnableComponent;
     use starknet::storage::Map;
     use starknet::{ContractAddress, get_caller_address};
@@ -22,13 +23,17 @@ pub mod RevolutRamp {
         #[substorage(v0)]
         ownable: OwnableComponent::Storage,
         token: ContractAddress,
-        // offchain_id -> address
-        offchain_registry: Map::<OffchainId, ContractAddress>,
-        next_liquidity_id: felt252,
         // liquidity_id -> amount
-        liquidities: Map::<felt252, u256>,
-        // address -> liquidity_id
-        liquidity_by_address: Map::<ContractAddress, felt252>,
+        liquidity: Map::<felt252, u256>,
+    }
+
+    //
+    // Errors
+    //
+
+    pub mod Errors {
+        pub const NOT_REGISTERED: felt252 = 'Caller is not registered';
+        pub const INVALID_AMOUNT: felt252 = 'Invalid amount';
     }
 
     //
@@ -64,6 +69,16 @@ pub mod RevolutRamp {
     }
 
     //
+    // Structs
+    //
+
+    #[derive(Drop, Hash)]
+    pub struct LiquidityIdHash {
+        address: ContractAddress,
+        offchain_id: OffchainId,
+    }
+
+    //
     // Constructor
     //
 
@@ -73,43 +88,32 @@ pub mod RevolutRamp {
         self.ownable.initializer(:owner);
 
         self.token.write(token);
-        self.next_liquidity_id.write(1);
     }
 
     #[abi(embed_v0)]
     impl RevolutImpl of zkRampABI<ContractState> {
-        fn is_registered(self: @ContractState, contract_address: ContractAddress, offchain_id: OffchainId,) -> bool {
-            self.offchain_registry.read(offchain_id) == contract_address
+        fn is_registered(
+            self: @ContractState, contract_address: ContractAddress, offchain_id: OffchainId,
+        ) -> bool {
+            true
         }
 
-        fn register(ref self: ContractState, offchain_id: OffchainId) {
-            let contract_address = get_caller_address();
+        fn add_liquidity(
+            ref self: ContractState, amount: u256, offchain_id: OffchainId,
+        ) -> felt252 {
+            let caller = get_caller_address();
 
-            // Register the offchain_id with the caller address
-            self.offchain_registry.write(offchain_id.clone(), contract_address);
+            assert(self.is_registered(self, caller, offchain_id), Errors::NOT_REGISTERED);
+            assert(amount.is_not_zero(), Errors::INVALID_AMOUNT);
 
-            // Emit Registered event
-            self.emit(Registered { offchain_id, contract_address });
-        }
+            // Get the liquidity ID by hashing the offchain ID and the caller's address
+            let liquidity_id = PoseidonTrait::new()
+                .update_with(LiquidityIdHash { address: caller, offchain_id })
+                .finalize();
 
-        fn add_liquidity(ref self: ContractState, amount: u256, offchain_id: OffchainId,) -> felt252 {
-            let address = self.offchain_registry.read(offchain_id.clone());
-            let existing_liquidity_id = self.liquidity_by_address.read(address);
-            let mut liquidity_id = 0;
-
-            if existing_liquidity_id != 0 {
-                liquidity_id = existing_liquidity_id;
-            } else {
-                // Get the liquidity ID and increment it for the next liquidity
-                liquidity_id = self.next_liquidity_id.read();
-                self.next_liquidity_id.write(liquidity_id + 1);
-            }
-
-            let existing_amount = self.liquidities.read(liquidity_id);
-
-            // Create a new liquidity position
-            self.liquidity_by_address.write(address, liquidity_id);
-            self.liquidities.write(liquidity_id, existing_amount + amount);
+            // Add the liquidity to the contract
+            let existing_amount = self.liquidity.read(liquidity_id);
+            self.liquidity.write(liquidity_id, existing_amount + amount);
 
             // Emit LiquidityAdded event
             self.emit(LiquidityAdded { liquidity_id, offchain_id, amount });
