@@ -1,12 +1,10 @@
 use core::starknet::{ContractAddress, contract_address_const};
 use zkramp::components::registry::interface::OffchainId;
 
-pub fn REVTAG() -> ByteArray {
-    "my wonderfull, incredible but also very long, revtag"
-}
+const REVTAG: felt252 = 'just a random revtag hash';
 
 pub fn REVOLUT_ID() -> OffchainId {
-    OffchainId::Revolut(REVTAG())
+    OffchainId::Revolut(REVTAG)
 }
 
 pub fn CALLER() -> ContractAddress {
