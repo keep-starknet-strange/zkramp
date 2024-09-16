@@ -1,11 +1,11 @@
 #[starknet::contract]
 pub mod RevolutRamp {
-    use core::poseidon::PoseidonTrait;
+    use core::num::traits::Zero;
     use openzeppelin::access::ownable::OwnableComponent;
     use starknet::storage::Map;
     use starknet::{ContractAddress, get_caller_address};
     use zkramp::components::registry::interface::OffchainId;
-    use zkramp::contracts::ramps::revolut::interface::zkRampABI;
+    use zkramp::contracts::ramps::revolut::interface::{LiquidityKey, IZKRampLiquidity};
 
     component!(path: OwnableComponent, storage: ownable, event: OwnableEvent);
 
@@ -23,8 +23,8 @@ pub mod RevolutRamp {
         #[substorage(v0)]
         ownable: OwnableComponent::Storage,
         token: ContractAddress,
-        // liquidity_id -> amount
-        liquidity: Map::<felt252, u256>,
+        // liquidity_key -> amount
+        liquidity: Map::<LiquidityKey, u256>,
     }
 
     //
@@ -40,42 +40,22 @@ pub mod RevolutRamp {
     // Events
     //
 
+    // Emitted when liquidity is added
+    #[derive(Drop, starknet::Event)]
+    pub struct LiquidityAdded {
+        #[key]
+        pub owner: ContractAddress,
+        #[key]
+        pub offchain_id: OffchainId,
+        pub amount: u256,
+    }
+
     #[event]
     #[derive(Drop, starknet::Event)]
     enum Event {
         #[flat]
         OwnableEvent: OwnableComponent::Event,
         LiquidityAdded: LiquidityAdded,
-        Registered: Registered,
-    }
-
-    // Emitted when liquidity is added
-    #[derive(Drop, starknet::Event)]
-    pub struct LiquidityAdded {
-        #[key]
-        pub liquidity_id: felt252,
-        #[key]
-        pub offchain_id: OffchainId,
-        pub amount: u256,
-    }
-
-    // Emitted when a new address is linked to an offchain ID
-    #[derive(Drop, starknet::Event)]
-    pub struct Registered {
-        #[key]
-        pub offchain_id: OffchainId,
-        #[key]
-        pub contract_address: ContractAddress,
-    }
-
-    //
-    // Structs
-    //
-
-    #[derive(Drop, Hash)]
-    pub struct LiquidityIdHash {
-        address: ContractAddress,
-        offchain_id: OffchainId,
     }
 
     //
@@ -83,42 +63,45 @@ pub mod RevolutRamp {
     //
 
     #[constructor]
-    fn constructor(ref self: ContractState, owner: ContractAddress, token: ContractAddress,) {
+    fn constructor(ref self: ContractState, owner: ContractAddress, token: ContractAddress) {
         // initialize owner
         self.ownable.initializer(:owner);
 
         self.token.write(token);
     }
 
-    #[abi(embed_v0)]
-    impl RevolutImpl of zkRampABI<ContractState> {
-        fn is_registered(
-            self: @ContractState, contract_address: ContractAddress, offchain_id: OffchainId,
-        ) -> bool {
+
+    #[generate_trait]
+    impl Private of PrivateTrait {
+        // just a mock
+        fn is_registered(self: @ContractState, contract_address: ContractAddress, offchain_id: OffchainId) -> bool {
             true
         }
+    }
 
-        fn add_liquidity(
-            ref self: ContractState, amount: u256, offchain_id: OffchainId,
-        ) -> felt252 {
+    #[abi(embed_v0)]
+    impl ZKRampLiquidityImpl of IZKRampLiquidity<ContractState> {
+        /// Create a liquidity position by locking an amonunt and asking for
+        /// its equivalent on a specific offchain ID.
+        ///
+        /// If the liquidity position already exists,
+        /// just increase the locked amount.
+        fn add_liquidity(ref self: ContractState, amount: u256, offchain_id: OffchainId) {
             let caller = get_caller_address();
 
-            assert(self.is_registered(self, caller, offchain_id), Errors::NOT_REGISTERED);
-            assert(amount.is_not_zero(), Errors::INVALID_AMOUNT);
+            // assert caller registered the offchain ID
+            assert(self.is_registered(contract_address: caller, :offchain_id), Errors::NOT_REGISTERED);
+            assert(amount.is_non_zero(), Errors::INVALID_AMOUNT);
 
-            // Get the liquidity ID by hashing the offchain ID and the caller's address
-            let liquidity_id = PoseidonTrait::new()
-                .update_with(LiquidityIdHash { address: caller, offchain_id })
-                .finalize();
+            // get liquidity key
+            let liquidity_key = LiquidityKey { owner: caller, offchain_id };
 
             // Add the liquidity to the contract
-            let existing_amount = self.liquidity.read(liquidity_id);
-            self.liquidity.write(liquidity_id, existing_amount + amount);
+            let existing_amount = self.liquidity.read(liquidity_key);
+            self.liquidity.write(liquidity_key, existing_amount + amount);
 
             // Emit LiquidityAdded event
-            self.emit(LiquidityAdded { liquidity_id, offchain_id, amount });
-
-            liquidity_id
+            self.emit(LiquidityAdded { owner: caller, offchain_id, amount });
         }
     }
 }
