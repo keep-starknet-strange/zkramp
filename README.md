@@ -39,44 +39,46 @@ The concept was initially conceived and developed by [ZKP2P](https://zkp2p.xyz) 
 
 ## Roadmap
 
-### Milestone 01 - E2E flow without data verification
+### Milestone 1 - Liquidity mgmt
+Implements unchain logic to manage liquidity and allow ramping.
+
+Tasks: 
+- [ ] Offchain account registration
+- [x] Defining the architecture
+- [x] Liquidity addition
+- [ ] Liquidity retrieval
+- [ ] Liquidity withdrawal 
+- [ ] Full unit test coverage
+- [ ] Full integration test coverage
+### Milestone 2 - Backend
+Index onchain events and build API to find the best quotes when a user ask to onramp.
+
+Tasks: 
+- [ ] Defining database architecture
+- [ ] Infra setup
+- [ ] Liquidity indexing
+- [ ] Registration indexing
+- [ ] Quote computation
+- [ ] Registration API
+- [ ] full test coverage
+### Milestone 3 - Frontend
+Design and build frontend without plugging it to the backend.
+
 Tasks:
- 
-- [ ] extension mockup
-- [ ] client mockup
-- [ ] extension UI
-- [ ] client swap page UI
-- [ ] client wallet mgmt UI
-- [ ] client registation page UI
-- [ ] relevant data detection from extension
-- [ ] extension/client connection
-- [ ] onchain registration
-- [ ] onchain escrow
+- [x] Layout (mockup)
+- [x] Layout
+- [x] Buying flow (mockup)
+- [ ] Buying flow
+- [x] Selling flow (mockup)
+- [ ] Selling flow
+- [ ] Registration flow (mockup)
+- [ ] Registration flow
+- [ ] Proof generation flow (mockup)
+- [ ] Proof generation flow
+### Milestone 4 - TLS Proxy
+Implements TLS Proxy to generate proofs from an “attestor”, gather them in the frontend and verify them onchain.
 
-### Milestone 02 - Offchain notarization and SNARK generation
-Tasks:
-
-- [ ] Notary mgmt UI in extension
-- [ ] 2PC-TLS with notary mgmt
-- [ ] Prover commitment generation
-- [ ] generation of the verification zk-SNARK
-
-### Milestone 03 - Onchain verification
-Tasks:
-
-- [ ] zk-SNARK (groth16) verification with Garaga
-- [ ] escrow assertions based on previous verification
-
-### Milestone 04 - Liquidity mgmt improved
-Tasks:
-
-- [ ] Liquidity lock/unlock implementation to avoid onramp collusions
-- [ ] Allow better granularity
-- [ ] Liquidity mgmt UI in client
-- [ ] Onchain Liquidity mgmt implementation
-
-### Milestone 05 - Notaries decentralisation
-DVM could be an interesting solution to achieve this goal
+Tasks: TBD
 
 ## Flowchart 🎡
 
