@@ -7,3 +7,4 @@ pub mod escrow_mock;
 pub mod escrow_test;
 pub mod interface;
 
+pub use escrow::EscrowComponent;

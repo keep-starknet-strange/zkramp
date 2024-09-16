@@ -63,7 +63,7 @@ pub mod RegistryComponent {
             // TODO: caller a processor to verify the proof of registration
 
             // save registration
-            self.Registry_registrations.write((caller, offchain_id.clone()), true);
+            self.Registry_registrations.write((caller, offchain_id), true);
 
             // emit registration event
             self.emit(RegistrationEvent { caller: caller, offchain_id: offchain_id });
