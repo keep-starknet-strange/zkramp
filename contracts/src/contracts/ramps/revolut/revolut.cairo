@@ -53,8 +53,8 @@ pub mod RevolutRamp {
         pub const NOT_REGISTERED: felt252 = 'Caller is not registered';
         pub const INVALID_AMOUNT: felt252 = 'Invalid amount';
         pub const WRONG_CALLER_ADDRESS: felt252 = 'Wrong caller address';
-        pub const EMPTY_LIQUIDITY_retrievAL: felt252 = 'Empty liquidity retrieval';
-        pub const LOCKED_LIQUIDITY_retrievAL: felt252 = 'Locked liquidity retrieval';
+        pub const EMPTY_LIQUIDITY_RETRIEVAL: felt252 = 'Empty liquidity retrieval';
+        pub const LOCKED_LIQUIDITY_RETRIEVAL: felt252 = 'Locked liquidity retrieval';
     }
 
     //
