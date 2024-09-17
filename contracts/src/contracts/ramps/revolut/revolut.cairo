@@ -146,7 +146,7 @@ pub mod RevolutRamp {
             let caller = get_caller_address();
 
             // asserts liquidity amount is non null
-            assert(self.liquidity.read(liquidity_key).is_non_zero(), Errors::EMPTY_LIQUIDITY_retrievAL);
+            assert(self.liquidity.read(liquidity_key).is_non_zero(), Errors::EMPTY_LIQUIDITY_RETRIEVAL);
             // asserts caller is the liquidity owner
             assert(liquidity_key.owner == caller, Errors::WRONG_CALLER_ADDRESS);
 
