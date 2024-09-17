@@ -40,13 +40,13 @@ The concept was initially conceived and developed by [ZKP2P](https://zkp2p.xyz) 
 ## Roadmap
 
 ### Milestone 1 - Liquidity mgmt
-Implements unchain logic to manage liquidity and allow ramping.
+Implements onchain logic to manage liquidity and allow ramping.
 
 Tasks: 
 - [ ] Offchain account registration
 - [x] Defining the architecture
 - [x] Liquidity addition
-- [ ] Liquidity retrieval
+- [x] Liquidity retrieval
 - [ ] Liquidity withdrawal 
 - [ ] Full unit test coverage
 - [ ] Full integration test coverage
