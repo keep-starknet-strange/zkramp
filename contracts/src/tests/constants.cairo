@@ -12,7 +12,7 @@ pub fn CALLER() -> ContractAddress {
 }
 
 pub fn SPENDER() -> ContractAddress {
-    contract_address_const::<'soender'>()
+    contract_address_const::<'spender'>()
 }
 
 pub fn RECIPIENT() -> ContractAddress {

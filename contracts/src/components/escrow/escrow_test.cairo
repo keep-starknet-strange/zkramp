@@ -1,8 +1,8 @@
 use core::starknet::get_contract_address;
 
 use openzeppelin::presets::interfaces::ERC20UpgradeableABIDispatcherTrait;
-use snforge_std::{start_cheat_caller_address, EventSpyAssertionsTrait, spy_events};
-use zkramp::components::escrow::escrow::EscrowComponent::{Event, Locked, UnLocked, EscrowImpl};
+use snforge_std::start_cheat_caller_address;
+use zkramp::components::escrow::escrow::EscrowComponent::EscrowImpl;
 use zkramp::components::escrow::escrow_mock::{TestingStateDefault, ComponentState};
 use zkramp::tests::constants;
 use zkramp::tests::utils;
@@ -14,7 +14,6 @@ use zkramp::tests::utils;
 
 #[test]
 fn test_lock() {
-    let mut spy = spy_events();
     let token_dispatcher = utils::setup_erc20(recipient: constants::OWNER());
     start_cheat_caller_address(token_dispatcher.contract_address, constants::OWNER());
 
@@ -27,29 +26,15 @@ fn test_lock() {
 
     let mut escrow: ComponentState = Default::default();
 
-    escrow.lock_from(constants::SPENDER(), token_dispatcher.contract_address, 42);
+    escrow.lock(constants::SPENDER(), token_dispatcher.contract_address, 42);
 
     assert_eq!(token_dispatcher.balance_of(constants::SPENDER()), 58);
     assert_eq!(token_dispatcher.allowance(constants::SPENDER(), constants::RECIPIENT()), 0);
-
-    // test event emission
-    spy
-        .assert_emitted(
-            @array![
-                (
-                    get_contract_address(),
-                    Event::Locked(
-                        Locked { token: token_dispatcher.contract_address, from: constants::SPENDER(), amount: 42 }
-                    )
-                )
-            ]
-        )
 }
 
 
 #[test]
 fn test_lock_unlock() {
-    let mut spy = spy_events();
     let token_dispatcher = utils::setup_erc20(recipient: constants::OWNER());
     start_cheat_caller_address(token_dispatcher.contract_address, constants::OWNER());
 
@@ -62,49 +47,19 @@ fn test_lock_unlock() {
 
     let mut escrow: ComponentState = Default::default();
 
-    escrow.lock_from(constants::SPENDER(), token_dispatcher.contract_address, 42);
+    escrow.lock(constants::SPENDER(), token_dispatcher.contract_address, 42);
 
     start_cheat_caller_address(token_dispatcher.contract_address, get_contract_address());
 
     token_dispatcher.approve(constants::RECIPIENT(), 42);
 
     start_cheat_caller_address(token_dispatcher.contract_address, constants::RECIPIENT());
-    escrow.unlock_to(constants::SPENDER(), constants::RECIPIENT(), token_dispatcher.contract_address, 42);
+    escrow.unlock(constants::SPENDER(), constants::RECIPIENT(), token_dispatcher.contract_address, 42);
 
     assert_eq!(token_dispatcher.balance_of(constants::SPENDER()), 58);
     assert_eq!(token_dispatcher.balance_of(constants::RECIPIENT()), 42);
     assert_eq!(token_dispatcher.allowance(constants::SPENDER(), constants::RECIPIENT()), 0);
     assert_eq!(escrow.deposits.read((constants::SPENDER(), token_dispatcher.contract_address)), 0);
-
-    // test event emission
-    spy
-        .assert_emitted(
-            @array![
-                (
-                    get_contract_address(),
-                    Event::Locked(
-                        Locked { token: token_dispatcher.contract_address, from: constants::SPENDER(), amount: 42 }
-                    )
-                )
-            ]
-        );
-
-    spy
-        .assert_emitted(
-            @array![
-                (
-                    get_contract_address(),
-                    Event::UnLocked(
-                        UnLocked {
-                            token: token_dispatcher.contract_address,
-                            from: constants::SPENDER(),
-                            to: constants::RECIPIENT(),
-                            amount: 42
-                        }
-                    )
-                )
-            ]
-        )
 }
 
 
@@ -123,19 +78,19 @@ fn test_lock_unlock_greater_than_balance() {
 
     let mut escrow: ComponentState = Default::default();
 
-    escrow.lock_from(constants::SPENDER(), token_dispatcher.contract_address, 42);
+    escrow.lock(constants::SPENDER(), token_dispatcher.contract_address, 42);
 
     start_cheat_caller_address(token_dispatcher.contract_address, get_contract_address());
 
     token_dispatcher.approve(constants::RECIPIENT(), 42);
 
     start_cheat_caller_address(token_dispatcher.contract_address, constants::RECIPIENT());
-    escrow.unlock_to(constants::SPENDER(), constants::RECIPIENT(), token_dispatcher.contract_address, 420);
+    escrow.unlock(constants::SPENDER(), constants::RECIPIENT(), token_dispatcher.contract_address, 420);
 }
 
 #[test]
 #[should_panic(expected: 'ERC20: insufficient allowance')]
-fn test_lock_from_unallowed_caller() {
+fn test_lock_unallowed_caller() {
     let token_dispatcher = utils::setup_erc20(recipient: constants::OWNER());
     start_cheat_caller_address(token_dispatcher.contract_address, constants::OWNER());
 
@@ -149,5 +104,5 @@ fn test_lock_from_unallowed_caller() {
 
     let mut escrow: ComponentState = Default::default();
 
-    escrow.lock_from(constants::SPENDER(), token_dispatcher.contract_address, 42);
+    escrow.lock(constants::SPENDER(), token_dispatcher.contract_address, 42);
 }
