@@ -54,7 +54,7 @@ pub mod RevolutRamp {
         pub const INVALID_AMOUNT: felt252 = 'Invalid amount';
         pub const WRONG_CALLER_ADDRESS: felt252 = 'Wrong caller address';
         pub const EMPTY_LIQUIDITY_RETRIEVAL: felt252 = 'Empty liquidity retrieval';
-        pub const LOCKED_LIQUIDITY_RETRIEVAL: felt252 = 'Locked liquidity retrieval';
+        pub const UNLOCKED_LIQUIDITY_RETRIEVAL: felt252 = 'Unlocked liquidity retrieval';
     }
 
     //
@@ -159,6 +159,11 @@ pub mod RevolutRamp {
 
         fn retrieve_liquidity(ref self: ContractState, liquidity_key: LiquidityKey) {
             let caller = get_caller_address();
+
+            // asserts caller is the liquidity owner
+            assert(self.locked_liquidity.read(liquidity_key), Errors::UNLOCKED_LIQUIDITY_RETRIEVAL);
+            // asserts caller is the liquidity owner
+            assert(liquidity_key.owner == caller, Errors::WRONG_CALLER_ADDRESS);
 
             let token = self.token.read();
             let amount = self.liquidity.read(liquidity_key);

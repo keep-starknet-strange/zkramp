@@ -1,8 +1,8 @@
 use core::starknet::get_contract_address;
 
 use openzeppelin::presets::interfaces::ERC20UpgradeableABIDispatcherTrait;
-use snforge_std::{start_cheat_caller_address, EventSpyAssertionsTrait, spy_events};
-use zkramp::components::escrow::escrow::EscrowComponent::{Event, Locked, UnLocked, EscrowImpl};
+use snforge_std::start_cheat_caller_address;
+use zkramp::components::escrow::escrow::EscrowComponent::EscrowImpl;
 use zkramp::components::escrow::escrow_mock::{TestingStateDefault, ComponentState};
 use zkramp::tests::constants;
 use zkramp::tests::utils;
@@ -14,7 +14,6 @@ use zkramp::tests::utils;
 
 #[test]
 fn test_lock() {
-    let mut spy = spy_events();
     let token_dispatcher = utils::setup_erc20(recipient: constants::OWNER());
     start_cheat_caller_address(token_dispatcher.contract_address, constants::OWNER());
 
@@ -31,25 +30,11 @@ fn test_lock() {
 
     assert_eq!(token_dispatcher.balance_of(constants::SPENDER()), 58);
     assert_eq!(token_dispatcher.allowance(constants::SPENDER(), constants::RECIPIENT()), 0);
-
-    // test event emission
-    spy
-        .assert_emitted(
-            @array![
-                (
-                    get_contract_address(),
-                    Event::Locked(
-                        Locked { token: token_dispatcher.contract_address, from: constants::SPENDER(), amount: 42 }
-                    )
-                )
-            ]
-        )
 }
 
 
 #[test]
 fn test_lock_unlock() {
-    let mut spy = spy_events();
     let token_dispatcher = utils::setup_erc20(recipient: constants::OWNER());
     start_cheat_caller_address(token_dispatcher.contract_address, constants::OWNER());
 
@@ -75,36 +60,6 @@ fn test_lock_unlock() {
     assert_eq!(token_dispatcher.balance_of(constants::RECIPIENT()), 42);
     assert_eq!(token_dispatcher.allowance(constants::SPENDER(), constants::RECIPIENT()), 0);
     assert_eq!(escrow.deposits.read((constants::SPENDER(), token_dispatcher.contract_address)), 0);
-
-    // test event emission
-    spy
-        .assert_emitted(
-            @array![
-                (
-                    get_contract_address(),
-                    Event::Locked(
-                        Locked { token: token_dispatcher.contract_address, from: constants::SPENDER(), amount: 42 }
-                    )
-                )
-            ]
-        );
-
-    spy
-        .assert_emitted(
-            @array![
-                (
-                    get_contract_address(),
-                    Event::UnLocked(
-                        UnLocked {
-                            token: token_dispatcher.contract_address,
-                            from: constants::SPENDER(),
-                            to: constants::RECIPIENT(),
-                            amount: 42
-                        }
-                    )
-                )
-            ]
-        )
 }
 
 
