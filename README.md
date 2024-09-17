@@ -43,7 +43,7 @@ The concept was initially conceived and developed by [ZKP2P](https://zkp2p.xyz) 
 Implements onchain logic to manage liquidity and allow ramping.
 
 Tasks: 
-- [ ] Offchain account registration
+- [x] Offchain account registration
 - [x] Defining the architecture
 - [x] Liquidity addition
 - [x] Liquidity retrieval
