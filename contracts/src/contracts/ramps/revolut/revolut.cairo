@@ -4,9 +4,9 @@ pub mod RevolutRamp {
     use openzeppelin::access::ownable::OwnableComponent;
     use starknet::storage::Map;
     use starknet::{ContractAddress, get_caller_address};
-    use zkramp::components::registry::interface::OffchainId;
-    use zkramp::contracts::ramps::revolut::interface::{LiquidityKey, IZKRampLiquidity};
+    use zkramp::components::registry::interface::{OffchainId, IRegistry};
     use zkramp::components::registry::registry::RegistryComponent;
+    use zkramp::contracts::ramps::revolut::interface::{LiquidityKey, IZKRampLiquidity};
 
     component!(path: OwnableComponent, storage: ownable, event: OwnableEvent);
     component!(path: RegistryComponent, storage: registry, event: RegistryEvent);
@@ -16,7 +16,6 @@ pub mod RevolutRamp {
     impl OwnableMixinImpl = OwnableComponent::OwnableMixinImpl<ContractState>;
     impl OwnableInternalImpl = OwnableComponent::InternalImpl<ContractState>;
 
-    
     // Registry
     #[abi(embed_v0)]
     impl RegistryImpl = RegistryComponent::RegistryImpl<ContractState>;
@@ -31,7 +30,6 @@ pub mod RevolutRamp {
         ownable: OwnableComponent::Storage,
         #[substorage(v0)]
         registry: RegistryComponent::Storage,
-
         token: ContractAddress,
         // liquidity_key -> amount
         liquidity: Map::<LiquidityKey, u256>,
@@ -67,7 +65,6 @@ pub mod RevolutRamp {
         OwnableEvent: OwnableComponent::Event,
         #[flat]
         RegistryEvent: RegistryComponent::Event,
-        
         LiquidityAdded: LiquidityAdded,
     }
 
@@ -83,15 +80,6 @@ pub mod RevolutRamp {
         self.token.write(token);
     }
 
-
-    #[generate_trait]
-    impl Private of PrivateTrait {
-        // just a mock
-        fn is_registered(self: @ContractState, contract_address: ContractAddress, offchain_id: OffchainId) -> bool {
-            true
-        }
-    }
-
     #[abi(embed_v0)]
     impl ZKRampLiquidityImpl of IZKRampLiquidity<ContractState> {
         /// Create a liquidity position by locking an amonunt and asking for
@@ -103,7 +91,7 @@ pub mod RevolutRamp {
             let caller = get_caller_address();
 
             // assert caller registered the offchain ID
-            assert(self.is_registered(contract_address: caller, :offchain_id), Errors::NOT_REGISTERED);
+            assert(self.registry.is_registered(contract_address: caller, :offchain_id), Errors::NOT_REGISTERED);
             assert(amount.is_non_zero(), Errors::INVALID_AMOUNT);
 
             // get liquidity key
