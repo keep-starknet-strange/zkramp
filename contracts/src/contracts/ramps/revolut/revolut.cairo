@@ -8,7 +8,9 @@ pub mod RevolutRamp {
     use zkramp::components::escrow::escrow::EscrowComponent;
     use zkramp::components::registry::interface::{OffchainId, IRegistry};
     use zkramp::components::registry::registry::RegistryComponent;
-    use zkramp::contracts::ramps::revolut::interface::{LiquidityKey, IZKRampLiquidity};
+    use zkramp::contracts::ramps::revolut::interface::{
+        LiquidityKey, LiquidityShareRequest, LiquidityShareRequestStatus, IZKRampLiquidity
+    };
 
     component!(path: OwnableComponent, storage: ownable, event: OwnableEvent);
     component!(path: RegistryComponent, storage: registry, event: RegistryEvent);
@@ -43,6 +45,10 @@ pub mod RevolutRamp {
         liquidity: Map::<LiquidityKey, u256>,
         // liquidity_key -> is_locked
         locked_liquidity: Map::<LiquidityKey, bool>,
+        // request_id -> LiquidityShareRequest
+        liquidity_share_requests: Map::<felt252, LiquidityShareRequest>,
+        
+        share_request_counter: felt252,
     }
 
     //
@@ -55,6 +61,8 @@ pub mod RevolutRamp {
         pub const WRONG_CALLER_ADDRESS: felt252 = 'Wrong caller address';
         pub const EMPTY_LIQUIDITY_RETRIEVAL: felt252 = 'Empty liquidity retrieval';
         pub const UNLOCKED_LIQUIDITY_RETRIEVAL: felt252 = 'Unlocked liquidity retrieval';
+        pub const INVALID_REQUEST_AMOUNT: felt252 = 'Invalid request amount';
+        pub const REQUEST_NOT_FOUND: felt252 = 'Request not found';
     }
 
     //
@@ -73,6 +81,10 @@ pub mod RevolutRamp {
         LiquidityAdded: LiquidityAdded,
         LiquidityLocked: LiquidityLocked,
         LiquidityRetrieved: LiquidityRetrieved,
+        LiquidityShareRequested: LiquidityShareRequested,
+        LiquidityShareAccepted: LiquidityShareAccepted,
+        LiquidityShareRejected: LiquidityShareRejected,
+        LiquidityShareCancelled: LiquidityShareCancelled,
     }
 
     // Emitted when liquidity is added
@@ -94,6 +106,42 @@ pub mod RevolutRamp {
     #[derive(Drop, starknet::Event)]
     pub struct LiquidityRetrieved {
         #[key]
+        pub liquidity_key: LiquidityKey,
+        pub amount: u256,
+    }
+
+    // Emitted when a liquidity share is requested
+    #[derive(Drop, starknet::Event)]
+    pub struct LiquidityShareRequested {
+        #[key]
+        pub request_id: felt252,
+        pub liquidity_key: LiquidityKey,
+        pub amount: u256,
+    }
+
+    // Emitted when a liquidity share request is accepted
+    #[derive(Drop, starknet::Event)]
+    pub struct LiquidityShareAccepted {
+        #[key]
+        pub request_id: felt252,
+        pub liquidity_key: LiquidityKey,
+        pub amount: u256,
+    }
+
+    // Emitted when a liquidity share request is rejected
+    #[derive(Drop, starknet::Event)]
+    pub struct LiquidityShareRejected {
+        #[key]
+        pub request_id: felt252,
+        pub liquidity_key: LiquidityKey,
+        pub amount: u256,
+    }
+
+    // Emitted when a liquidity share request is cancelled
+    #[derive(Drop, starknet::Event)]
+    pub struct LiquidityShareCancelled {
+        #[key]
+        pub request_id: felt252,
         pub liquidity_key: LiquidityKey,
         pub amount: u256,
     }
@@ -122,7 +170,10 @@ pub mod RevolutRamp {
             let token = self.token.read();
 
             // assert caller registered the offchain ID
-            assert(self.registry.is_registered(contract_address: caller, :offchain_id), Errors::NOT_REGISTERED);
+            assert(
+                self.registry.is_registered(contract_address: caller, :offchain_id),
+                Errors::NOT_REGISTERED
+            );
             assert(amount.is_non_zero(), Errors::INVALID_AMOUNT);
 
             // get liquidity key
@@ -146,7 +197,9 @@ pub mod RevolutRamp {
             let caller = get_caller_address();
 
             // asserts liquidity amount is non null
-            assert(self.liquidity.read(liquidity_key).is_non_zero(), Errors::EMPTY_LIQUIDITY_RETRIEVAL);
+            assert(
+                self.liquidity.read(liquidity_key).is_non_zero(), Errors::EMPTY_LIQUIDITY_RETRIEVAL
+            );
             // asserts caller is the liquidity owner
             assert(liquidity_key.owner == caller, Errors::WRONG_CALLER_ADDRESS);
 
@@ -173,6 +226,104 @@ pub mod RevolutRamp {
 
             // emits Liquidityretrieved event
             self.emit(LiquidityRetrieved { liquidity_key, amount });
+        }
+
+        /// Request a liquidity share from the liquidity owner.
+        fn request_liquidity_share(
+            ref self: ContractState, liquidity_key: LiquidityKey, amount: u256
+        ) {
+            assert(amount.is_non_zero(), Errors::INVALID_REQUEST_AMOUNT);
+            let caller = get_caller_address();
+
+            let request_id = self.share_request_counter.read() + 1;
+            self.share_request_counter.write(request_id);
+
+            let request = LiquidityShareRequest { requestor: caller, liquidity_key, amount, status: LiquidityShareRequestStatus::Pending };
+            self.liquidity_share_requests.write(request_id, request);
+
+            // emits LiquidityShareRequested event
+            self.emit(LiquidityShareRequested { request_id, liquidity_key, amount });
+        }
+
+        /// Accept a liquidity share request.
+        fn accept_liquidity_share_request(ref self: ContractState, request_id: felt252) {
+            let caller = get_caller_address();
+            let request = self.liquidity_share_requests.read(request_id);
+            assert(request.liquidity_key.owner == caller, Errors::WRONG_CALLER_ADDRESS);
+
+            let token = self.token.read();
+            let amount = request.amount;
+
+            // Transfer the liquidity share to the requestor
+            self.escrow.unlock(
+                from: caller,
+                to: request.requestor,
+                :token,
+                :amount
+            );
+
+            // accept the request
+            let updated_request = LiquidityShareRequest {
+                status: LiquidityShareRequestStatus::Accepted,
+                ..request 
+            };
+            self.liquidity_share_requests.write(request_id, updated_request);
+
+            // reject the request
+            let updated_request = LiquidityShareRequest {
+                status: LiquidityShareRequestStatus::Rejected,
+                ..request 
+            };
+            self.liquidity_share_requests.write(request_id, request);
+
+            // Emit LiquidityShareAccepted event
+            self.emit(LiquidityShareAccepted {
+                request_id,
+                liquidity_key: request.liquidity_key,
+                amount
+            });
+        }
+
+        /// Reject a liquidity share request.
+        fn reject_liquidity_share_request(ref self: ContractState, request_id: felt252) {
+            let caller = get_caller_address();
+            let request = self.liquidity_share_requests.read(request_id);
+            assert(request.liquidity_key.owner == caller, Errors::WRONG_CALLER_ADDRESS);
+
+            // reject the request
+            let updated_request = LiquidityShareRequest {
+                status: LiquidityShareRequestStatus::Rejected,
+                ..request 
+            };
+            self.liquidity_share_requests.write(request_id, updated_request);
+
+            // Emit LiquidityShareRejected event
+            self.emit(LiquidityShareRejected {
+                request_id,
+                liquidity_key: request.liquidity_key,
+                amount: request.amount
+            }); 
+        }
+
+        /// Cancel a liquidity share request.
+        fn cancel_liquidity_share_request(ref self: ContractState, request_id: felt252) {
+            let caller = get_caller_address();
+            let request = self.liquidity_share_requests.read(request_id);
+            assert(request.requestor == caller, Errors::WRONG_CALLER_ADDRESS);
+
+            // cancel the request
+            let updated_request = LiquidityShareRequest {
+                status: LiquidityShareRequestStatus::Cancelled,
+                ..request
+            };
+            self.liquidity_share_requests.write(request_id, updated_request);
+
+            // Emit LiquidityShareCancelled event
+            self.emit(LiquidityShareCancelled {
+                request_id,
+                liquidity_key: request.liquidity_key,
+                amount: request.amount
+            }); 
         }
     }
 }
