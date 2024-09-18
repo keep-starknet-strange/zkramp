@@ -6,26 +6,18 @@ pub struct Proof {
     foo: felt252
 }
 
-#[derive(Drop, Copy, Hash, Serde)]
+#[derive(Drop, Copy, Hash, Serde, starknet::Store)]
 pub struct LiquidityKey {
     pub owner: ContractAddress,
     pub offchain_id: OffchainId,
 }
 
-#[derive(Drop, Copy, Hash, Serde)]
+#[derive(Drop, Copy, starknet::Store)]
 pub struct LiquidityShareRequest {
     pub requestor: ContractAddress,
     pub liquidity_key: LiquidityKey,
     pub amount: u256,
-    pub status: LiquidityShareRequestStatus,
-}
-
-#[derive(Drop, Copy, Hash, Serde)]
-pub enum LiquidityShareRequestStatus {
-    Pending,
-    Accepted,
-    Rejected,
-    Cancelled,
+    pub expiration_date: u64,
 }
 
 #[starknet::interface]
@@ -33,10 +25,9 @@ pub trait IZKRampLiquidity<TState> {
     fn add_liquidity(ref self: TState, amount: u256, offchain_id: OffchainId);
     fn retrieve_liquidity(ref self: TState, liquidity_key: LiquidityKey);
     fn initiate_liquidity_retrieval(ref self: TState, liquidity_key: LiquidityKey);
-    fn request_liquidity_share(ref self: TState, liquidity_key: LiquidityKey, amount: u256);
-    fn accept_liquidity_share_request(ref self: TState, request_id: felt252);
-    fn reject_liquidity_share_request(ref self: TState, request_id: felt252);
-    fn cancel_liquidity_share_request(ref self: TState, request_id: felt252);
+    fn initiate_liquidity_withdrawal(
+        ref self: TState, offchain_id: OffchainId, liquidity_key: LiquidityKey, amount: u256
+    );
 }
 
 #[starknet::interface]

@@ -1,7 +1,7 @@
 use starknet::ContractAddress;
 use zkramp::utils::hash::HashSerializable;
 
-#[derive(Drop, Copy, Serde, Debug, PartialEq)]
+#[derive(Drop, Copy, Serde, Debug, PartialEq, starknet::Store)]
 pub enum OffchainId {
     Revolut: felt252
 }

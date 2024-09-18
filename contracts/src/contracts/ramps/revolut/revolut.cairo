@@ -4,13 +4,15 @@ pub mod RevolutRamp {
     use core::starknet::storage::{StoragePointerReadAccess};
     use openzeppelin::access::ownable::OwnableComponent;
     use starknet::storage::Map;
-    use starknet::{ContractAddress, get_caller_address};
+    use starknet::{ContractAddress, get_caller_address, get_block_timestamp};
     use zkramp::components::escrow::escrow::EscrowComponent;
     use zkramp::components::registry::interface::{OffchainId, IRegistry};
     use zkramp::components::registry::registry::RegistryComponent;
-    use zkramp::contracts::ramps::revolut::interface::{
-        LiquidityKey, LiquidityShareRequest, LiquidityShareRequestStatus, IZKRampLiquidity
-    };
+    use zkramp::contracts::ramps::revolut::interface::{LiquidityKey, IZKRampLiquidity, LiquidityShareRequest};
+
+    //
+    // Components
+    //
 
     component!(path: OwnableComponent, storage: ownable, event: OwnableEvent);
     component!(path: RegistryComponent, storage: registry, event: RegistryEvent);
@@ -29,6 +31,13 @@ pub mod RevolutRamp {
     impl EscrowImplImpl = EscrowComponent::EscrowImpl<ContractState>;
 
     //
+    // Constants
+    //
+
+    const LOCK_DURATION_STEP: u64 = 900; // 15min
+    const MINIMUM_LOCK_DURATION: u64 = 3600; // 1h
+
+    //
     // Storage
     //
 
@@ -45,10 +54,10 @@ pub mod RevolutRamp {
         liquidity: Map::<LiquidityKey, u256>,
         // liquidity_key -> is_locked
         locked_liquidity: Map::<LiquidityKey, bool>,
-        // request_id -> LiquidityShareRequest
-        liquidity_share_requests: Map::<felt252, LiquidityShareRequest>,
-        
-        share_request_counter: felt252,
+        // (liquidity_key, timestamp) -> amount locked until timestamp is reached
+        locked_liquidity_shares: Map::<(LiquidityKey, u64), u256>,
+        // offchain_id -> liquidity share request
+        liquidity_share_request: Map::<OffchainId, LiquidityShareRequest>,
     }
 
     //
@@ -58,11 +67,13 @@ pub mod RevolutRamp {
     pub mod Errors {
         pub const NOT_REGISTERED: felt252 = 'Caller is not registered';
         pub const INVALID_AMOUNT: felt252 = 'Invalid amount';
-        pub const WRONG_CALLER_ADDRESS: felt252 = 'Wrong caller address';
-        pub const EMPTY_LIQUIDITY_RETRIEVAL: felt252 = 'Empty liquidity retrieval';
-        pub const UNLOCKED_LIQUIDITY_RETRIEVAL: felt252 = 'Unlocked liquidity retrieval';
-        pub const INVALID_REQUEST_AMOUNT: felt252 = 'Invalid request amount';
-        pub const REQUEST_NOT_FOUND: felt252 = 'Request not found';
+        pub const CALLER_IS_NOT_OWNER: felt252 = 'Caller is not the owner';
+        pub const CALLER_IS_OWNER: felt252 = 'Caller is the owner';
+        pub const NULL_AMOUNT: felt252 = 'Amount cannot be null';
+        pub const UNLOCKED_LIQUIDITY: felt252 = 'Liquidity is unlocked';
+        pub const NOT_ENOUGH_LIQUDITY: felt252 = 'Not enough liquidity';
+        pub const LOCKED_LIQUIDITY_WITHDRAW: felt252 = 'Liquidity is not available';
+        pub const BUSY_OFFCHAIN_ID: felt252 = 'This offchainID is busy';
     }
 
     //
@@ -82,9 +93,6 @@ pub mod RevolutRamp {
         LiquidityLocked: LiquidityLocked,
         LiquidityRetrieved: LiquidityRetrieved,
         LiquidityShareRequested: LiquidityShareRequested,
-        LiquidityShareAccepted: LiquidityShareAccepted,
-        LiquidityShareRejected: LiquidityShareRejected,
-        LiquidityShareCancelled: LiquidityShareCancelled,
     }
 
     // Emitted when liquidity is added
@@ -114,36 +122,11 @@ pub mod RevolutRamp {
     #[derive(Drop, starknet::Event)]
     pub struct LiquidityShareRequested {
         #[key]
-        pub request_id: felt252,
         pub liquidity_key: LiquidityKey,
         pub amount: u256,
-    }
-
-    // Emitted when a liquidity share request is accepted
-    #[derive(Drop, starknet::Event)]
-    pub struct LiquidityShareAccepted {
-        #[key]
-        pub request_id: felt252,
-        pub liquidity_key: LiquidityKey,
-        pub amount: u256,
-    }
-
-    // Emitted when a liquidity share request is rejected
-    #[derive(Drop, starknet::Event)]
-    pub struct LiquidityShareRejected {
-        #[key]
-        pub request_id: felt252,
-        pub liquidity_key: LiquidityKey,
-        pub amount: u256,
-    }
-
-    // Emitted when a liquidity share request is cancelled
-    #[derive(Drop, starknet::Event)]
-    pub struct LiquidityShareCancelled {
-        #[key]
-        pub request_id: felt252,
-        pub liquidity_key: LiquidityKey,
-        pub amount: u256,
+        pub requestor: ContractAddress,
+        pub offchain_id: OffchainId,
+        pub expiration_date: u64,
     }
 
     //
@@ -170,10 +153,7 @@ pub mod RevolutRamp {
             let token = self.token.read();
 
             // assert caller registered the offchain ID
-            assert(
-                self.registry.is_registered(contract_address: caller, :offchain_id),
-                Errors::NOT_REGISTERED
-            );
+            assert(self.registry.is_registered(contract_address: caller, :offchain_id), Errors::NOT_REGISTERED);
             assert(amount.is_non_zero(), Errors::INVALID_AMOUNT);
 
             // get liquidity key
@@ -193,15 +173,14 @@ pub mod RevolutRamp {
             self.emit(LiquidityAdded { liquidity_key, amount });
         }
 
+        /// Makes your liquidity unavailable, in order to retrieve it later.
         fn initiate_liquidity_retrieval(ref self: ContractState, liquidity_key: LiquidityKey) {
             let caller = get_caller_address();
 
             // asserts liquidity amount is non null
-            assert(
-                self.liquidity.read(liquidity_key).is_non_zero(), Errors::EMPTY_LIQUIDITY_RETRIEVAL
-            );
+            assert(self.liquidity.read(liquidity_key).is_non_zero(), Errors::NULL_AMOUNT);
             // asserts caller is the liquidity owner
-            assert(liquidity_key.owner == caller, Errors::WRONG_CALLER_ADDRESS);
+            assert(liquidity_key.owner == caller, Errors::CALLER_IS_NOT_OWNER);
 
             // locks liquidity
             self.locked_liquidity.write(liquidity_key, true);
@@ -210,13 +189,14 @@ pub mod RevolutRamp {
             self.emit(LiquidityLocked { liquidity_key });
         }
 
+        /// Retrieve liquidity if locked and owned by the caller.
         fn retrieve_liquidity(ref self: ContractState, liquidity_key: LiquidityKey) {
             let caller = get_caller_address();
 
             // asserts caller is the liquidity owner
-            assert(self.locked_liquidity.read(liquidity_key), Errors::UNLOCKED_LIQUIDITY_RETRIEVAL);
+            assert(self.locked_liquidity.read(liquidity_key), Errors::UNLOCKED_LIQUIDITY);
             // asserts caller is the liquidity owner
-            assert(liquidity_key.owner == caller, Errors::WRONG_CALLER_ADDRESS);
+            assert(liquidity_key.owner == caller, Errors::CALLER_IS_NOT_OWNER);
 
             let token = self.token.read();
             let amount = self.liquidity.read(liquidity_key);
@@ -228,102 +208,68 @@ pub mod RevolutRamp {
             self.emit(LiquidityRetrieved { liquidity_key, amount });
         }
 
-        /// Request a liquidity share from the liquidity owner.
-        fn request_liquidity_share(
-            ref self: ContractState, liquidity_key: LiquidityKey, amount: u256
+        fn initiate_liquidity_withdrawal(
+            ref self: ContractState, offchain_id: OffchainId, liquidity_key: LiquidityKey, amount: u256
         ) {
-            assert(amount.is_non_zero(), Errors::INVALID_REQUEST_AMOUNT);
             let caller = get_caller_address();
 
-            let request_id = self.share_request_counter.read() + 1;
-            self.share_request_counter.write(request_id);
+            // assert caller is not the liquidity owner
+            assert(liquidity_key.owner != caller, Errors::CALLER_IS_OWNER);
+            // assert liquidity is unlocked
+            assert(!self.locked_liquidity.read(liquidity_key), Errors::LOCKED_LIQUIDITY_WITHDRAW);
+            // assert offchain_id is not busy with another withdrawal
+            assert(self.liquidity_share_request.read(offchain_id).requestor.is_zero(), Errors::BUSY_OFFCHAIN_ID);
 
-            let request = LiquidityShareRequest { requestor: caller, liquidity_key, amount, status: LiquidityShareRequestStatus::Pending };
-            self.liquidity_share_requests.write(request_id, request);
+            // get actually available liquidity
+            let available_liquidity_amount = self._get_available_liquidity(:liquidity_key);
 
-            // emits LiquidityShareRequested event
-            self.emit(LiquidityShareRequested { request_id, liquidity_key, amount });
+            // assert requested amount is valid
+            assert(amount <= available_liquidity_amount, Errors::NOT_ENOUGH_LIQUDITY);
+
+            // compute liquidity share locking period
+            let expiration_date = self._get_next_timestamp_key(get_block_timestamp() + MINIMUM_LOCK_DURATION);
+
+            // lock liquidity share amount
+            let locked_amount = self.locked_liquidity_shares.read((liquidity_key, expiration_date));
+            self.locked_liquidity_shares.write((liquidity_key, expiration_date), locked_amount + amount);
+
+            // save share request
+            self
+                .liquidity_share_request
+                .write(
+                    offchain_id, LiquidityShareRequest { requestor: caller, liquidity_key, amount, expiration_date }
+                );
+
+            // emit event
+            self
+                .emit(
+                    LiquidityShareRequested { liquidity_key, amount, requestor: caller, offchain_id, expiration_date }
+                )
+        }
+    }
+
+    //
+    // Internals
+    //
+
+    #[generate_trait]
+    impl InternalImpl of InternalTrait {
+        fn _get_available_liquidity(self: @ContractState, liquidity_key: LiquidityKey) -> u256 {
+            let mut amount = self.liquidity.read(liquidity_key);
+            let current_timestamp = get_block_timestamp();
+            let mut key_timestamp = self._get_next_timestamp_key(current_timestamp + MINIMUM_LOCK_DURATION);
+
+            while key_timestamp > current_timestamp {
+                amount -= self.locked_liquidity_shares.read((liquidity_key, key_timestamp));
+                key_timestamp -= LOCK_DURATION_STEP;
+            };
+
+            amount
         }
 
-        /// Accept a liquidity share request.
-        fn accept_liquidity_share_request(ref self: ContractState, request_id: felt252) {
-            let caller = get_caller_address();
-            let request = self.liquidity_share_requests.read(request_id);
-            assert(request.liquidity_key.owner == caller, Errors::WRONG_CALLER_ADDRESS);
-
-            let token = self.token.read();
-            let amount = request.amount;
-
-            // Transfer the liquidity share to the requestor
-            self.escrow.unlock(
-                from: caller,
-                to: request.requestor,
-                :token,
-                :amount
-            );
-
-            // accept the request
-            let updated_request = LiquidityShareRequest {
-                status: LiquidityShareRequestStatus::Accepted,
-                ..request 
-            };
-            self.liquidity_share_requests.write(request_id, updated_request);
-
-            // reject the request
-            let updated_request = LiquidityShareRequest {
-                status: LiquidityShareRequestStatus::Rejected,
-                ..request 
-            };
-            self.liquidity_share_requests.write(request_id, request);
-
-            // Emit LiquidityShareAccepted event
-            self.emit(LiquidityShareAccepted {
-                request_id,
-                liquidity_key: request.liquidity_key,
-                amount
-            });
-        }
-
-        /// Reject a liquidity share request.
-        fn reject_liquidity_share_request(ref self: ContractState, request_id: felt252) {
-            let caller = get_caller_address();
-            let request = self.liquidity_share_requests.read(request_id);
-            assert(request.liquidity_key.owner == caller, Errors::WRONG_CALLER_ADDRESS);
-
-            // reject the request
-            let updated_request = LiquidityShareRequest {
-                status: LiquidityShareRequestStatus::Rejected,
-                ..request 
-            };
-            self.liquidity_share_requests.write(request_id, updated_request);
-
-            // Emit LiquidityShareRejected event
-            self.emit(LiquidityShareRejected {
-                request_id,
-                liquidity_key: request.liquidity_key,
-                amount: request.amount
-            }); 
-        }
-
-        /// Cancel a liquidity share request.
-        fn cancel_liquidity_share_request(ref self: ContractState, request_id: felt252) {
-            let caller = get_caller_address();
-            let request = self.liquidity_share_requests.read(request_id);
-            assert(request.requestor == caller, Errors::WRONG_CALLER_ADDRESS);
-
-            // cancel the request
-            let updated_request = LiquidityShareRequest {
-                status: LiquidityShareRequestStatus::Cancelled,
-                ..request
-            };
-            self.liquidity_share_requests.write(request_id, updated_request);
-
-            // Emit LiquidityShareCancelled event
-            self.emit(LiquidityShareCancelled {
-                request_id,
-                liquidity_key: request.liquidity_key,
-                amount: request.amount
-            }); 
+        fn _get_next_timestamp_key(self: @ContractState, after: u64) -> u64 {
+            // minus 1 in order to return `after` if it's already a valid key timestamp.
+            after - 1 + LOCK_DURATION_STEP - ((after - 1) % LOCK_DURATION_STEP)
         }
     }
 }
