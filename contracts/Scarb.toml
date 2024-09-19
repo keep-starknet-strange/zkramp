@@ -22,5 +22,10 @@ casm = true
 allowed-libfuncs-list.name = "audited"
 build-external-contracts = ["openzeppelin_presets::erc20::ERC20Upgradeable"]
 
+[profile.dev.cairo]
+unstable-add-statements-functions-debug-info = true
+unstable-add-statements-code-locations-debug-info = true
+inlining-strategy= "avoid"
+
 [scripts]
 test = "snforge test"
