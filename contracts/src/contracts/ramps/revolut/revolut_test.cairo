@@ -19,7 +19,7 @@ fn deploy_revolut_ramp() -> ZKRampABIDispatcher {
 }
 
 #[test]
-#[should_panic(expected: 'Unlocked liquidity retrieval')]
+#[should_panic(expected: 'Liquidity is unlocked')]
 fn test_retrieve_uninitialized_liquidity_should_panic() {
     let test_address: ContractAddress = test_address();
 

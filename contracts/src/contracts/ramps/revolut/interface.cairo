@@ -26,8 +26,9 @@ pub trait IZKRampLiquidity<TState> {
     fn retrieve_liquidity(ref self: TState, liquidity_key: LiquidityKey);
     fn initiate_liquidity_retrieval(ref self: TState, liquidity_key: LiquidityKey);
     fn initiate_liquidity_withdrawal(
-        ref self: TState, offchain_id: OffchainId, liquidity_key: LiquidityKey, amount: u256
+        ref self: TState, liquidity_key: LiquidityKey, amount: u256, offchain_id: OffchainId
     );
+    fn withdraw_liquidity(ref self: TState, liquidity_key: LiquidityKey, offchain_id: OffchainId, proof: Proof);
 }
 
 #[starknet::interface]
@@ -35,7 +36,10 @@ pub trait ZKRampABI<TState> {
     // IZKRampLiquidity
     fn add_liquidity(ref self: TState, amount: u256, offchain_id: OffchainId);
     fn retrieve_liquidity(ref self: TState, liquidity_key: LiquidityKey);
-    fn initiate_liquidity_retrieval(ref self: TState, liquidity_key: LiquidityKey);
+    fn initiate_liquidity_withdrawal(
+        ref self: TState, liquidity_key: LiquidityKey, amount: u256, offchain_id: OffchainId
+    );
+    fn withdraw_liquidity(ref self: TState, liquidity_key: LiquidityKey, offchain_id: OffchainId, proof: Proof);
 
     // IRegistry
     fn is_registered(self: @TState, contract_address: ContractAddress, offchain_id: OffchainId) -> bool;

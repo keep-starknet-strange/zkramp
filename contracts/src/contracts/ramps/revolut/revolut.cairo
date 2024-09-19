@@ -8,7 +8,7 @@ pub mod RevolutRamp {
     use zkramp::components::escrow::escrow::EscrowComponent;
     use zkramp::components::registry::interface::{OffchainId, IRegistry};
     use zkramp::components::registry::registry::RegistryComponent;
-    use zkramp::contracts::ramps::revolut::interface::{LiquidityKey, IZKRampLiquidity, LiquidityShareRequest};
+    use zkramp::contracts::ramps::revolut::interface::{LiquidityKey, IZKRampLiquidity, LiquidityShareRequest, Proof};
 
     //
     // Components
@@ -74,6 +74,7 @@ pub mod RevolutRamp {
         pub const NOT_ENOUGH_LIQUDITY: felt252 = 'Not enough liquidity';
         pub const LOCKED_LIQUIDITY_WITHDRAW: felt252 = 'Liquidity is not available';
         pub const BUSY_OFFCHAIN_ID: felt252 = 'This offchainID is busy';
+        pub const LIQUIDITY_SHARE_NOT_AVAILABLE: felt252 = 'Liquidity share not available';
     }
 
     //
@@ -93,6 +94,7 @@ pub mod RevolutRamp {
         LiquidityLocked: LiquidityLocked,
         LiquidityRetrieved: LiquidityRetrieved,
         LiquidityShareRequested: LiquidityShareRequested,
+        LiquidityShareWithdrawn: LiquidityShareWithdrawn,
     }
 
     // Emitted when liquidity is added
@@ -127,6 +129,16 @@ pub mod RevolutRamp {
         pub requestor: ContractAddress,
         pub offchain_id: OffchainId,
         pub expiration_date: u64,
+    }
+
+    // Emitted when a liquidity share is withdrawn
+    #[derive(Drop, starknet::Event)]
+    pub struct LiquidityShareWithdrawn {
+        #[key]
+        pub liquidity_key: LiquidityKey,
+        pub amount: u256,
+        pub withdrawer: ContractAddress,
+        pub offchain_id: OffchainId,
     }
 
     //
@@ -209,16 +221,22 @@ pub mod RevolutRamp {
         }
 
         fn initiate_liquidity_withdrawal(
-            ref self: ContractState, offchain_id: OffchainId, liquidity_key: LiquidityKey, amount: u256
+            ref self: ContractState, liquidity_key: LiquidityKey, amount: u256, offchain_id: OffchainId
         ) {
             let caller = get_caller_address();
+            let current_timestamp = get_block_timestamp();
 
             // assert caller is not the liquidity owner
             assert(liquidity_key.owner != caller, Errors::CALLER_IS_OWNER);
             // assert liquidity is unlocked
             assert(!self.locked_liquidity.read(liquidity_key), Errors::LOCKED_LIQUIDITY_WITHDRAW);
+            // assert caller registered the offchain ID
+            assert(self.registry.is_registered(contract_address: caller, :offchain_id), Errors::NOT_REGISTERED);
             // assert offchain_id is not busy with another withdrawal
-            assert(self.liquidity_share_request.read(offchain_id).requestor.is_zero(), Errors::BUSY_OFFCHAIN_ID);
+            assert(
+                self.liquidity_share_request.read(offchain_id).expiration_date <= current_timestamp,
+                Errors::BUSY_OFFCHAIN_ID
+            );
 
             // get actually available liquidity
             let available_liquidity_amount = self._get_available_liquidity(:liquidity_key);
@@ -227,7 +245,7 @@ pub mod RevolutRamp {
             assert(amount <= available_liquidity_amount, Errors::NOT_ENOUGH_LIQUDITY);
 
             // compute liquidity share locking period
-            let expiration_date = self._get_next_timestamp_key(get_block_timestamp() + MINIMUM_LOCK_DURATION);
+            let expiration_date = self._get_next_timestamp_key(current_timestamp + MINIMUM_LOCK_DURATION);
 
             // lock liquidity share amount
             let locked_amount = self.locked_liquidity_shares.read((liquidity_key, expiration_date));
@@ -245,6 +263,44 @@ pub mod RevolutRamp {
                 .emit(
                     LiquidityShareRequested { liquidity_key, amount, requestor: caller, offchain_id, expiration_date }
                 )
+        }
+
+        fn withdraw_liquidity(
+            ref self: ContractState, liquidity_key: LiquidityKey, offchain_id: OffchainId, proof: Proof
+        ) {
+            let caller = get_caller_address();
+            let current_timestamp = get_block_timestamp();
+            let mut share_request = self.liquidity_share_request.read(offchain_id);
+            let token = self.token.read();
+
+            // assert caller has a valid pending withdrawal
+            assert(
+                share_request.expiration_date <= current_timestamp && share_request.requestor == caller,
+                Errors::LIQUIDITY_SHARE_NOT_AVAILABLE
+            );
+
+            // TODO: verify proof
+
+            // update liquidity amount
+            let amount = self.liquidity.read(liquidity_key);
+            self.liquidity.write(liquidity_key, amount - share_request.amount);
+
+            // update requested liquidity amount
+            let amount = self.locked_liquidity_shares.read((liquidity_key, share_request.expiration_date));
+            self.locked_liquidity_shares.write((liquidity_key, share_request.expiration_date), amount - share_request.amount);
+
+            // invalidate share request
+            share_request.expiration_date = 0;
+            self.liquidity_share_request.write(offchain_id, share_request);
+
+            // unlock funds
+            self.escrow.unlock(from: liquidity_key.owner, to: caller, :token, :amount);
+
+            // emit event
+            self
+            .emit(
+                LiquidityShareWithdrawn { liquidity_key, amount, withdrawer: caller, offchain_id }
+            )
         }
     }
 
