@@ -1,30 +1,19 @@
 name: Cairo Contracts
 
-on: [push, pull_request]
+on:
+  # Trigger the workflow on push,
+  # but only for the main branch
+  push:
+    branches:
+      - main
+
+  # manual trigger
+  workflow_dispatch:
 
 permissions: read-all
 
 jobs:
-  fmt:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Set up Scarb
-        uses: software-mansion/setup-scarb@v1
-        with:
-          scarb-version: "2.8.2"
-
-      - name: Check cairo format
-        run: scarb fmt --check
-        working-directory: contracts
-
-      - name: Build cairo contracts
-        run: scarb build
-        working-directory: contracts
-
-  test:
+  coverage:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -41,5 +30,11 @@ jobs:
           starknet-foundry-version: "0.30.0"
 
       - name: Run tests and generate report
-        run: snforge test
+        run: snforge test --coverage
         working-directory: contracts
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          file: ./coverage.lcov
+          token: ${{ secrets.CODECOV_TOKEN }}
