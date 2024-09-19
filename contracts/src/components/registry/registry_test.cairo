@@ -18,7 +18,7 @@ fn test_is_registered() {
 
     registry.register(offchain_id: constants::REVOLUT_ID());
 
-    assert_eq!(registry.is_registered(constants::CALLER(), constants::REVOLUT_ID()), true);
+    assert!(registry.is_registered(constants::CALLER(), constants::REVOLUT_ID()));
 }
 
 #[test]

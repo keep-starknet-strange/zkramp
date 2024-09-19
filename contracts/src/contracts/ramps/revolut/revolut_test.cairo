@@ -1,11 +1,11 @@
 use core::starknet::{ContractAddress, get_caller_address};
 use openzeppelin::utils::serde::SerializedAppend;
-use snforge_std::{declare, ContractClassTrait, start_cheat_caller_address, test_address};
+use snforge_std::{declare, start_cheat_caller_address, test_address, DeclareResultTrait, ContractClassTrait};
 use zkramp::contracts::ramps::revolut::interface::{ZKRampABIDispatcher, ZKRampABIDispatcherTrait, LiquidityKey};
 use zkramp::tests::constants;
 
 fn deploy_revolut_ramp() -> ZKRampABIDispatcher {
-    let contract = declare("RevolutRamp").unwrap();
+    let contract = declare("RevolutRamp").unwrap().contract_class();
 
     let mut calldata = array![];
 

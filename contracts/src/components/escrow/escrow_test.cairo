@@ -1,12 +1,11 @@
 use core::starknet::get_contract_address;
-
+use core::starknet::storage::StorageMapReadAccess;
 use openzeppelin::presets::interfaces::ERC20UpgradeableABIDispatcherTrait;
 use snforge_std::start_cheat_caller_address;
 use zkramp::components::escrow::escrow::EscrowComponent::EscrowImpl;
 use zkramp::components::escrow::escrow_mock::{TestingStateDefault, ComponentState};
 use zkramp::tests::constants;
 use zkramp::tests::utils;
-
 
 //
 // Externals
@@ -31,7 +30,6 @@ fn test_lock() {
     assert_eq!(token_dispatcher.balance_of(constants::SPENDER()), 58);
     assert_eq!(token_dispatcher.allowance(constants::SPENDER(), constants::RECIPIENT()), 0);
 }
-
 
 #[test]
 fn test_lock_unlock() {
@@ -61,7 +59,6 @@ fn test_lock_unlock() {
     assert_eq!(token_dispatcher.allowance(constants::SPENDER(), constants::RECIPIENT()), 0);
     assert_eq!(escrow.deposits.read((constants::SPENDER(), token_dispatcher.contract_address)), 0);
 }
-
 
 #[test]
 #[should_panic(expected: 'Insufficient deposit balance')]
