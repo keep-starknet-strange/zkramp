@@ -1,14 +1,11 @@
 name: Contracts Coverage
 
 on:
-  # Trigger the workflow on push,
-  # but only for the main branch
+  # Trigger the workflow on pushes to only the 'main' branch (this avoids duplicate checks being run e.g., for dependabot pull requests)
   push:
-    branches:
-      - main
-
-  # manual trigger
-  workflow_dispatch:
+    branches: [ main ]
+  # Trigger the workflow on any pull request
+  pull_request:
 
 permissions: read-all
 
@@ -29,8 +26,11 @@ jobs:
         with:
           starknet-foundry-version: "0.30.0"
 
+      - name: Set up cairo-coverage
+        run: curl -L https://raw.githubusercontent.com/software-mansion/cairo-coverage/main/scripts/install.sh | sh
+
       - name: Run tests and generate report
-        run: cd contracts && snforge test --coverage
+        run: cd contracts/ && snforge test --coverage
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
