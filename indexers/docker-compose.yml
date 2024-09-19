@@ -25,6 +25,42 @@ services:
       - indexer
     restart: on-failure
 
+  revolut-liquidity-added-indexer:
+    environment:
+      - AUTH_TOKEN=${AUTH_TOKEN}
+      - POSTGRES_CONNECTION_STRING=${POSTGRES_CONNECTION_STRING}
+    image: quay.io/apibara/sink-postgres:latest
+    command: 'run ./indexer/revolut-liquidity-added.indexer.ts --connection-string ${POSTGRES_CONNECTION_STRING} -A ${AUTH_TOKEN}'
+    volumes:
+      - ./src:/indexer
+    networks:
+      - indexer
+    restart: on-failure
+
+  revolut-liquidity-locked-indexer:
+    environment:
+      - AUTH_TOKEN=${AUTH_TOKEN}
+      - POSTGRES_CONNECTION_STRING=${POSTGRES_CONNECTION_STRING}
+    image: quay.io/apibara/sink-postgres:latest
+    command: 'run ./indexer/revolut-liquidity-locked.indexer.ts --connection-string ${POSTGRES_CONNECTION_STRING} -A ${AUTH_TOKEN}'
+    volumes:
+      - ./src:/indexer
+    networks:
+      - indexer
+    restart: on-failure
+
+  revolut-liquidity-retrieved-indexer:
+    environment:
+      - AUTH_TOKEN=${AUTH_TOKEN}
+      - POSTGRES_CONNECTION_STRING=${POSTGRES_CONNECTION_STRING}
+    image: quay.io/apibara/sink-postgres:latest
+    command: 'run ./indexer/revolut-liquidity-retrieved.indexer.ts --connection-string ${POSTGRES_CONNECTION_STRING} -A ${AUTH_TOKEN}'
+    volumes:
+      - ./src:/indexer
+    networks:
+      - indexer
+    restart: on-failure
+
 networks:
   indexer:
     driver: bridge

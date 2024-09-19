@@ -1,5 +1,5 @@
 import { apibara, starknet } from './utils/deps.ts'
-import { ESCROW_ADDRESS, STARTING_BLOCK } from './utils/constants.ts'
+import { ESCROW_ADDRESS, ESCROW_STARTING_BLOCK } from './utils/constants.ts'
 import { getCommonValues } from './utils/helpers.ts'
 
 const filter = {
@@ -17,7 +17,7 @@ const filter = {
 
 export const config = {
   streamUrl: 'https://mainnet.starknet.a5a.ch',
-  startingBlock: STARTING_BLOCK,
+  startingBlock: ESCROW_STARTING_BLOCK,
   network: 'starknet',
   finality: 'DATA_STATUS_ACCEPTED',
   filter,
