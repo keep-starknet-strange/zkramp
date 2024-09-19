@@ -287,7 +287,9 @@ pub mod RevolutRamp {
 
             // update requested liquidity amount
             let amount = self.locked_liquidity_shares.read((liquidity_key, share_request.expiration_date));
-            self.locked_liquidity_shares.write((liquidity_key, share_request.expiration_date), amount - share_request.amount);
+            self
+                .locked_liquidity_shares
+                .write((liquidity_key, share_request.expiration_date), amount - share_request.amount);
 
             // invalidate share request
             share_request.expiration_date = 0;
@@ -297,10 +299,7 @@ pub mod RevolutRamp {
             self.escrow.unlock(from: liquidity_key.owner, to: caller, :token, :amount);
 
             // emit event
-            self
-            .emit(
-                LiquidityShareWithdrawn { liquidity_key, amount, withdrawer: caller, offchain_id }
-            )
+            self.emit(LiquidityShareWithdrawn { liquidity_key, amount, withdrawer: caller, offchain_id })
         }
     }
 
