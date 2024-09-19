@@ -30,8 +30,7 @@ jobs:
           starknet-foundry-version: "0.30.0"
 
       - name: Run tests and generate report
-        run: snforge test --coverage
-        working-directory: contracts
+        run: cd contracts && snforge test --coverage
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
