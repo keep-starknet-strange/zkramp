@@ -1,4 +1,4 @@
-name: Cairo Contracts
+name: Contracts Coverage
 
 on:
   # Trigger the workflow on push,
