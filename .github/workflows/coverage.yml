@@ -1,0 +1,40 @@
+name: Contracts Coverage
+
+on:
+  # Trigger the workflow on push,
+  # but only for the main branch
+  push:
+    branches:
+      - main
+
+  # manual trigger
+  workflow_dispatch:
+
+permissions: read-all
+
+jobs:
+  coverage:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@main
+
+      - name: Set up Scarb
+        uses: software-mansion/setup-scarb@v1
+        with:
+          scarb-version: "2.8.2"
+
+      - name: Set up SNForge
+        uses: foundry-rs/setup-snfoundry@v3
+        with:
+          starknet-foundry-version: "0.30.0"
+
+      - name: Run tests and generate report
+        run: snforge test --coverage
+        working-directory: contracts
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          file: ./coverage.lcov
+          token: ${{ secrets.CODECOV_TOKEN }}

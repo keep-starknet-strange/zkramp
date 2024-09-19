@@ -1,2 +1,7 @@
 target
 .snfoundry_cache
+
+# snforge --coverage
+.snfoundry_versioned_programs
+snfoundry_trace
+coverage

@@ -1,7 +1,7 @@
 #[starknet::component]
 pub mod EscrowComponent {
     use openzeppelin_token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
-    use starknet::storage::Map;
+    use starknet::storage::{Map, StorageMapReadAccess, StorageMapWriteAccess};
     use starknet::{ContractAddress, get_contract_address};
     use zkramp::components::escrow::interface;
 
@@ -10,9 +10,9 @@ pub mod EscrowComponent {
     //
 
     #[storage]
-    struct Storage {
+    pub struct Storage {
         // (owner, token) -> amount
-        deposits: Map::<(ContractAddress, ContractAddress), u256>,
+        pub deposits: Map::<(ContractAddress, ContractAddress), u256>,
     }
 
     //

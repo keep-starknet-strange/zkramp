@@ -1,7 +1,7 @@
 #[starknet::component]
 pub mod RegistryComponent {
     use core::num::traits::Zero;
-    use starknet::storage::Map;
+    use starknet::storage::{Map, StorageMapReadAccess, StorageMapWriteAccess};
     use starknet::{ContractAddress, get_caller_address};
     use zkramp::components::registry::interface::OffchainId;
     use zkramp::components::registry::interface;
@@ -11,8 +11,8 @@ pub mod RegistryComponent {
     //
 
     #[storage]
-    struct Storage {
-        Registry_registrations: Map::<(ContractAddress, OffchainId), bool>,
+    pub struct Storage {
+        pub Registry_registrations: Map::<(ContractAddress, OffchainId), bool>,
     }
 
     //
