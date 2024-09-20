@@ -67,7 +67,6 @@ pub mod RevolutRamp {
 
     pub mod Errors {
         pub const NOT_REGISTERED: felt252 = 'Caller is not registered';
-        pub const INVALID_AMOUNT: felt252 = 'Invalid amount';
         pub const CALLER_IS_NOT_OWNER: felt252 = 'Caller is not the owner';
         pub const CALLER_IS_OWNER: felt252 = 'Caller is the owner';
         pub const NULL_AMOUNT: felt252 = 'Amount cannot be null';
@@ -167,7 +166,8 @@ pub mod RevolutRamp {
 
             // assert caller registered the offchain ID
             assert(self.registry.is_registered(contract_address: caller, :offchain_id), Errors::NOT_REGISTERED);
-            assert(amount.is_non_zero(), Errors::INVALID_AMOUNT);
+            // asserts amount is non null
+            assert(amount.is_non_zero(), Errors::NULL_AMOUNT);
 
             // get liquidity key
             let liquidity_key = LiquidityKey { owner: caller, offchain_id };
@@ -229,6 +229,8 @@ pub mod RevolutRamp {
 
             // assert caller is not the liquidity owner
             assert(liquidity_key.owner != caller, Errors::CALLER_IS_OWNER);
+            // asserts amount is non null
+            assert(amount.is_non_zero(), Errors::NULL_AMOUNT);
             // assert liquidity is unlocked
             assert(!self.locked_liquidity.read(liquidity_key), Errors::LOCKED_LIQUIDITY_WITHDRAW);
             // assert caller registered the offchain ID
@@ -276,7 +278,7 @@ pub mod RevolutRamp {
 
             // assert caller has a valid pending withdrawal
             assert(
-                share_request.expiration_date <= current_timestamp && share_request.requestor == caller,
+                share_request.expiration_date > current_timestamp && share_request.requestor == caller,
                 Errors::LIQUIDITY_SHARE_NOT_AVAILABLE
             );
 
