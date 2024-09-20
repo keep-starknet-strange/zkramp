@@ -32,7 +32,7 @@ fn setup() -> (ZKRampABIDispatcher, ERC20UpgradeableABIDispatcher) {
 }
 
 //
-// Liquidity addition
+// add_liquidity
 //
 
 #[test]
@@ -58,7 +58,7 @@ fn test_add_liquidity_to_locked_liquidity() {
 }
 
 //
-// Liquidity retrieval
+// initiate_liquidity_retrival & retrieve_liquidity
 //
 
 #[test]
@@ -103,11 +103,15 @@ fn test_retrieve_liquidity_twice() {
 }
 
 #[test]
-fn test_retrieve_requested_liquidity() {
+fn test_retrieve_liquidity_with_pending_requests() {
+}
+
+#[test]
+fn test_retrieve_liquidity_with_expired_requests() {
 }
 
 //
-// Liquidity withdrawal
+// initiate_liquidity_withdraw & withdraw_liquidity
 //
 
 #[test]
@@ -117,12 +121,12 @@ fn test_initiate_liquidity_withdraw_from_owner() {
 
 #[test]
 #[should_panic(expected: 'Amount cannot be null')]
-fn test_initiate_empty_liquidity_withdraw() {
+fn test_initiate_liquidity_withdraw_zero_amount() {
 }
 
 #[test]
 #[should_panic(expected: 'Liquidity is not available')]
-fn test_initiate_locked_liquidity_withdraw() {
+fn test_initiate_liquidity_withdraw_locked() {
 }
 
 #[test]
@@ -149,18 +153,14 @@ fn test_initiate_liquidity_withdraw() {
 fn test_initiate_liquidity_withdraw_twice() {
 }
 
-
-
-
-
 #[test]
 #[should_panic(expected: 'Liquidity share not available')]
-fn test_withdraw_unrequested_liquidity_share() {
+fn test_withdraw_liquidity_without_request() {
 }
 
 #[test]
 #[should_panic(expected: 'Liquidity share not available')]
-fn test_withdraw_expired_liquidity_share() {
+fn test_withdraw_liquidity_after_expiration() {
 }
 
 #[test]
@@ -183,5 +183,109 @@ fn test_withdraw_liquidity_twice() {
 }
 
 //
-// Internals
+// _get_next_timestamp_key
 //
+
+#[test]
+fn test__get_next_timestamp_key_basic() {
+}
+
+#[test]
+fn test__get_next_timestamp_key_for_timestamp_key() {
+}
+
+#[test]
+fn test__get_next_timestamp_key_from_zero() {
+}
+
+#[test]
+fn test_get_available_liquidity_basic() {
+}
+
+//
+// available_liquidity & _get_available_liquidity
+//
+
+#[test]
+fn test_available_liquidity_empty() {
+}
+
+#[test]
+fn test_available_liquidity_without_requests() {
+}
+
+#[test]
+fn test_available_liquidity_locked() {
+}
+
+#[test]
+fn test_available_liquidity_with_expired_requests() {
+}
+
+#[test]
+fn test_available_liquidity_with_pending_requests() {
+}
+
+#[test]
+fn test_available_liquidity_with_withdrawn_requests() {
+}
+
+#[test]
+fn test__get_available_liquidity_empty() {
+}
+
+#[test]
+fn test__get_available_liquidity_without_requests() {
+}
+
+#[test]
+fn test__get_available_liquidity_with_expired_requests() {
+}
+
+#[test]
+fn test__get_available_liquidity_with_pending_requests() {
+}
+
+#[test]
+fn test__get_available_liquidity_with_withdrawn_requests() {
+}
+
+//
+// all_liquidity
+//
+
+#[test]
+fn test_all_liquidity_empty() {
+}
+
+#[test]
+fn test_all_liquidity() {
+}
+
+#[test]
+fn test_all_liquidity_locked() {
+}
+
+#[test]
+fn test_all_liquidity_with_requests() {
+}
+
+//
+// liquidity_share_request
+//
+
+#[test]
+fn test_liquidity_share_request_empty() {
+}
+
+#[test]
+fn test_liquidity_share_request_expired() {
+}
+
+#[test]
+fn test_liquidity_share_request_valid() {
+}
+
+#[test]
+fn test_liquidity_share_request_withdrawn() {
+}

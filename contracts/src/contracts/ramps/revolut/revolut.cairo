@@ -155,6 +155,28 @@ pub mod RevolutRamp {
 
     #[abi(embed_v0)]
     impl ZKRampLiquidityImpl of IZKRampLiquidity<ContractState> {
+        fn all_liquidity(self: @ContractState, liquidity_key: LiquidityKey) -> u256 {
+            self.liquidity.read(liquidity_key)
+        }
+
+        fn available_liquidity(self: @ContractState, liquidity_key: LiquidityKey) -> u256 {
+            if self.locked_liquidity.read(liquidity_key) {
+                0
+            } else {
+                self._get_available_liquidity(:liquidity_key)
+            }
+        }
+
+        fn liquidity_share_request(self: @ContractState, offchain_id: OffchainId) -> Option<LiquidityShareRequest> {
+            let share_request = self.liquidity_share_request.read(offchain_id);
+
+            if share_request.expiration_date > get_block_timestamp() {
+                Option::Some(share_request)
+            } else {
+                Option::None
+            }
+        }
+
         /// Create a liquidity position by locking an amonunt and asking for
         /// its equivalent on a specific offchain ID.
         ///
