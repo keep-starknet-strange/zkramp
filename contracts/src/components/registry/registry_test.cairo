@@ -3,6 +3,10 @@ use zkramp::components::registry::registry::{RegistryComponent::{Event, Registra
 use zkramp::components::registry::registry_mock::{TestingStateDefault, ComponentState};
 use zkramp::tests::constants;
 
+//
+// register
+//
+
 #[test]
 #[should_panic(expected: 'Caller is the zero address')]
 fn test_register_from_zero() {
@@ -39,4 +43,12 @@ fn test_register_twice_same_offchain_id() {
 
 #[test]
 fn test_register_two_different_offchain_id() {
+}
+
+//
+// is_registered
+//
+
+#[test]
+fn test_is_registered() {
 }

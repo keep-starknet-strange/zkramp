@@ -60,8 +60,6 @@ pub mod RegistryComponent {
             // verify caller
             assert(caller.is_non_zero(), Errors::ZERO_ADDRESS_CALLER);
 
-            // TODO: caller a processor to verify the proof of registration
-
             // save registration
             self.Registry_registrations.write((caller, offchain_id), true);
 

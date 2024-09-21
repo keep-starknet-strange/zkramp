@@ -23,6 +23,10 @@ pub fn OWNER() -> ContractAddress {
     contract_address_const::<'owner'>()
 }
 
+pub fn OTHER() -> ContractAddress {
+    contract_address_const::<'other'>()
+}
+
 pub const SUPPLY: u256 = 1_000_000_000_000_000_000; // 1 ETH
 
 
