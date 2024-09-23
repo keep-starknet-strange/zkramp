@@ -1,8 +1,8 @@
 use core::starknet::{ContractAddress, get_caller_address};
+use openzeppelin::presets::interfaces::ERC20UpgradeableABIDispatcher;
 use openzeppelin::utils::serde::SerializedAppend;
 use snforge_std::{declare, DeclareResultTrait, ContractClassTrait};
 use zkramp::contracts::ramps::revolut::interface::{ZKRampABIDispatcher, ZKRampABIDispatcherTrait, LiquidityKey};
-use openzeppelin::presets::interfaces::ERC20UpgradeableABIDispatcher;
 use zkramp::tests::constants;
 use zkramp::tests::utils;
 

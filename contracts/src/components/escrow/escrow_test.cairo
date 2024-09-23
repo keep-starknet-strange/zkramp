@@ -1,7 +1,7 @@
 use core::num::traits::Bounded;
-use starknet::storage::StorageMapReadAccess;
 use openzeppelin::presets::interfaces::ERC20UpgradeableABIDispatcherTrait;
 use snforge_std::{start_cheat_caller_address, stop_cheat_caller_address, test_address};
+use starknet::storage::StorageMapReadAccess;
 use zkramp::components::escrow::escrow::EscrowComponent::EscrowImpl;
 use zkramp::components::escrow::escrow_mock::{TestingStateDefault, ComponentState};
 use zkramp::tests::constants;
