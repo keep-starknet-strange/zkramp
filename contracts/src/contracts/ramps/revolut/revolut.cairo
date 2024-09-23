@@ -67,7 +67,6 @@ pub mod RevolutRamp {
 
     pub mod Errors {
         pub const NOT_REGISTERED: felt252 = 'Caller is not registered';
-        pub const INVALID_AMOUNT: felt252 = 'Invalid amount';
         pub const CALLER_IS_NOT_OWNER: felt252 = 'Caller is not the owner';
         pub const CALLER_IS_OWNER: felt252 = 'Caller is the owner';
         pub const NULL_AMOUNT: felt252 = 'Amount cannot be null';
@@ -154,8 +153,34 @@ pub mod RevolutRamp {
         self.token.write(token);
     }
 
+    //
+    // ZkRamp Liquidity impl
+    //
+
     #[abi(embed_v0)]
     impl ZKRampLiquidityImpl of IZKRampLiquidity<ContractState> {
+        fn all_liquidity(self: @ContractState, liquidity_key: LiquidityKey) -> u256 {
+            self.liquidity.read(liquidity_key)
+        }
+
+        fn available_liquidity(self: @ContractState, liquidity_key: LiquidityKey) -> u256 {
+            if self.locked_liquidity.read(liquidity_key) {
+                0
+            } else {
+                self._get_available_liquidity(:liquidity_key)
+            }
+        }
+
+        fn liquidity_share_request(self: @ContractState, offchain_id: OffchainId) -> Option<LiquidityShareRequest> {
+            let share_request = self.liquidity_share_request.read(offchain_id);
+
+            if share_request.expiration_date > get_block_timestamp() {
+                Option::Some(share_request)
+            } else {
+                Option::None
+            }
+        }
+
         /// Create a liquidity position by locking an amonunt and asking for
         /// its equivalent on a specific offchain ID.
         ///
@@ -167,7 +192,8 @@ pub mod RevolutRamp {
 
             // assert caller registered the offchain ID
             assert(self.registry.is_registered(contract_address: caller, :offchain_id), Errors::NOT_REGISTERED);
-            assert(amount.is_non_zero(), Errors::INVALID_AMOUNT);
+            // asserts amount is non null
+            assert(amount.is_non_zero(), Errors::NULL_AMOUNT);
 
             // get liquidity key
             let liquidity_key = LiquidityKey { owner: caller, offchain_id };
@@ -221,6 +247,9 @@ pub mod RevolutRamp {
             self.emit(LiquidityRetrieved { liquidity_key, amount });
         }
 
+        // If the requested amount is valid according to the available amount,
+        // this share of the liquidity becomes unavailable for other users and the on-ramper has a defined period
+        // to provide proof of the off-chain transfer in order to withdraw the funds.
         fn initiate_liquidity_withdrawal(
             ref self: ContractState, liquidity_key: LiquidityKey, amount: u256, offchain_id: OffchainId
         ) {
@@ -229,6 +258,8 @@ pub mod RevolutRamp {
 
             // assert caller is not the liquidity owner
             assert(liquidity_key.owner != caller, Errors::CALLER_IS_OWNER);
+            // asserts amount is non null
+            assert(amount.is_non_zero(), Errors::NULL_AMOUNT);
             // assert liquidity is unlocked
             assert(!self.locked_liquidity.read(liquidity_key), Errors::LOCKED_LIQUIDITY_WITHDRAW);
             // assert caller registered the offchain ID
@@ -266,6 +297,9 @@ pub mod RevolutRamp {
                 )
         }
 
+        /// If the proof is valid according to the amount the caller requested using
+        /// the `initiate_liquidity_withdrawal` method, then the requested portion of the liquidity
+        /// is transferred to the caller.
         fn withdraw_liquidity(
             ref self: ContractState, liquidity_key: LiquidityKey, offchain_id: OffchainId, proof: Proof
         ) {
@@ -276,7 +310,7 @@ pub mod RevolutRamp {
 
             // assert caller has a valid pending withdrawal
             assert(
-                share_request.expiration_date <= current_timestamp && share_request.requestor == caller,
+                share_request.expiration_date > current_timestamp && share_request.requestor == caller,
                 Errors::LIQUIDITY_SHARE_NOT_AVAILABLE
             );
 
