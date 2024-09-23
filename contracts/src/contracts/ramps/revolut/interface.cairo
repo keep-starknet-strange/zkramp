@@ -1,6 +1,10 @@
 use starknet::{ContractAddress, ClassHash};
 use zkramp::components::registry::interface::OffchainId;
 
+//
+// Structs
+//
+
 #[derive(Drop, Serde)]
 pub struct Proof {
     foo: felt252
@@ -20,6 +24,10 @@ pub struct LiquidityShareRequest {
     pub expiration_date: u64,
 }
 
+//
+// Interfaces
+//
+
 #[starknet::interface]
 pub trait IZKRampLiquidity<TState> {
     fn all_liquidity(self: @TState, liquidity_key: LiquidityKey) -> u256;
@@ -33,6 +41,10 @@ pub trait IZKRampLiquidity<TState> {
     );
     fn withdraw_liquidity(ref self: TState, liquidity_key: LiquidityKey, offchain_id: OffchainId, proof: Proof);
 }
+
+//
+// full ABI
+//
 
 #[starknet::interface]
 pub trait ZKRampABI<TState> {

@@ -153,6 +153,10 @@ pub mod RevolutRamp {
         self.token.write(token);
     }
 
+    //
+    // ZkRamp Liquidity impl
+    //
+
     #[abi(embed_v0)]
     impl ZKRampLiquidityImpl of IZKRampLiquidity<ContractState> {
         fn all_liquidity(self: @ContractState, liquidity_key: LiquidityKey) -> u256 {
@@ -243,6 +247,9 @@ pub mod RevolutRamp {
             self.emit(LiquidityRetrieved { liquidity_key, amount });
         }
 
+        // If the requested amount is valid according to the available amount,
+        // this share of the liquidity becomes unavailable for other users and the on-ramper has a defined period
+        // to provide proof of the off-chain transfer in order to withdraw the funds.
         fn initiate_liquidity_withdrawal(
             ref self: ContractState, liquidity_key: LiquidityKey, amount: u256, offchain_id: OffchainId
         ) {
@@ -290,6 +297,9 @@ pub mod RevolutRamp {
                 )
         }
 
+        /// If the proof is valid according to the amount the caller requested using
+        /// the `initiate_liquidity_withdrawal` method, then the requested portion of the liquidity
+        /// is transferred to the caller.
         fn withdraw_liquidity(
             ref self: ContractState, liquidity_key: LiquidityKey, offchain_id: OffchainId, proof: Proof
         ) {

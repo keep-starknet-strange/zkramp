@@ -38,23 +38,28 @@ fn setup() -> (ZKRampABIDispatcher, ERC20UpgradeableABIDispatcher) {
 #[test]
 #[should_panic(expected: 'Caller is not registered')]
 fn test_add_liquidity_with_unregistered_offchain_id() {
+    panic!("Not implemented yet");
 }
 
 #[test]
 #[should_panic(expected: 'Amount cannot be null')]
 fn test_add_zero_liquidity() {
+    panic!("Not implemented yet");
 }
 
 #[test]
 fn test_add_liquidity() {
+    panic!("Not implemented yet");
 }
 
 #[test]
 fn test_add_liquidity_twice() {
+    panic!("Not implemented yet");
 }
 
 #[test]
 fn test_add_liquidity_to_locked_liquidity() {
+    panic!("Not implemented yet");
 }
 
 //
@@ -64,19 +69,23 @@ fn test_add_liquidity_to_locked_liquidity() {
 #[test]
 #[should_panic(expected: 'Amount cannot be null')]
 fn test_initiate_empty_liquidity_retrieval() {
+    panic!("Not implemented yet");
 }
 
 #[test]
 #[should_panic(expected: 'Caller is not the owner')]
 fn test_initiate_liquidity_retrieval_not_owner() {
+    panic!("Not implemented yet");
 }
 
 #[test]
 fn test_initiate_liquidity_retrieval() {
+    panic!("Not implemented yet");
 }
 
 #[test]
 fn test_initiate_liquidity_retrieval_twice() {
+    panic!("Not implemented yet");
 }
 
 #[test]
@@ -84,30 +93,37 @@ fn test_initiate_liquidity_retrieval_twice() {
 fn test_retrieve_unlocked_liquidity() {
     let (revolut_ramp, _) = setup();
 
+    // create liquidity key
     let liquidity_key = LiquidityKey { owner: get_caller_address(), offchain_id: constants::REVOLUT_ID() };
 
+    // try to retrieve liquidity
     revolut_ramp.retrieve_liquidity(:liquidity_key);
 }
 
 #[test]
 #[should_panic(expected: 'Caller is not the owner')]
 fn test_retrieve_liquidity_not_owner() {
+    panic!("Not implemented yet");
 }
 
 #[test]
 fn test_retrieve_liquidity() {
+    panic!("Not implemented yet");
 }
 
 #[test]
 fn test_retrieve_liquidity_twice() {
+    panic!("Not implemented yet");
 }
 
 #[test]
 fn test_retrieve_liquidity_with_pending_requests() {
+    panic!("Not implemented yet");
 }
 
 #[test]
 fn test_retrieve_liquidity_with_expired_requests() {
+    panic!("Not implemented yet");
 }
 
 //
@@ -117,69 +133,83 @@ fn test_retrieve_liquidity_with_expired_requests() {
 #[test]
 #[should_panic(expected: 'Caller is the owner')]
 fn test_initiate_liquidity_withdraw_from_owner() {
+    panic!("Not implemented yet");
 }
 
 #[test]
 #[should_panic(expected: 'Amount cannot be null')]
 fn test_initiate_liquidity_withdraw_zero_amount() {
+    panic!("Not implemented yet");
 }
 
 #[test]
 #[should_panic(expected: 'Liquidity is not available')]
 fn test_initiate_liquidity_withdraw_locked() {
+    panic!("Not implemented yet");
 }
 
 #[test]
 #[should_panic(expected: 'Caller is not registered')]
 fn test_initiate_liquidity_withdraw_with_unregistered_offchain_id() {
+    panic!("Not implemented yet");
 }
 
 #[test]
 #[should_panic(expected: 'Not enough liquidity')]
 fn test_initiate_liquidity_withdraw_without_enough_liquidity() {
+    panic!("Not implemented yet");
 }
 
 #[test]
 #[should_panic(expected: 'Not enough liquidity')]
 fn test_initiate_liquidity_withdraw_without_enough_available_liquidity() {
+    panic!("Not implemented yet");
 }
 
 #[test]
 fn test_initiate_liquidity_withdraw() {
+    panic!("Not implemented yet");
 }
 
 #[test]
 #[should_panic(expected: 'This offchainID is busy')]
 fn test_initiate_liquidity_withdraw_twice() {
+    panic!("Not implemented yet");
 }
 
 #[test]
 #[should_panic(expected: 'Liquidity share not available')]
 fn test_withdraw_liquidity_without_request() {
+    panic!("Not implemented yet");
 }
 
 #[test]
 #[should_panic(expected: 'Liquidity share not available')]
 fn test_withdraw_liquidity_after_expiration() {
+    panic!("Not implemented yet");
 }
 
 #[test]
 #[should_panic(expected: 'Liquidity share not available')]
 fn test_withdraw_liquidity_from_another_caller() {
+    panic!("Not implemented yet");
 }
 
 #[test]
 #[should_panic(expected: 'Liquidity share not available')]
 fn test_withdraw_liquidity_from_another_offchain_id() {
+    panic!("Not implemented yet");
 }
 
 #[test]
 fn test_withdraw_liquidity() {
+    panic!("Not implemented yet");
 }
 
 #[test]
 #[should_panic(expected: 'Liquidity share not available')]
 fn test_withdraw_liquidity_twice() {
+    panic!("Not implemented yet");
 }
 
 //
@@ -188,18 +218,22 @@ fn test_withdraw_liquidity_twice() {
 
 #[test]
 fn test__get_next_timestamp_key_basic() {
+    panic!("Not implemented yet");
 }
 
 #[test]
 fn test__get_next_timestamp_key_for_timestamp_key() {
+    panic!("Not implemented yet");
 }
 
 #[test]
 fn test__get_next_timestamp_key_from_zero() {
+    panic!("Not implemented yet");
 }
 
 #[test]
 fn test_get_available_liquidity_basic() {
+    panic!("Not implemented yet");
 }
 
 //
@@ -208,46 +242,57 @@ fn test_get_available_liquidity_basic() {
 
 #[test]
 fn test_available_liquidity_empty() {
+    panic!("Not implemented yet");
 }
 
 #[test]
 fn test_available_liquidity_without_requests() {
+    panic!("Not implemented yet");
 }
 
 #[test]
 fn test_available_liquidity_locked() {
+    panic!("Not implemented yet");
 }
 
 #[test]
 fn test_available_liquidity_with_expired_requests() {
+    panic!("Not implemented yet");
 }
 
 #[test]
 fn test_available_liquidity_with_pending_requests() {
+    panic!("Not implemented yet");
 }
 
 #[test]
 fn test_available_liquidity_with_withdrawn_requests() {
+    panic!("Not implemented yet");
 }
 
 #[test]
 fn test__get_available_liquidity_empty() {
+    panic!("Not implemented yet");
 }
 
 #[test]
 fn test__get_available_liquidity_without_requests() {
+    panic!("Not implemented yet");
 }
 
 #[test]
 fn test__get_available_liquidity_with_expired_requests() {
+    panic!("Not implemented yet");
 }
 
 #[test]
 fn test__get_available_liquidity_with_pending_requests() {
+    panic!("Not implemented yet");
 }
 
 #[test]
 fn test__get_available_liquidity_with_withdrawn_requests() {
+    panic!("Not implemented yet");
 }
 
 //
@@ -256,18 +301,22 @@ fn test__get_available_liquidity_with_withdrawn_requests() {
 
 #[test]
 fn test_all_liquidity_empty() {
+    panic!("Not implemented yet");
 }
 
 #[test]
 fn test_all_liquidity() {
+    panic!("Not implemented yet");
 }
 
 #[test]
 fn test_all_liquidity_locked() {
+    panic!("Not implemented yet");
 }
 
 #[test]
 fn test_all_liquidity_with_requests() {
+    panic!("Not implemented yet");
 }
 
 //
@@ -276,16 +325,20 @@ fn test_all_liquidity_with_requests() {
 
 #[test]
 fn test_liquidity_share_request_empty() {
+    panic!("Not implemented yet");
 }
 
 #[test]
 fn test_liquidity_share_request_expired() {
+    panic!("Not implemented yet");
 }
 
 #[test]
 fn test_liquidity_share_request_valid() {
+    panic!("Not implemented yet");
 }
 
 #[test]
 fn test_liquidity_share_request_withdrawn() {
+    panic!("Not implemented yet");
 }
