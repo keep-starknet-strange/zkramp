@@ -305,9 +305,23 @@ fn test__get_available_liquidity_with_withdrawn_requests() {
 // all_liquidity
 //
 
-// #[test]
+#[test]
 fn test_all_liquidity_empty() {
-    panic!("Not implemented yet");
+    let (revolut_ramp, _) = setup();
+    let revolut_address=revolut_ramp.contract_address;
+    // setup caller
+    start_cheat_caller_address(revolut_address, constants::OWNER());
+    // register
+    revolut_ramp.register(offchain_id: constants::REVOLUT_ID());
+    // assert state after
+    assert!(revolut_ramp.is_registered(constants::OWNER(), constants::REVOLUT_ID()));
+
+    // create liquidity key
+    let liquidity_key = LiquidityKey { owner: constants::OWNER(), offchain_id: constants::REVOLUT_ID() };
+
+    // try to retrieve liquidity not created
+    let liquidity= revolut_ramp.all_liquidity(:liquidity_key);
+    assert(liquidity == 0, 'amount empty');
 }
 
 #[test]
@@ -341,6 +355,7 @@ fn test_all_liquidity() {
     assert(liquidity == 0, 'amount init');
 
     revolut_ramp.add_liquidity(amount, offchain_id: constants::REVOLUT_ID() );
+    assert_eq!(erc20.balance_of(revolut_address), amount);
 
     // try to get liquidity with the first amount added
     let liquidity= revolut_ramp.all_liquidity(:liquidity_key);
@@ -352,16 +367,55 @@ fn test_all_liquidity() {
     // REcheck the old and new amount are added
     let liquidity= revolut_ramp.all_liquidity(:liquidity_key);
     assert(liquidity == amount+amount, 'not correct amount');
+    assert_eq!(erc20.balance_of(revolut_address), amount+amount);
+
+
+    // TODO add withdraw request and recheck amount
 
 }
 
 // #[test]
 fn test_all_liquidity_locked() {
-    panic!("Not implemented yet");
+    let (revolut_ramp, erc20) = setup();
+
+    let revolut_address=revolut_ramp.contract_address;
+    let erc20_address=erc20.contract_address;
+    // setup caller
+    start_cheat_caller_address(revolut_address, constants::OWNER());
+    // register
+    revolut_ramp.register(offchain_id: constants::REVOLUT_ID());
+    // assert state after
+    assert!(revolut_ramp.is_registered(constants::OWNER(), constants::REVOLUT_ID()));
+
+    // create liquidity key
+    let amount=1_u256;
+    let max_amount=10_u256;
+
+    stop_cheat_caller_address(revolut_address);
+
+    // Approve balance
+    start_cheat_caller_address(erc20_address, constants::OWNER());
+    erc20.approve(revolut_address, max_amount);
+
+    stop_cheat_caller_address(erc20_address);
+
+    // try to retrieve liquidity not created
+    start_cheat_caller_address(revolut_address, constants::OWNER());
+    revolut_ramp.add_liquidity(amount, offchain_id: constants::REVOLUT_ID() );
+    assert_eq!(erc20.balance_of(revolut_address), amount);
+
+    // TODO how verify is token is locked
+    // let liquidity_key = LiquidityKey { owner: constants::OWNER(), offchain_id: constants::REVOLUT_ID() };
+    // let liquidity_available= revolut_ramp.available_liquidity(:liquidity_key);
+    // TODO Verify if it's locked and the amount
+
 }
 
 // #[test]
 fn test_all_liquidity_with_requests() {
+    // TODO how verify is token is locked
+
+    // TODO Verify if it's locked and the amount
     panic!("Not implemented yet");
 }
 
