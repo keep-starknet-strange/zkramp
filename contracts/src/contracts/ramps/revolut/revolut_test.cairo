@@ -1,8 +1,14 @@
+use core::num::traits::Bounded;
 use core::starknet::{ContractAddress, get_caller_address};
-use openzeppelin::presets::interfaces::ERC20UpgradeableABIDispatcher;
+use openzeppelin::presets::interfaces::{ERC20UpgradeableABIDispatcher, ERC20UpgradeableABIDispatcherTrait};
 use openzeppelin::utils::serde::SerializedAppend;
-use snforge_std::{declare, DeclareResultTrait, ContractClassTrait};
+use snforge_std::{
+    EventSpyAssertionsTrait, spy_events, declare, DeclareResultTrait, ContractClassTrait, start_cheat_caller_address,
+    stop_cheat_caller_address, test_address
+};
+use zkramp::components::registry::interface::OffchainId;
 use zkramp::contracts::ramps::revolut::interface::{ZKRampABIDispatcher, ZKRampABIDispatcherTrait, LiquidityKey};
+use zkramp::contracts::ramps::revolut::revolut::RevolutRamp::{Event, LiquidityAdded, LiquidityLocked};
 use zkramp::tests::constants;
 use zkramp::tests::utils;
 
@@ -35,31 +41,213 @@ fn setup() -> (ZKRampABIDispatcher, ERC20UpgradeableABIDispatcher) {
 // add_liquidity
 //
 
-// #[test]
-// #[should_panic(expected: 'Caller is not registered')]
+#[test]
+#[should_panic(expected: 'Caller is not registered')]
 fn test_add_liquidity_with_unregistered_offchain_id() {
-    panic!("Not implemented yet");
+    let contract_address = test_address();
+
+    let (revolut_ramp, _) = setup();
+
+    start_cheat_caller_address(contract_address, constants::CALLER());
+
+    // adds liquidity with unregistered offchain id
+    revolut_ramp.add_liquidity(42, constants::REVOLUT_ID());
 }
 
-// #[test]
-// #[should_panic(expected: 'Amount cannot be null')]
+#[test]
+#[should_panic(expected: 'Amount cannot be null')]
 fn test_add_zero_liquidity() {
-    panic!("Not implemented yet");
+    let contract_address = test_address();
+    let offchain_id: OffchainId = constants::REVOLUT_ID();
+
+    let (revolut_ramp, _) = setup();
+
+    start_cheat_caller_address(contract_address, constants::CALLER());
+
+    // registers offchain id
+    revolut_ramp.register(offchain_id);
+
+    // adds zero liquidity
+    revolut_ramp.add_liquidity(0, offchain_id);
 }
 
-// #[test]
+#[test]
 fn test_add_liquidity() {
-    panic!("Not implemented yet");
+    let contract_address = test_address();
+    let (revolut_ramp, erc20) = setup();
+    let mut spy = spy_events();
+
+    let offchain_id: OffchainId = constants::REVOLUT_ID();
+    let amount: u256 = 42;
+    let liquidity_key = LiquidityKey { owner: contract_address, offchain_id: offchain_id };
+
+    // funds the account
+    start_cheat_caller_address(erc20.contract_address, constants::OWNER());
+    erc20.transfer(recipient: contract_address, amount: amount);
+    stop_cheat_caller_address(erc20.contract_address);
+
+    // approves spender
+    start_cheat_caller_address(erc20.contract_address, contract_address);
+    erc20.approve(spender: contract_address, amount: Bounded::MAX);
+
+    assert_eq!(revolut_ramp.all_liquidity(liquidity_key), 0);
+    assert_eq!(revolut_ramp.available_liquidity(liquidity_key), 0);
+    assert_eq!(erc20.balance_of(contract_address), amount);
+
+    // registers offchain id and adds liquidity
+    revolut_ramp.register(offchain_id);
+    revolut_ramp.add_liquidity(amount, offchain_id);
+
+    assert_eq!(revolut_ramp.all_liquidity(liquidity_key), amount);
+    assert_eq!(revolut_ramp.available_liquidity(liquidity_key), amount);
+    assert_eq!(erc20.balance_of(contract_address), 0);
+
+    spy
+        .assert_emitted(
+            @array![
+                (
+                    revolut_ramp.contract_address,
+                    Event::LiquidityAdded(LiquidityAdded { liquidity_key: liquidity_key, amount: amount })
+                )
+            ]
+        )
 }
 
-// #[test]
+#[test]
 fn test_add_liquidity_twice() {
-    panic!("Not implemented yet");
+    let contract_address = test_address();
+    let (revolut_ramp, erc20) = setup();
+    let mut spy = spy_events();
+
+    let offchain_id: OffchainId = constants::REVOLUT_ID();
+    let amount: u256 = 42;
+    let liquidity_key = LiquidityKey { owner: contract_address, offchain_id: offchain_id };
+
+    // funds the account
+    start_cheat_caller_address(erc20.contract_address, constants::OWNER());
+    erc20.transfer(recipient: contract_address, amount: amount * 2);
+    stop_cheat_caller_address(erc20.contract_address);
+
+    // approves spender
+    start_cheat_caller_address(erc20.contract_address, contract_address);
+    erc20.approve(spender: contract_address, amount: Bounded::MAX);
+
+    assert_eq!(revolut_ramp.all_liquidity(liquidity_key), 0);
+    assert_eq!(revolut_ramp.available_liquidity(liquidity_key), 0);
+    assert_eq!(erc20.balance_of(contract_address), amount * 2);
+
+    // registers offchain id and adds liquidity
+    revolut_ramp.register(offchain_id);
+    revolut_ramp.add_liquidity(amount, offchain_id);
+
+    assert_eq!(revolut_ramp.all_liquidity(liquidity_key), amount);
+    assert_eq!(revolut_ramp.available_liquidity(liquidity_key), amount);
+    assert_eq!(erc20.balance_of(contract_address), amount);
+
+    spy
+        .assert_emitted(
+            @array![
+                (
+                    revolut_ramp.contract_address,
+                    Event::LiquidityAdded(LiquidityAdded { liquidity_key: liquidity_key, amount: amount })
+                )
+            ]
+        );
+
+    // adds liquidity
+    revolut_ramp.add_liquidity(amount, offchain_id);
+
+    assert_eq!(revolut_ramp.all_liquidity(liquidity_key), amount * 2);
+    assert_eq!(revolut_ramp.available_liquidity(liquidity_key), amount * 2);
+    assert_eq!(erc20.balance_of(contract_address), 0);
+
+    spy
+        .assert_emitted(
+            @array![
+                (
+                    revolut_ramp.contract_address,
+                    Event::LiquidityAdded(LiquidityAdded { liquidity_key: liquidity_key, amount: amount })
+                )
+            ]
+        )
 }
 
-// #[test]
+#[test]
 fn test_add_liquidity_to_locked_liquidity() {
-    panic!("Not implemented yet");
+    let contract_address = test_address();
+    let (revolut_ramp, erc20) = setup();
+    let mut spy = spy_events();
+
+    let offchain_id = constants::REVOLUT_ID();
+    let amount1: u256 = 42;
+    let amount2: u256 = 50;
+    let liquidity_key = LiquidityKey { owner: contract_address, offchain_id: offchain_id };
+
+    // funds the account
+    start_cheat_caller_address(erc20.contract_address, constants::OWNER());
+    erc20.transfer(recipient: contract_address, amount: amount1 + amount2);
+    stop_cheat_caller_address(erc20.contract_address);
+
+    // approves spender
+    start_cheat_caller_address(erc20.contract_address, contract_address);
+    erc20.approve(spender: contract_address, amount: Bounded::MAX);
+
+    assert_eq!(revolut_ramp.all_liquidity(liquidity_key), 0);
+    assert_eq!(revolut_ramp.available_liquidity(liquidity_key), 0);
+    assert_eq!(erc20.balance_of(contract_address), amount1 + amount2);
+
+    // registers offchain id and adds liquidity
+    revolut_ramp.register(offchain_id);
+    revolut_ramp.add_liquidity(amount1, offchain_id);
+
+    assert_eq!(revolut_ramp.all_liquidity(liquidity_key), amount1);
+    assert_eq!(revolut_ramp.available_liquidity(liquidity_key), amount1);
+    assert_eq!(erc20.balance_of(contract_address), amount2);
+
+    spy
+        .assert_emitted(
+            @array![
+                (
+                    revolut_ramp.contract_address,
+                    Event::LiquidityAdded(LiquidityAdded { liquidity_key: liquidity_key, amount: amount1 })
+                )
+            ]
+        );
+
+    // locks liquidity
+    revolut_ramp.initiate_liquidity_retrieval(liquidity_key);
+
+    assert_eq!(revolut_ramp.all_liquidity(liquidity_key), amount1);
+    assert_eq!(revolut_ramp.available_liquidity(liquidity_key), 0);
+    assert_eq!(erc20.balance_of(contract_address), amount2);
+
+    spy
+        .assert_emitted(
+            @array![
+                (
+                    revolut_ramp.contract_address,
+                    Event::LiquidityLocked(LiquidityLocked { liquidity_key: liquidity_key })
+                )
+            ]
+        );
+
+    // adds liquidity
+    start_cheat_caller_address(erc20.contract_address, contract_address);
+    revolut_ramp.add_liquidity(amount2, offchain_id);
+
+    assert_eq!(revolut_ramp.all_liquidity(liquidity_key), amount1 + amount2);
+    assert_eq!(revolut_ramp.available_liquidity(liquidity_key), amount1 + amount2);
+    assert_eq!(erc20.balance_of(contract_address), 0);
+
+    spy
+        .assert_emitted(
+            @array![
+                (
+                    revolut_ramp.contract_address,
+                    Event::LiquidityAdded(LiquidityAdded { liquidity_key: liquidity_key, amount: amount2 })
+                )
+            ]
+        )
 }
 
 //
