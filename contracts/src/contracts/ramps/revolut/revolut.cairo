@@ -83,7 +83,7 @@ pub mod RevolutRamp {
 
     #[event]
     #[derive(Drop, starknet::Event)]
-    enum Event {
+    pub enum Event {
         #[flat]
         OwnableEvent: OwnableComponent::Event,
         #[flat]
@@ -203,7 +203,7 @@ pub mod RevolutRamp {
             self.liquidity.write(liquidity_key, existing_amount + amount);
 
             // unlocks liquidity
-            self.locked_liquidity.write(liquidity_key, true);
+            self.locked_liquidity.write(liquidity_key, false);
 
             // use the escrow to lock the funds
             self.escrow.lock(from: caller, :token, :amount);
