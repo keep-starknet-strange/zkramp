@@ -1,5 +1,5 @@
 use core::num::traits::Bounded;
-use core::starknet::{ContractAddress, get_caller_address};
+use core::starknet::ContractAddress;
 use openzeppelin::presets::interfaces::{ERC20UpgradeableABIDispatcher, ERC20UpgradeableABIDispatcherTrait};
 use openzeppelin::utils::serde::SerializedAppend;
 use snforge_std::{
@@ -7,7 +7,7 @@ use snforge_std::{
     stop_cheat_caller_address, test_address
 };
 use zkramp::contracts::ramps::revolut::interface::{ZKRampABIDispatcher, ZKRampABIDispatcherTrait, LiquidityKey};
-use zkramp::contracts::ramps::revolut::revolut::RevolutRamp::{Event, LiquidityAdded};
+use zkramp::contracts::ramps::revolut::revolut::RevolutRamp::{Event, LiquidityAdded, LiquidityLocked};
 use zkramp::tests::constants;
 use zkramp::tests::utils;
 
@@ -45,7 +45,7 @@ fn setup() -> (ZKRampABIDispatcher, ERC20UpgradeableABIDispatcher) {
 fn test_add_liquidity_with_unregistered_offchain_id() {
     let contract_address = test_address();
     let (revolut_ramp, _) = setup();
-    let liquidity_owner = constants::OTHER();
+    let liquidity_owner = constants::CALLER();
     let offchain_id = constants::REVOLUT_ID();
     let amount = 42;
 
@@ -77,7 +77,7 @@ fn test_add_zero_liquidity() {
 fn test_add_liquidity() {
     let (revolut_ramp, erc20) = setup();
     let mut spy = spy_events();
-    let liquidity_owner = constants::OTHER();
+    let liquidity_owner = constants::CALLER();
     let offchain_id = constants::REVOLUT_ID();
     let amount = 42;
     let liquidity_key = LiquidityKey { owner: liquidity_owner, offchain_id };
@@ -113,7 +113,7 @@ fn test_add_liquidity() {
 fn test_add_liquidity_twice() {
     let (revolut_ramp, erc20) = setup();
     let mut spy = spy_events();
-    let liquidity_owner = constants::OTHER();
+    let liquidity_owner = constants::CALLER();
     let offchain_id = constants::REVOLUT_ID();
     let amount1 = 42;
     let amount2 = 75;
@@ -160,7 +160,7 @@ fn test_add_liquidity_twice() {
 fn test_add_liquidity_to_locked_liquidity() {
     let (revolut_ramp, erc20) = setup();
     let mut spy = spy_events();
-    let liquidity_owner = constants::OTHER();
+    let liquidity_owner = constants::CALLER();
     let offchain_id = constants::REVOLUT_ID();
     let amount1 = 42;
     let amount2 = 75;
@@ -215,10 +215,12 @@ fn test_add_liquidity_to_locked_liquidity() {
 
 #[test]
 #[should_panic(expected: 'Amount cannot be null')]
-fn test_initiate_empty_liquidity_retrieval() {
+fn test_initiate_liquidity_retrieval_empty() {
     // setup
     let (revolut_ramp, _) = setup();
-    let liquidity_key = LiquidityKey { owner: constants::OWNER(), offchain_id: constants::REVOLUT_ID() };
+    let caller = constants::CALLER();
+    let offchain_id = constants::REVOLUT_ID();
+    let liquidity_key = LiquidityKey { owner: caller, offchain_id };
 
     // initiate liquidity retrieval
     revolut_ramp.initiate_liquidity_retrieval(liquidity_key);
@@ -228,7 +230,8 @@ fn test_initiate_empty_liquidity_retrieval() {
 #[should_panic(expected: 'Caller is not the owner')]
 fn test_initiate_liquidity_retrieval_not_owner() {
     let (revolut_ramp, erc20) = setup();
-    let liquidity_owner = constants::OTHER();
+    let liquidity_owner = constants::CALLER();
+    let other_caller = constants::OTHER();
     let offchain_id = constants::REVOLUT_ID();
     let amount = 42;
     let liquidity_key = LiquidityKey { owner: liquidity_owner, offchain_id };
@@ -241,15 +244,11 @@ fn test_initiate_liquidity_retrieval_not_owner() {
     revolut_ramp.register(:offchain_id);
 
     // add liquidity
-    revolut_ramp.add_liquidity(amount, offchain_id);
+    revolut_ramp.add_liquidity(:amount, :offchain_id);
 
-    // change owner
-    let new_owner = constants::CALLER();
-    revolut_ramp.transfer_ownership(:new_owner);
-    assert_eq!(new_owner, revolut_ramp.owner());
-
-    // initiate with wrong owner
-    revolut_ramp.initiate_liquidity_retrieval(liquidity_key);
+    // initiate liquidity retrieval with wrong owner
+    start_cheat_caller_address(revolut_ramp.contract_address, other_caller);
+    revolut_ramp.initiate_liquidity_retrieval(:liquidity_key);
 }
 
 #[test]
@@ -296,46 +295,29 @@ fn test_initiate_liquidity_retrieval_twice() {
     let mut spy = spy_events();
     let liquidity_owner = constants::OTHER();
     let offchain_id = constants::REVOLUT_ID();
-    let amount1 = 42;
-    let amount2 = 75;
+    let amount = 42;
     let liquidity_key = LiquidityKey { owner: liquidity_owner, offchain_id };
 
     // fund the account
-    fund_and_approve(
-        token: erc20, recipient: liquidity_owner, spender: revolut_ramp.contract_address, amount: amount1 + amount2
-    );
+    fund_and_approve(token: erc20, recipient: liquidity_owner, spender: revolut_ramp.contract_address, :amount);
 
     // register offchain ID
     start_cheat_caller_address(revolut_ramp.contract_address, liquidity_owner);
     revolut_ramp.register(:offchain_id);
 
     // add liquidity
-    revolut_ramp.add_liquidity(amount1, offchain_id);
+    revolut_ramp.add_liquidity(amount, offchain_id);
 
     // assert state before
-    assert_eq!(revolut_ramp.all_liquidity(:liquidity_key), amount1);
-    assert_eq!(revolut_ramp.available_liquidity(:liquidity_key), amount1);
-    assert_eq!(erc20.balance_of(liquidity_owner), amount2);
-
-    revolut_ramp.initiate_liquidity_retrieval(:liquidity_key);
-
-    // assert state after
-    assert_eq!(revolut_ramp.all_liquidity(:liquidity_key), amount1);
-    assert_eq!(revolut_ramp.available_liquidity(:liquidity_key), 0);
-    assert_eq!(erc20.balance_of(liquidity_owner), amount2);
-
-    // add liquidity
-    revolut_ramp.add_liquidity(amount2, offchain_id);
-
-    // assert state before
-    assert_eq!(revolut_ramp.all_liquidity(:liquidity_key), amount1 + amount2);
-    assert_eq!(revolut_ramp.available_liquidity(:liquidity_key), amount1 + amount2);
+    assert_eq!(revolut_ramp.all_liquidity(:liquidity_key), amount);
+    assert_eq!(revolut_ramp.available_liquidity(:liquidity_key), amount);
     assert_eq!(erc20.balance_of(liquidity_owner), 0);
 
     revolut_ramp.initiate_liquidity_retrieval(:liquidity_key);
+    revolut_ramp.initiate_liquidity_retrieval(:liquidity_key);
 
     // assert state after
-    assert_eq!(revolut_ramp.all_liquidity(:liquidity_key), amount1 + amount2);
+    assert_eq!(revolut_ramp.all_liquidity(:liquidity_key), amount);
     assert_eq!(revolut_ramp.available_liquidity(:liquidity_key), 0);
     assert_eq!(erc20.balance_of(liquidity_owner), 0);
 
@@ -353,9 +335,9 @@ fn test_initiate_liquidity_retrieval_twice() {
 #[should_panic(expected: 'Liquidity is unlocked')]
 fn test_retrieve_unlocked_liquidity() {
     let (revolut_ramp, _) = setup();
-
-    // create liquidity key
-    let liquidity_key = LiquidityKey { owner: get_caller_address(), offchain_id: constants::REVOLUT_ID() };
+    let caller = constants::CALLER();
+    let offchain_id = constants::REVOLUT_ID();
+    let liquidity_key = LiquidityKey { owner: caller, offchain_id };
 
     // try to retrieve liquidity
     revolut_ramp.retrieve_liquidity(:liquidity_key);
