@@ -130,6 +130,9 @@ Thanks goes to these wonderful people. Follow the [contributors guide](https://g
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/ikemHood"><img src="https://avatars.githubusercontent.com/u/91676649?v=4?s=100" width="100px;" alt="Ikem"/><br /><sub><b>Ikem</b></sub></a><br /><a href="https://github.com/starkware/zkramp/commits?author=ikemHood" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/Jemiiah"><img src="https://avatars.githubusercontent.com/u/160767568?v=4?s=100" width="100px;" alt="Jemiiah"/><br /><sub><b>Jemiiah</b></sub></a><br /><a href="https://github.com/starkware/zkramp/commits?author=Jemiiah" title="Code">💻</a></td>
     </tr>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/leohscl"><img src="https://avatars.githubusercontent.com/u/62845407?v=4?s=100" width="100px;" alt="leohscl"/><br /><sub><b>leohscl</b></sub></a><br /><a href="https://github.com/starkware/zkramp/commits?author=leohscl" title="Code">💻</a></td>
+    </tr>
   </tbody>
   <tfoot>
     <tr>
