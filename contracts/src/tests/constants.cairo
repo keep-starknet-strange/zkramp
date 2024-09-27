@@ -3,8 +3,14 @@ use zkramp::components::registry::interface::OffchainId;
 
 const REVTAG: felt252 = 'just a random revtag hash';
 
+const REVTAG2: felt252 = 'just another random revtag hash';
+
 pub fn REVOLUT_ID() -> OffchainId {
     OffchainId::Revolut(REVTAG)
+}
+
+pub fn OTHER_REVOLUT_ID() -> OffchainId {
+    OffchainId::Revolut(REVTAG2)
 }
 
 pub fn CALLER() -> ContractAddress {
