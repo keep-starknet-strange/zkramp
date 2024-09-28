@@ -39,6 +39,10 @@ pub fn OTHER() -> ContractAddress {
     contract_address_const::<'other'>()
 }
 
+pub fn OTHER2() -> ContractAddress {
+    contract_address_const::<'other2'>()
+}
+
 pub const SUPPLY: u256 = 1_000_000_000_000_000_000; // 1 ETH
 
 

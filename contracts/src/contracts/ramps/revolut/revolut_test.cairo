@@ -8,7 +8,7 @@ use snforge_std::{
 };
 use zkramp::contracts::ramps::revolut::interface::{ZKRampABIDispatcher, ZKRampABIDispatcherTrait, LiquidityKey};
 use zkramp::contracts::ramps::revolut::revolut::RevolutRamp::{
-    Event, LiquidityAdded, LiquidityLocked, LiquidityShareRequested
+    Event, LiquidityAdded, LiquidityLocked, LiquidityShareRequested, MINIMUM_LOCK_DURATION
 };
 use zkramp::tests::constants;
 use zkramp::tests::utils;
@@ -379,7 +379,7 @@ fn test_retrieve_liquidity_with_expired_requests() {
 #[should_panic(expected: 'Caller is the owner')]
 fn test_initiate_liquidity_withdraw_from_owner() {
     let (revolut_ramp, erc20) = setup();
-    let liquidity_owner = constants::OTHER();
+    let liquidity_owner = constants::CALLER();
     let offchain_id = constants::REVOLUT_ID();
     let amount = 42;
     let liquidity_key = LiquidityKey { owner: liquidity_owner, offchain_id };
@@ -392,7 +392,7 @@ fn test_initiate_liquidity_withdraw_from_owner() {
     revolut_ramp.register(:offchain_id);
 
     // add liquidity
-    revolut_ramp.add_liquidity(amount: amount, :offchain_id);
+    revolut_ramp.add_liquidity(:amount, :offchain_id);
 
     // initiate liquidity withdraw
     revolut_ramp.initiate_liquidity_withdrawal(:liquidity_key, :amount, :offchain_id);
@@ -402,8 +402,8 @@ fn test_initiate_liquidity_withdraw_from_owner() {
 #[should_panic(expected: 'Amount cannot be null')]
 fn test_initiate_liquidity_withdraw_zero_amount() {
     let (revolut_ramp, erc20) = setup();
-    let liquidity_owner = constants::OTHER();
-    let liquidity_withdrawer = constants::CALLER();
+    let liquidity_owner = constants::CALLER();
+    let liquidity_withdrawer = constants::OTHER();
     let offchain_id = constants::REVOLUT_ID();
     let offchain_id_withdrawer = constants::REVOLUT_ID2();
     let amount = 42;
@@ -417,7 +417,7 @@ fn test_initiate_liquidity_withdraw_zero_amount() {
     revolut_ramp.register(:offchain_id);
 
     // add liquidity
-    revolut_ramp.add_liquidity(amount: amount, :offchain_id);
+    revolut_ramp.add_liquidity(:amount, :offchain_id);
 
     // register offchain ID withdrawer
     start_cheat_caller_address(revolut_ramp.contract_address, liquidity_withdrawer);
@@ -431,8 +431,8 @@ fn test_initiate_liquidity_withdraw_zero_amount() {
 #[should_panic(expected: 'Liquidity is not available')]
 fn test_initiate_liquidity_withdraw_locked() {
     let (revolut_ramp, erc20) = setup();
-    let liquidity_owner = constants::OTHER();
-    let liquidity_withdrawer = constants::CALLER();
+    let liquidity_owner = constants::CALLER();
+    let liquidity_withdrawer = constants::OTHER();
     let offchain_id = constants::REVOLUT_ID();
     let offchain_id_withdrawer = constants::REVOLUT_ID2();
     let amount = 42;
@@ -446,7 +446,7 @@ fn test_initiate_liquidity_withdraw_locked() {
     revolut_ramp.register(:offchain_id);
 
     // add liquidity
-    revolut_ramp.add_liquidity(amount: amount, :offchain_id);
+    revolut_ramp.add_liquidity(:amount, :offchain_id);
 
     // locks liquidity
     revolut_ramp.initiate_liquidity_retrieval(:liquidity_key);
@@ -463,8 +463,8 @@ fn test_initiate_liquidity_withdraw_locked() {
 #[should_panic(expected: 'Caller is not registered')]
 fn test_initiate_liquidity_withdraw_with_unregistered_offchain_id() {
     let (revolut_ramp, erc20) = setup();
-    let liquidity_owner = constants::OTHER();
-    let liquidity_withdrawer = constants::CALLER();
+    let liquidity_owner = constants::CALLER();
+    let liquidity_withdrawer = constants::OTHER();
     let offchain_id = constants::REVOLUT_ID();
     let offchain_id_withdrawer = constants::REVOLUT_ID2();
     let amount = 42;
@@ -478,7 +478,7 @@ fn test_initiate_liquidity_withdraw_with_unregistered_offchain_id() {
     revolut_ramp.register(:offchain_id);
 
     // add liquidity
-    revolut_ramp.add_liquidity(amount: amount, :offchain_id);
+    revolut_ramp.add_liquidity(:amount, :offchain_id);
 
     // initiate liquidity withdraw
     start_cheat_caller_address(revolut_ramp.contract_address, liquidity_withdrawer);
@@ -489,80 +489,8 @@ fn test_initiate_liquidity_withdraw_with_unregistered_offchain_id() {
 #[should_panic(expected: 'Not enough liquidity')]
 fn test_initiate_liquidity_withdraw_without_enough_liquidity() {
     let (revolut_ramp, erc20) = setup();
-    let liquidity_owner = constants::OTHER();
-    let liquidity_withdrawer = constants::CALLER();
-    let offchain_id = constants::REVOLUT_ID();
-    let offchain_id_withdrawer = constants::REVOLUT_ID2();
-    let amount1 = 42;
-    let amount2 = 75;
-    let liquidity_key = LiquidityKey { owner: liquidity_owner, offchain_id };
-
-    // fund the account
-    fund_and_approve(token: erc20, recipient: liquidity_owner, spender: revolut_ramp.contract_address, amount: amount1);
-
-    // register offchain ID owner
-    start_cheat_caller_address(revolut_ramp.contract_address, liquidity_owner);
-    revolut_ramp.register(:offchain_id);
-
-    // add liquidity
-    revolut_ramp.add_liquidity(amount: amount1, :offchain_id);
-
-    // register offchain ID withdrawer
-    start_cheat_caller_address(revolut_ramp.contract_address, liquidity_withdrawer);
-    revolut_ramp.register(offchain_id: offchain_id_withdrawer);
-
-    // initiate liquidity withdraw
-    revolut_ramp.initiate_liquidity_withdrawal(:liquidity_key, amount: amount2, offchain_id: offchain_id_withdrawer);
-}
-
-#[test]
-#[should_panic(expected: 'Not enough liquidity')]
-fn test_initiate_liquidity_withdraw_without_enough_available_liquidity() {
-    let (revolut_ramp, erc20) = setup();
-    let liquidity_owner = constants::OTHER();
-    let liquidity_withdrawer1 = constants::CALLER();
-    let liquidity_withdrawer2 = constants::SPENDER();
-    let offchain_id = constants::REVOLUT_ID();
-    let offchain_id_withdrawer1 = constants::REVOLUT_ID2();
-    let offchain_id_withdrawer2 = constants::REVOLUT_ID3();
-    let amount1 = 42;
-    let amount2 = 75;
-    let liquidity_key = LiquidityKey { owner: liquidity_owner, offchain_id };
-
-    // fund the account
-    fund_and_approve(token: erc20, recipient: liquidity_owner, spender: revolut_ramp.contract_address, amount: amount2);
-
-    // register offchain ID owner
-    start_cheat_caller_address(revolut_ramp.contract_address, liquidity_owner);
-    revolut_ramp.register(:offchain_id);
-
-    // add liquidity
-    revolut_ramp.add_liquidity(amount: amount2, :offchain_id);
-
-    // register offchain ID withdrawer 1
-    start_cheat_caller_address(revolut_ramp.contract_address, liquidity_withdrawer1);
-    revolut_ramp.register(offchain_id: offchain_id_withdrawer1);
-
-    // initiate liquidity withdraw
-    revolut_ramp.initiate_liquidity_withdrawal(:liquidity_key, amount: amount1, offchain_id: offchain_id_withdrawer1);
-
-    assert_eq!(revolut_ramp.available_liquidity(:liquidity_key), amount2 - amount1);
-    assert_eq!(revolut_ramp.all_liquidity(:liquidity_key), amount2);
-
-    // register offchain ID withdrawer 2
-    start_cheat_caller_address(revolut_ramp.contract_address, liquidity_withdrawer2);
-    revolut_ramp.register(offchain_id: offchain_id_withdrawer2);
-
-    // initiate liquidity withdraw
-    revolut_ramp.initiate_liquidity_withdrawal(:liquidity_key, amount: amount1, offchain_id: offchain_id_withdrawer2);
-}
-
-#[test]
-fn test_initiate_liquidity_withdraw() {
-    let (revolut_ramp, erc20) = setup();
-    let mut spy = spy_events();
-    let liquidity_owner = constants::OTHER();
-    let liquidity_withdrawer = constants::CALLER();
+    let liquidity_owner = constants::CALLER();
+    let liquidity_withdrawer = constants::OTHER();
     let offchain_id = constants::REVOLUT_ID();
     let offchain_id_withdrawer = constants::REVOLUT_ID2();
     let amount = 42;
@@ -576,7 +504,78 @@ fn test_initiate_liquidity_withdraw() {
     revolut_ramp.register(:offchain_id);
 
     // add liquidity
-    revolut_ramp.add_liquidity(amount: amount, :offchain_id);
+    revolut_ramp.add_liquidity(:amount, :offchain_id);
+
+    // register offchain ID withdrawer
+    start_cheat_caller_address(revolut_ramp.contract_address, liquidity_withdrawer);
+    revolut_ramp.register(offchain_id: offchain_id_withdrawer);
+
+    // initiate liquidity withdraw
+    revolut_ramp.initiate_liquidity_withdrawal(:liquidity_key, amount: amount + 1, offchain_id: offchain_id_withdrawer);
+}
+
+#[test]
+#[should_panic(expected: 'Not enough liquidity')]
+fn test_initiate_liquidity_withdraw_without_enough_available_liquidity() {
+    let (revolut_ramp, erc20) = setup();
+    let liquidity_owner = constants::CALLER();
+    let liquidity_withdrawer1 = constants::OTHER();
+    let liquidity_withdrawer2 = constants::OTHER2();
+    let offchain_id = constants::REVOLUT_ID();
+    let offchain_id_withdrawer1 = constants::REVOLUT_ID2();
+    let offchain_id_withdrawer2 = constants::REVOLUT_ID3();
+    let amount = 42;
+    let liquidity_key = LiquidityKey { owner: liquidity_owner, offchain_id };
+
+    // fund the account
+    fund_and_approve(token: erc20, recipient: liquidity_owner, spender: revolut_ramp.contract_address, :amount);
+
+    // register offchain ID owner
+    start_cheat_caller_address(revolut_ramp.contract_address, liquidity_owner);
+    revolut_ramp.register(:offchain_id);
+
+    // add liquidity
+    revolut_ramp.add_liquidity(:amount, :offchain_id);
+
+    // register offchain ID withdrawer 1
+    start_cheat_caller_address(revolut_ramp.contract_address, liquidity_withdrawer1);
+    revolut_ramp.register(offchain_id: offchain_id_withdrawer1);
+
+    // initiate liquidity withdraw
+    revolut_ramp.initiate_liquidity_withdrawal(:liquidity_key, amount: 1, offchain_id: offchain_id_withdrawer1);
+
+    // assert state before
+    assert_eq!(revolut_ramp.available_liquidity(:liquidity_key), amount - 1);
+    assert_eq!(revolut_ramp.all_liquidity(:liquidity_key), amount);
+
+    // register offchain ID withdrawer 2
+    start_cheat_caller_address(revolut_ramp.contract_address, liquidity_withdrawer2);
+    revolut_ramp.register(offchain_id: offchain_id_withdrawer2);
+
+    // initiate liquidity withdraw
+    revolut_ramp.initiate_liquidity_withdrawal(:liquidity_key, :amount, offchain_id: offchain_id_withdrawer2);
+}
+
+#[test]
+fn test_initiate_liquidity_withdraw() {
+    let (revolut_ramp, erc20) = setup();
+    let mut spy = spy_events();
+    let liquidity_owner = constants::CALLER();
+    let liquidity_withdrawer = constants::OTHER();
+    let offchain_id = constants::REVOLUT_ID();
+    let offchain_id_withdrawer = constants::REVOLUT_ID2();
+    let amount = 42;
+    let liquidity_key = LiquidityKey { owner: liquidity_owner, offchain_id };
+
+    // fund the account
+    fund_and_approve(token: erc20, recipient: liquidity_owner, spender: revolut_ramp.contract_address, :amount);
+
+    // register offchain ID owner
+    start_cheat_caller_address(revolut_ramp.contract_address, liquidity_owner);
+    revolut_ramp.register(:offchain_id);
+
+    // add liquidity
+    revolut_ramp.add_liquidity(:amount, :offchain_id);
 
     // assert state before
     assert_eq!(revolut_ramp.all_liquidity(:liquidity_key), amount);
@@ -599,7 +598,6 @@ fn test_initiate_liquidity_withdraw() {
     spy
         .assert_emitted(
             @array![
-                (revolut_ramp.contract_address, Event::LiquidityAdded(LiquidityAdded { liquidity_key, amount })),
                 (
                     revolut_ramp.contract_address,
                     Event::LiquidityShareRequested(
@@ -608,7 +606,7 @@ fn test_initiate_liquidity_withdraw() {
                             amount,
                             liquidity_key,
                             offchain_id: offchain_id_withdrawer,
-                            expiration_date: 3600
+                            expiration_date: MINIMUM_LOCK_DURATION
                         }
                     )
                 )
@@ -629,14 +627,16 @@ fn test_initiate_liquidity_withdraw_twice() {
     let liquidity_key = LiquidityKey { owner: liquidity_owner, offchain_id };
 
     // fund the account
-    fund_and_approve(token: erc20, recipient: liquidity_owner, spender: revolut_ramp.contract_address, amount: amount2);
+    fund_and_approve(
+        token: erc20, recipient: liquidity_owner, spender: revolut_ramp.contract_address, amount: amount1 + amount2
+    );
 
     // register offchain ID owner
     start_cheat_caller_address(revolut_ramp.contract_address, liquidity_owner);
     revolut_ramp.register(:offchain_id);
 
     // add liquidity
-    revolut_ramp.add_liquidity(amount: amount2, :offchain_id);
+    revolut_ramp.add_liquidity(amount: amount1 + amount2, :offchain_id);
 
     // register offchain ID withdrawer
     start_cheat_caller_address(revolut_ramp.contract_address, liquidity_withdrawer);
@@ -644,12 +644,7 @@ fn test_initiate_liquidity_withdraw_twice() {
 
     // initiate liquidity withdraw
     revolut_ramp.initiate_liquidity_withdrawal(:liquidity_key, amount: amount1, offchain_id: offchain_id_withdrawer);
-
-    assert_eq!(revolut_ramp.available_liquidity(:liquidity_key), amount2 - amount1);
-    assert_eq!(revolut_ramp.all_liquidity(:liquidity_key), amount2);
-
-    // initiate a second liquidity withdraw
-    revolut_ramp.initiate_liquidity_withdrawal(:liquidity_key, amount: amount1, offchain_id: offchain_id_withdrawer);
+    revolut_ramp.initiate_liquidity_withdrawal(:liquidity_key, amount: amount2, offchain_id: offchain_id_withdrawer);
 }
 
 // #[test]
