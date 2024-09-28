@@ -3,7 +3,9 @@ use zkramp::utils::hash::HashSerializable;
 
 #[derive(Drop, Copy, Serde, Debug, PartialEq, starknet::Store)]
 pub enum OffchainId {
-    Revolut: felt252
+    #[default]
+    None,
+    Revolut: felt252,
 }
 
 #[starknet::interface]
