@@ -53,19 +53,63 @@ fn test_register() {
         )
 }
 
-// #[test]
+#[test]
 fn test_register_twice_same_offchain_id() {
-    panic!("Not implemented yet");
+    let mut state = setup();
+    let mut _spy = spy_events();
+    let contract_address = test_address();
+
+    // setup caller
+    start_cheat_caller_address(contract_address, constants::CALLER());
+
+    // first registeration
+    state.register(offchain_id: constants::REVOLUT_ID());
+
+    // second registeration
+    state.register(offchain_id: constants::REVOLUT_ID());
+
+    // assert state after
+    assert!(state.is_registered(constants::CALLER(), constants::REVOLUT_ID()));
+    //TODO: check on emitted events
 }
 
-// #[test]
+#[test]
 fn test_register_two_different_offchain_id() {
-    panic!("Not implemented yet");
+    let mut state = setup();
+    let mut _spy = spy_events();
+    let contract_address = test_address();
+
+    // setup caller
+    start_cheat_caller_address(contract_address, constants::CALLER());
+
+    // register
+    state.register(offchain_id: constants::REVOLUT_ID());
+    state.register(offchain_id: constants::REVOLUT_ID_TWO());
+
+    // assert state after
+    assert!(state.is_registered(constants::CALLER(), constants::REVOLUT_ID()));
+    assert!(state.is_registered(constants::CALLER(), constants::REVOLUT_ID_TWO()));
+    //TODO: check on emitted events
 }
 
-// #[test]
+#[test]
 fn test_register_same_offchain_id_from_two_different_callers() {
-    panic!("Not implemented yet");
+    let mut state = setup();
+    let mut _spy = spy_events();
+    let contract_address = test_address();
+
+    // setup caller one and register
+    start_cheat_caller_address(contract_address, constants::CALLER());
+    state.register(offchain_id: constants::REVOLUT_ID());
+
+    // setup caller two and register
+    start_cheat_caller_address(contract_address, constants::SPENDER());
+    state.register(offchain_id: constants::REVOLUT_ID());
+
+    // assert state after
+    assert!(state.is_registered(constants::CALLER(), constants::REVOLUT_ID()));
+    assert!(state.is_registered(constants::SPENDER(), constants::REVOLUT_ID()));
+    //TODO: check on emitted events
 }
 
 //
