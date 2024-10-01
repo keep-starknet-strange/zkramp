@@ -1,284 +1,145 @@
 {
-  "id": "d5a50aa7-acac-4a5f-8d1f-e537c7e92d09",
+  "id": "3b693785-62e8-42c6-98ca-b6e244bc78c0",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
-    "public.indexer_locked": {
-      "name": "indexer_locked",
+    "public.liquidity": {
+      "name": "liquidity",
       "schema": "",
       "columns": {
+        "owner": {
+          "name": "owner",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "offchain_id": {
+          "name": "offchain_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "locked": {
+          "name": "locked",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
+        },
+        "amount": {
+          "name": "amount",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false
+        },
         "_cursor": {
           "name": "_cursor",
-          "type": "bigint",
+          "type": "int8range",
           "primaryKey": false,
-          "notNull": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "network": {
-          "name": "network",
-          "type": "network_type",
-          "typeSchema": "public",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "block_hash": {
-          "name": "block_hash",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "block_number": {
-          "name": "block_number",
-          "type": "bigint",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "block_timestamp": {
-          "name": "block_timestamp",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "transaction_hash": {
-          "name": "transaction_hash",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "index_in_block": {
-          "name": "index_in_block",
-          "type": "bigint",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
           "notNull": true
-        },
-        "token_address": {
-          "name": "token_address",
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "liquidity_key": {
+          "name": "liquidity_key",
+          "columns": [
+            "owner",
+            "offchain_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {}
+    },
+    "public.liquidity_request": {
+      "name": "liquidity_request",
+      "schema": "",
+      "columns": {
+        "owner": {
+          "name": "owner",
           "type": "text",
           "primaryKey": false,
           "notNull": false
         },
-        "from_address": {
-          "name": "from_address",
+        "offchain_id": {
+          "name": "offchain_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "requestor": {
+          "name": "requestor",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "requestor_offchain_id": {
+          "name": "requestor_offchain_id",
           "type": "text",
           "primaryKey": false,
           "notNull": false
         },
         "amount": {
           "name": "amount",
-          "type": "text",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "expires_at": {
+          "name": "expires_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "_cursor": {
+          "name": "_cursor",
+          "type": "bigint",
           "primaryKey": false,
           "notNull": false
         }
       },
-      "indexes": {
-        "locked_cursor_idx": {
-          "name": "locked_cursor_idx",
-          "columns": [
-            {
-              "expression": "_cursor",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
+      "indexes": {},
+      "foreignKeys": {
+        "liquidity_key": {
+          "name": "liquidity_key",
+          "tableFrom": "liquidity_request",
+          "tableTo": "liquidity",
+          "columnsFrom": [
+            "owner",
+            "offchain_id"
           ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "locked_token_idx": {
-          "name": "locked_token_idx",
-          "columns": [
-            {
-              "expression": "token_address",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
+          "columnsTo": [
+            "owner",
+            "offchain_id"
           ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "locked_from_idx": {
-          "name": "locked_from_idx",
-          "columns": [
-            {
-              "expression": "from_address",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
+          "onDelete": "no action",
+          "onUpdate": "no action"
         }
       },
-      "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "public.indexer_unlocked": {
-      "name": "indexer_unlocked",
+    "public.registration": {
+      "name": "registration",
       "schema": "",
       "columns": {
-        "_cursor": {
-          "name": "_cursor",
-          "type": "bigint",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "network": {
-          "name": "network",
-          "type": "network_type",
-          "typeSchema": "public",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "block_hash": {
-          "name": "block_hash",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "block_number": {
-          "name": "block_number",
-          "type": "bigint",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "block_timestamp": {
-          "name": "block_timestamp",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "transaction_hash": {
-          "name": "transaction_hash",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "index_in_block": {
-          "name": "index_in_block",
-          "type": "bigint",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "id": {
-          "name": "id",
+        "address": {
+          "name": "address",
           "type": "text",
           "primaryKey": true,
           "notNull": true
         },
-        "token_address": {
-          "name": "token_address",
-          "type": "text",
+        "revolut": {
+          "name": "revolut",
+          "type": "text[]",
           "primaryKey": false,
-          "notNull": false
-        },
-        "from_address": {
-          "name": "from_address",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "to_address": {
-          "name": "to_address",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "amount": {
-          "name": "amount",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
+          "notNull": true,
+          "default": "ARRAY[]::text[]"
         }
       },
-      "indexes": {
-        "unlocked_cursor_idx": {
-          "name": "unlocked_cursor_idx",
-          "columns": [
-            {
-              "expression": "_cursor",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "unlocked_token_idx": {
-          "name": "unlocked_token_idx",
-          "columns": [
-            {
-              "expression": "token_address",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "unlocked_from_idx": {
-          "name": "unlocked_from_idx",
-          "columns": [
-            {
-              "expression": "from_address",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "unlocked_to_idx": {
-          "name": "unlocked_to_idx",
-          "columns": [
-            {
-              "expression": "to_address",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
+      "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
@@ -291,6 +152,13 @@
       "values": [
         "mainnet",
         "sepolia"
+      ]
+    },
+    "public.ramp_type": {
+      "name": "ramp_type",
+      "schema": "public",
+      "values": [
+        "Revolut"
       ]
     }
   },

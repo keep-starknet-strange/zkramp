@@ -5,29 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1725556971568,
-      "tag": "0000_damp_typhoid_mary",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1726746693178,
-      "tag": "0001_dusty_microbe",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1727185271445,
-      "tag": "0002_fixed_whirlwind",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1727271953035,
-      "tag": "0003_silent_namor",
+      "when": 1727794402421,
+      "tag": "0000_unique_luke_cage",
       "breakpoints": true
     }
   ]
