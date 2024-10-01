@@ -35,8 +35,8 @@ pub mod RevolutRamp {
     // Constants
     //
 
-    const LOCK_DURATION_STEP: u64 = 900; // 15min
-    const MINIMUM_LOCK_DURATION: u64 = 3600; // 1h
+    pub const LOCK_DURATION_STEP: u64 = 900; // 15min
+    pub const MINIMUM_LOCK_DURATION: u64 = 3600; // 1h
 
     //
     // Storage
