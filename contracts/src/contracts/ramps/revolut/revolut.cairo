@@ -232,7 +232,7 @@ pub mod RevolutRamp {
         fn retrieve_liquidity(ref self: ContractState, liquidity_key: LiquidityKey) {
             let caller = get_caller_address();
 
-            // asserts caller is the liquidity owner
+            // asserts liquidity is locked
             assert(self.locked_liquidity.read(liquidity_key), Errors::UNLOCKED_LIQUIDITY);
             // asserts caller is the liquidity owner
             assert(liquidity_key.owner == caller, Errors::CALLER_IS_NOT_OWNER);
