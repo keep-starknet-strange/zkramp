@@ -7,7 +7,7 @@ use zkramp::components::registry::interface::OffchainId;
 
 #[derive(Drop, Serde)]
 pub struct Proof {
-    foo: felt252
+    pub foo: felt252
 }
 
 #[derive(Drop, Copy, Hash, Serde, starknet::Store)]
