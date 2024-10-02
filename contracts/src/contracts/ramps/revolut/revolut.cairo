@@ -232,19 +232,23 @@ pub mod RevolutRamp {
         fn retrieve_liquidity(ref self: ContractState, liquidity_key: LiquidityKey) {
             let caller = get_caller_address();
 
-            // asserts caller is the liquidity owner
+            // asserts liquidity is locked
             assert(self.locked_liquidity.read(liquidity_key), Errors::UNLOCKED_LIQUIDITY);
             // asserts caller is the liquidity owner
             assert(liquidity_key.owner == caller, Errors::CALLER_IS_NOT_OWNER);
 
             let token = self.token.read();
+            let available_amount = self._get_available_liquidity(:liquidity_key);
+
+            // update stored liquidity
             let amount = self.liquidity.read(liquidity_key);
+            self.liquidity.write(liquidity_key, amount - available_amount);
 
             // use the escrow to unlock the funds
-            self.escrow.unlock(from: caller, to: caller, :token, :amount);
+            self.escrow.unlock(from: caller, to: caller, :token, amount: available_amount);
 
             // emits Liquidityretrieved event
-            self.emit(LiquidityRetrieved { liquidity_key, amount });
+            self.emit(LiquidityRetrieved { liquidity_key, amount: available_amount });
         }
 
         // If the requested amount is valid according to the available amount,
