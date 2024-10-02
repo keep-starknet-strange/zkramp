@@ -44,14 +44,7 @@ fn test_register() {
     // check on emitted events
     spy
         .assert_emitted(
-            @array![
-                (
-                    contract_address,
-                    Event::RegistrationEvent(
-                        RegistrationEvent { caller, offchain_id }
-                    )
-                )
-            ]
+            @array![(contract_address, Event::RegistrationEvent(RegistrationEvent { caller, offchain_id }))]
         );
 }
 
@@ -77,18 +70,8 @@ fn test_register_twice_same_offchain_id() {
     spy
         .assert_emitted(
             @array![
-                (
-                    contract_address,
-                    Event::RegistrationEvent(
-                        RegistrationEvent { caller, offchain_id }
-                    )
-                ),
-                (
-                    contract_address,
-                    Event::RegistrationEvent(
-                        RegistrationEvent { caller, offchain_id }
-                    )
-                )
+                (contract_address, Event::RegistrationEvent(RegistrationEvent { caller, offchain_id })),
+                (contract_address, Event::RegistrationEvent(RegistrationEvent { caller, offchain_id }))
             ]
         );
 }
@@ -117,18 +100,8 @@ fn test_register_two_different_offchain_id() {
     spy
         .assert_emitted(
             @array![
-                (
-                    contract_address,
-                    Event::RegistrationEvent(
-                        RegistrationEvent { caller, offchain_id: offchain_id1 }
-                    )
-                ),
-                (
-                    contract_address,
-                    Event::RegistrationEvent(
-                        RegistrationEvent { caller, offchain_id: offchain_id2 }
-                    )
-                )
+                (contract_address, Event::RegistrationEvent(RegistrationEvent { caller, offchain_id: offchain_id1 })),
+                (contract_address, Event::RegistrationEvent(RegistrationEvent { caller, offchain_id: offchain_id2 }))
             ]
         );
 }
@@ -158,18 +131,8 @@ fn test_register_same_offchain_id_from_two_different_callers() {
     spy
         .assert_emitted(
             @array![
-                (
-                    contract_address,
-                    Event::RegistrationEvent(
-                        RegistrationEvent { caller: caller1, offchain_id }
-                    )
-                ),
-                (
-                    contract_address,
-                    Event::RegistrationEvent(
-                        RegistrationEvent { caller: caller2, offchain_id }
-                    )
-                )
+                (contract_address, Event::RegistrationEvent(RegistrationEvent { caller: caller1, offchain_id })),
+                (contract_address, Event::RegistrationEvent(RegistrationEvent { caller: caller2, offchain_id }))
             ]
         );
 }
