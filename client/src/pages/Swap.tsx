@@ -4,7 +4,9 @@ import { ChipButton } from 'src/components/ChipButton'
 import { CurrencyButton } from 'src/components/CurrencyButton'
 import { Column, Row } from 'src/components/Flex'
 import { CurrencyInput } from 'src/components/Input'
+import SelectAccountModal from 'src/components/SelectAccountModal'
 import { FIAT_CURRENCIES, TOKEN_CURRENCIES } from 'src/constants/currencies'
+import { useSelectAccountModal } from 'src/hooks/useModal'
 import { ThemedText } from 'src/theme/components'
 import { ChevronDown } from 'src/theme/components/icons'
 import { styled } from 'styled-components'
@@ -79,6 +81,8 @@ export default function SwapPage() {
   const [inputSendValue, setInputSendValue] = useState('')
   const [inputReceiveValue, setInputReceiveValue] = useState('')
 
+  const [, toggleSelectAccountModal] = useSelectAccountModal()
+
   const handleReceiveChange = (event: ChangeEvent<HTMLInputElement>) => {
     const inputValue = event.target.value
     const numericValue = inputValue.replace(/[^0-9]/g, '')
@@ -129,7 +133,7 @@ export default function SwapPage() {
           <RampCard>
             <ThemedText.BodyPrimary>From</ThemedText.BodyPrimary>
 
-            <AccountButton>
+            <AccountButton onClick={toggleSelectAccountModal}>
               <span>Select account</span>
               <ChevronDown width={14} height={14} />
             </AccountButton>
@@ -138,6 +142,8 @@ export default function SwapPage() {
 
         <PrimaryButton disabled>Enter amount</PrimaryButton>
       </Column>
+
+      <SelectAccountModal />
     </Content>
   )
 }
