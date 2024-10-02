@@ -2,6 +2,7 @@ use core::starknet::{ContractAddress, contract_address_const};
 use zkramp::components::registry::interface::OffchainId;
 
 const REVTAG: felt252 = 'just a random revtag hash';
+const REVTAG_TWO: felt252 = 'just another random revtag hash';
 
 const REVTAG2: felt252 = 'just a 2nd random revtag hash';
 
