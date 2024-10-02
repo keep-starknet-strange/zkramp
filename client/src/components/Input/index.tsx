@@ -9,17 +9,21 @@ interface CurrencyInputProps {
 }
 
 const StyledInput = styled.input`
-  padding: 2px;
-  border: none;
-  background-color: transparent;
-  border-radius: 4px;
-  font-size: 26px;
-  width: 100%;
   box-sizing: border-box;
-  color: white;
+  width: 100%;
+  padding: 2px;
+  background-color: transparent;
+  color: ${({ theme }) => theme.neutral1};
+  border: none;
+  border-radius: 4px;
+  font-family: 'Inter';
+  font-size: 72px;
+  font-weight: 600;
+  text-align: center;
+  outline: none;
 
-  &:focus {
-    outline: none;
+  &::placeholder {
+    color: ${({ theme }) => theme.neutral2};
   }
 `
 
