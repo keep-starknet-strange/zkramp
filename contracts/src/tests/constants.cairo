@@ -1,5 +1,6 @@
 use core::starknet::{ContractAddress, contract_address_const};
 use zkramp::components::registry::interface::OffchainId;
+use zkramp::contracts::ramps::revolut::interface::Proof;
 
 const REVTAG: felt252 = 'just a random revtag hash';
 
@@ -52,4 +53,8 @@ pub fn NAME() -> ByteArray {
 
 pub fn SYMBOL() -> ByteArray {
     "SYMBOL"
+}
+
+pub fn PROOF() -> Proof {
+    Proof { foo: 0 }
 }

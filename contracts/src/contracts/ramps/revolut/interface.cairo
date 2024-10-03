@@ -5,7 +5,7 @@ use zkramp::components::registry::interface::OffchainId;
 // Structs
 //
 
-#[derive(Drop, Serde)]
+#[derive(Drop, Copy, Serde)]
 pub struct Proof {
     pub foo: felt252
 }

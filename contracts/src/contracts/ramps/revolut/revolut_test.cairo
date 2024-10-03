@@ -6,7 +6,7 @@ use snforge_std::{
     EventSpyAssertionsTrait, spy_events, declare, DeclareResultTrait, ContractClassTrait, start_cheat_caller_address,
     stop_cheat_caller_address, test_address, start_cheat_block_timestamp_global
 };
-use zkramp::contracts::ramps::revolut::interface::{ZKRampABIDispatcher, ZKRampABIDispatcherTrait, LiquidityKey, Proof};
+use zkramp::contracts::ramps::revolut::interface::{ZKRampABIDispatcher, ZKRampABIDispatcherTrait, LiquidityKey};
 use zkramp::contracts::ramps::revolut::revolut::RevolutRamp::{
     Event, LiquidityAdded, LiquidityRetrieved, LiquidityLocked, LiquidityShareRequested, LiquidityShareWithdrawn,
     MINIMUM_LOCK_DURATION
@@ -929,7 +929,7 @@ fn test_withdraw_liquidity_without_request() {
     let withdrawer = constants::OTHER();
     let withdrawer_offchain_id = constants::REVOLUT_ID2();
     let liquidity_key = LiquidityKey { owner: liquidity_owner, offchain_id };
-    let proof = Proof { foo: 0 };
+    let proof = constants::PROOF();
 
     // fund the account
     fund_and_approve(token: erc20, recipient: liquidity_owner, spender: revolut_ramp.contract_address, amount: amount);
@@ -961,7 +961,7 @@ fn test_withdraw_liquidity_after_expiration() {
     let withdrawer = constants::OTHER();
     let withdrawer_offchain_id = constants::REVOLUT_ID2();
     let liquidity_key = LiquidityKey { owner: liquidity_owner, offchain_id };
-    let proof = Proof { foo: 0 };
+    let proof = constants::PROOF();
 
     // fund the account
     fund_and_approve(token: erc20, recipient: liquidity_owner, spender: revolut_ramp.contract_address, amount: amount);
@@ -998,11 +998,12 @@ fn test_withdraw_liquidity_from_another_caller() {
     // on-ramper
     let withdrawer = constants::OTHER();
     let withdrawer_offchain_id = constants::REVOLUT_ID2();
-    let liquidity_key = LiquidityKey { owner: liquidity_owner, offchain_id };
-    let proof = Proof { foo: 0 };
 
     // other on-ramper
     let other_withdrawer = constants::OTHER2();
+
+    let liquidity_key = LiquidityKey { owner: liquidity_owner, offchain_id };
+    let proof = constants::PROOF();
 
     // fund the account
     fund_and_approve(token: erc20, recipient: liquidity_owner, spender: revolut_ramp.contract_address, amount: amount);
@@ -1038,7 +1039,7 @@ fn test_withdraw_liquidity_from_another_offchain_id() {
     let withdrawer = constants::OTHER();
     let withdrawer_offchain_id = constants::REVOLUT_ID2();
     let liquidity_key = LiquidityKey { owner: liquidity_owner, offchain_id };
-    let proof = Proof { foo: 0 };
+    let proof = constants::PROOF();
 
     // other on-ramper
     let other_withdrawer_offchain_id = constants::REVOLUT_ID3();
@@ -1060,7 +1061,6 @@ fn test_withdraw_liquidity_from_another_offchain_id() {
 
     // other offchain-id tries to withdraw
     revolut_ramp.withdraw_liquidity(:liquidity_key, offchain_id: other_withdrawer_offchain_id, :proof);
-    panic!("Not implemented yet");
 }
 
 #[test]
@@ -1076,8 +1076,9 @@ fn test_withdraw_liquidity() {
     // on-ramper
     let withdrawer = constants::OTHER();
     let withdrawer_offchain_id = constants::REVOLUT_ID2();
+
     let liquidity_key = LiquidityKey { owner: liquidity_owner, offchain_id };
-    let proof = Proof { foo: 0 };
+    let proof = constants::PROOF();
 
     // fund the account
     fund_and_approve(token: erc20, recipient: liquidity_owner, spender: revolut_ramp.contract_address, amount: amount);
@@ -1136,6 +1137,8 @@ fn test_withdraw_liquidity_twice() {
     // on-ramper
     let withdrawer = constants::OTHER();
     let withdrawer_offchain_id = constants::REVOLUT_ID2();
+
+    let proof = constants::PROOF();
     let liquidity_key = LiquidityKey { owner: liquidity_owner, offchain_id };
 
     // fund the account
@@ -1154,10 +1157,10 @@ fn test_withdraw_liquidity_twice() {
     revolut_ramp.initiate_liquidity_withdrawal(:liquidity_key, :amount, offchain_id: withdrawer_offchain_id);
 
     // withdrawer withdraws
-    revolut_ramp.withdraw_liquidity(:liquidity_key, offchain_id: withdrawer_offchain_id, proof: Proof { foo: 0 });
+    revolut_ramp.withdraw_liquidity(:liquidity_key, offchain_id: withdrawer_offchain_id, :proof);
 
     // withdrawer withdraws again
-    revolut_ramp.withdraw_liquidity(:liquidity_key, offchain_id: withdrawer_offchain_id, proof: Proof { foo: 0 });
+    revolut_ramp.withdraw_liquidity(:liquidity_key, offchain_id: withdrawer_offchain_id, :proof);
 }
 
 //
