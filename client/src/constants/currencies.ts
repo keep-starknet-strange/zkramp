@@ -10,6 +10,7 @@ export const FIAT_CURRENCIES = {
   EUR: {
     img: EURLogo,
     name: 'EUR',
+    symbol: '€',
   },
 }
 
@@ -17,5 +18,6 @@ export const TOKEN_CURRENCIES = {
   USDC: {
     img: USDCLogo,
     name: 'USDC',
+    symbol: 'USDC',
   },
 }

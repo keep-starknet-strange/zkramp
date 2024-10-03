@@ -18,7 +18,8 @@ export const PrimaryButton = styled.button`
   font-weight: 485;
 
   &:disabled {
-    background-color: ${({ theme }) => theme.surface};
+    background-color: ${({ theme }) => theme.bg3};
+    color: ${({ theme }) => theme.neutral2};
     cursor: default;
   }
 `

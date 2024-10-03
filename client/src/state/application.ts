@@ -6,6 +6,7 @@ export enum ModalType {
   WALLET_CONNECT,
   WALLET_OVERVIEW,
   PROOF_GENERATION,
+  SELECT_ACCOUNT,
 }
 
 export type ApplicationSlice = State & Actions

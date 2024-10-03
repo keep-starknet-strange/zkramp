@@ -1,5 +1,6 @@
 import { Currency } from 'src/constants/currencies'
 import { ThemedText } from 'src/theme/components'
+import { ChevronDown } from 'src/theme/components/icons'
 import styled from 'styled-components'
 
 import { Row } from '../Flex'
@@ -20,15 +21,18 @@ const CurrencyCard = styled(Row)`
 `
 
 interface CurrencyButtonProps {
+  className?: string
   selectedCurrency: Currency
 }
 
-export function CurrencyButton({ selectedCurrency }: CurrencyButtonProps) {
+export function CurrencyButton({ className, selectedCurrency }: CurrencyButtonProps) {
   return (
-    <CurrencyCard as="button" gap={4}>
+    <CurrencyCard as="button" gap={4} className={className}>
       <img src={selectedCurrency.img} alt={selectedCurrency.name} />
 
       <ThemedText.BodyPrimary fontWeight={500}>{selectedCurrency.name}</ThemedText.BodyPrimary>
+
+      <ChevronDown width={14} height={14} />
     </CurrencyCard>
   )
 }

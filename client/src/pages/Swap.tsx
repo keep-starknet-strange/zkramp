@@ -1,69 +1,87 @@
 import { ChangeEvent, useState } from 'react'
 import { PrimaryButton } from 'src/components/Button'
+import { ChipButton } from 'src/components/ChipButton'
 import { CurrencyButton } from 'src/components/CurrencyButton'
 import { Column, Row } from 'src/components/Flex'
 import { CurrencyInput } from 'src/components/Input'
+import SelectAccountModal from 'src/components/SelectAccountModal'
 import { FIAT_CURRENCIES, TOKEN_CURRENCIES } from 'src/constants/currencies'
+import { useSelectAccountModal } from 'src/hooks/useModal'
 import { ThemedText } from 'src/theme/components'
-import { ArrowDown } from 'src/theme/components/icons'
+import { ChevronDown } from 'src/theme/components/icons'
 import { styled } from 'styled-components'
 
 const Content = styled(Column)`
   max-width: 460px;
   width: 100%;
   align-items: normal;
-  gap: 24px;
   margin: 0 auto;
   margin-top: 120px;
 `
 
-const SwapCard = styled(Row)`
+const SwapCard = styled(Column)`
   width: 100%;
-  background-color: ${({ theme }) => theme.bg3};
-  border-radius: 12px;
   padding: 12px 16px;
+  background-color: ${({ theme }) => theme.bg3};
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+`
+
+const FiatCurrenyCard = styled(Row)`
+  width: 100%;
+  justify-content: space-between;
 `
 
 const SwapCardContent = styled(Column)`
   flex: 1;
-  align-items: flex-start;
+  width: 100%;
+  padding: 34px 0 42px 0;
+`
 
-  input {
-    width: 100%;
-    padding-top: 12px;
-    padding-bottom: 24px;
-    font-size: 42px;
-    font-weight: 600;
-    color: ${({ theme }) => theme.neutral1};
+const TokenCurrencyButton = styled(CurrencyButton)`
+  gap: 8px;
+  background-color: transparent;
+  border: none;
+  margin: 8px 0 12px 0;
 
-    &::placeholder {
-      color: ${({ theme }) => theme.neutral2};
-    }
+  img {
+    width: 18px;
+    height: 18px;
   }
 `
 
-const SwitchButton = styled.button`
-  display: flex;
-  align-items: center;
-  justify-content: center;
+const PresetAmountButton = styled(ChipButton)`
+  background-color: ${({ theme }) => theme.bg1};
   color: ${({ theme }) => theme.neutral1};
+  border: 1px solid ${({ theme }) => theme.border};
+  padding: 6px 12px;
+`
+
+const RampCard = styled(Row)`
+  justify-content: space-between;
+  width: 100%;
+  padding: 12px 16px;
   background-color: ${({ theme }) => theme.bg3};
-  border: 4px solid ${({ theme }) => theme.bg1};
-  border-radius: 6px;
-  cursor: pointer;
-  height: 32px;
-  width: 32px;
-  box-sizing: content-box;
-  margin: -18px 0;
-  z-index: 1;
-  padding: 0;
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 12px;
+`
+
+const AccountButton = styled(PrimaryButton)`
+  width: auto;
+  align-items: center;
+  gap: 4px;
+  padding: 8px;
 `
 
 export default function SwapPage() {
   const [rampMode, setRampMode] = useState<'on' | 'off'>('on')
+  const [fiatCurrency, setFiatCurrency] = useState(FIAT_CURRENCIES['EUR'])
+  const [tokenCurrency, setTokenCurrency] = useState(TOKEN_CURRENCIES['USDC'])
 
   const [inputSendValue, setInputSendValue] = useState('')
   const [inputReceiveValue, setInputReceiveValue] = useState('')
+
+  const [, toggleSelectAccountModal] = useSelectAccountModal()
 
   const handleReceiveChange = (event: ChangeEvent<HTMLInputElement>) => {
     const inputValue = event.target.value
@@ -77,43 +95,55 @@ export default function SwapPage() {
     setInputSendValue(numericValue)
   }
 
-  const handleChangeClick = () => {
-    setRampMode((state) => (state == 'off' ? 'on' : 'off'))
-    setInputSendValue(inputReceiveValue)
-    setInputReceiveValue(inputSendValue)
-  }
-
   return (
-    <Content>
-      <ThemedText.HeadlineLarge>Swap</ThemedText.HeadlineLarge>
+    <Content gap={24}>
+      <Row gap={16}>
+        <ChipButton active>Buy</ChipButton>
+        <ChipButton>Sell</ChipButton>
+      </Row>
 
       <Column gap={12}>
-        <Column>
+        <Column gap={2}>
           <SwapCard as="label">
-            <SwapCardContent>
-              <ThemedText.Subtitle fontSize={12}>Send</ThemedText.Subtitle>
-              <CurrencyInput placeholder="0.0" value={inputSendValue} onChange={handleSendChange} />
-            </SwapCardContent>
+            <FiatCurrenyCard>
+              <ThemedText.Subtitle fontSize={14} color="neutral1">
+                You&apos;re buying
+              </ThemedText.Subtitle>
 
-            <CurrencyButton selectedCurrency={rampMode === 'on' ? FIAT_CURRENCIES['EUR'] : TOKEN_CURRENCIES['USDC']} />
+              <CurrencyButton selectedCurrency={fiatCurrency} />
+            </FiatCurrenyCard>
+
+            <SwapCardContent>
+              <CurrencyInput
+                placeholder={`0${fiatCurrency.symbol}`}
+                value={inputSendValue}
+                onChange={handleSendChange}
+              />
+
+              <TokenCurrencyButton selectedCurrency={tokenCurrency} />
+
+              <Row gap={8}>
+                <PresetAmountButton>100{fiatCurrency.symbol}</PresetAmountButton>
+                <PresetAmountButton>300{fiatCurrency.symbol}</PresetAmountButton>
+                <PresetAmountButton>1000{fiatCurrency.symbol}</PresetAmountButton>
+              </Row>
+            </SwapCardContent>
           </SwapCard>
 
-          <SwitchButton onClick={handleChangeClick}>
-            <ArrowDown width={18} height={18} />
-          </SwitchButton>
+          <RampCard>
+            <ThemedText.BodyPrimary>From</ThemedText.BodyPrimary>
 
-          <SwapCard as="label">
-            <SwapCardContent>
-              <ThemedText.Subtitle>Receive</ThemedText.Subtitle>
-              <CurrencyInput placeholder="0.0" value={inputReceiveValue} onChange={handleReceiveChange} />
-            </SwapCardContent>
-
-            <CurrencyButton selectedCurrency={rampMode === 'off' ? FIAT_CURRENCIES['EUR'] : TOKEN_CURRENCIES['USDC']} />
-          </SwapCard>
+            <AccountButton onClick={toggleSelectAccountModal}>
+              <span>Select account</span>
+              <ChevronDown width={14} height={14} />
+            </AccountButton>
+          </RampCard>
         </Column>
 
-        <PrimaryButton>Swap</PrimaryButton>
+        <PrimaryButton disabled>Enter amount</PrimaryButton>
       </Column>
+
+      <SelectAccountModal />
     </Content>
   )
 }

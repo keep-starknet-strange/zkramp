@@ -27,3 +27,5 @@ export const useWalletConnectModal = () => useModal(ModalType.WALLET_CONNECT)
 export const useWalletOverviewModal = () => useModal(ModalType.WALLET_OVERVIEW)
 
 export const useProofGenerationModal = () => useModal(ModalType.PROOF_GENERATION)
+
+export const useSelectAccountModal = () => useModal(ModalType.SELECT_ACCOUNT)
