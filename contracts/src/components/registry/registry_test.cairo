@@ -29,50 +29,140 @@ fn test_register() {
     let mut state = setup();
     let mut spy = spy_events();
     let contract_address = test_address();
+    let caller = constants::CALLER();
+    let offchain_id = constants::REVOLUT_ID();
 
     // setup caller
     start_cheat_caller_address(contract_address, constants::CALLER());
 
     // register
-    state.register(offchain_id: constants::REVOLUT_ID());
+    state.register(:offchain_id);
 
     // assert state after
-    assert!(state.is_registered(constants::CALLER(), constants::REVOLUT_ID()));
+    assert!(state.is_registered(contract_address: caller, :offchain_id));
+
+    // check on emitted events
+    spy
+        .assert_emitted(
+            @array![(contract_address, Event::RegistrationEvent(RegistrationEvent { caller, offchain_id }))]
+        );
+}
+
+#[test]
+fn test_register_twice_same_offchain_id() {
+    let mut state = setup();
+    let mut spy = spy_events();
+    let contract_address = test_address();
+    let caller = constants::CALLER();
+    let offchain_id = constants::REVOLUT_ID();
+
+    // setup caller
+    start_cheat_caller_address(contract_address, caller);
+
+    // double registeration
+    state.register(:offchain_id);
+    state.register(:offchain_id);
+
+    // assert state after
+    assert!(state.is_registered(contract_address: caller, :offchain_id));
 
     // check on emitted events
     spy
         .assert_emitted(
             @array![
-                (
-                    contract_address,
-                    Event::RegistrationEvent(
-                        RegistrationEvent { caller: constants::CALLER(), offchain_id: constants::REVOLUT_ID() }
-                    )
-                )
+                (contract_address, Event::RegistrationEvent(RegistrationEvent { caller, offchain_id })),
+                (contract_address, Event::RegistrationEvent(RegistrationEvent { caller, offchain_id }))
             ]
-        )
+        );
 }
 
-// #[test]
-fn test_register_twice_same_offchain_id() {
-    panic!("Not implemented yet");
-}
-
-// #[test]
+#[test]
 fn test_register_two_different_offchain_id() {
-    panic!("Not implemented yet");
+    let mut state = setup();
+    let mut spy = spy_events();
+    let contract_address = test_address();
+    let caller = constants::CALLER();
+    let offchain_id1 = constants::REVOLUT_ID();
+    let offchain_id2 = constants::REVOLUT_ID2();
+
+    // setup caller
+    start_cheat_caller_address(contract_address, caller);
+
+    // registerations
+    state.register(offchain_id: offchain_id1);
+    state.register(offchain_id: offchain_id2);
+
+    // assert state after
+    assert!(state.is_registered(contract_address: caller, offchain_id: offchain_id1));
+    assert!(state.is_registered(contract_address: caller, offchain_id: offchain_id2));
+
+    // check on emitted events
+    spy
+        .assert_emitted(
+            @array![
+                (contract_address, Event::RegistrationEvent(RegistrationEvent { caller, offchain_id: offchain_id1 })),
+                (contract_address, Event::RegistrationEvent(RegistrationEvent { caller, offchain_id: offchain_id2 }))
+            ]
+        );
 }
 
-// #[test]
+#[test]
 fn test_register_same_offchain_id_from_two_different_callers() {
-    panic!("Not implemented yet");
+    let mut state = setup();
+    let mut spy = spy_events();
+    let contract_address = test_address();
+    let caller1 = constants::CALLER();
+    let caller2 = constants::OTHER();
+    let offchain_id = constants::REVOLUT_ID();
+
+    // setup caller one and register
+    start_cheat_caller_address(contract_address, caller1);
+    state.register(:offchain_id);
+
+    // setup caller two and register
+    start_cheat_caller_address(contract_address, caller2);
+    state.register(:offchain_id);
+
+    // assert state after
+    assert!(state.is_registered(contract_address: caller1, :offchain_id));
+    assert!(state.is_registered(contract_address: caller2, :offchain_id));
+
+    // check on emitted events
+    spy
+        .assert_emitted(
+            @array![
+                (contract_address, Event::RegistrationEvent(RegistrationEvent { caller: caller1, offchain_id })),
+                (contract_address, Event::RegistrationEvent(RegistrationEvent { caller: caller2, offchain_id }))
+            ]
+        );
 }
 
 //
 // is_registered
 //
 
-// #[test]
+#[test]
 fn test_is_registered() {
-    panic!("Not implemented yet");
+    let mut state = setup();
+    let contract_address = test_address();
+    let caller = constants::CALLER();
+    let offchain_id1 = constants::REVOLUT_ID();
+    let offchain_id2 = constants::REVOLUT_ID2();
+
+    assert!(!state.is_registered(contract_address: caller, offchain_id: offchain_id1));
+    assert!(!state.is_registered(contract_address: caller, offchain_id: offchain_id2));
+
+    // register
+    start_cheat_caller_address(contract_address, constants::CALLER());
+    state.register(offchain_id: offchain_id1);
+
+    assert!(state.is_registered(contract_address: caller, offchain_id: offchain_id1));
+    assert!(!state.is_registered(contract_address: caller, offchain_id: offchain_id2));
+
+    // register another offchain ID
+    start_cheat_caller_address(contract_address, constants::CALLER());
+    state.register(offchain_id: offchain_id2);
+
+    assert!(state.is_registered(contract_address: caller, offchain_id: offchain_id1));
+    assert!(state.is_registered(contract_address: caller, offchain_id: offchain_id2));
 }
