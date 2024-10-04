@@ -1274,24 +1274,154 @@ fn test_all_liquidity_with_requests() {
 // liquidity_share_request
 //
 
-// #[test]
+#[test]
 fn test_liquidity_share_request_empty() {
-    panic!("Not implemented yet");
+    let (revolut_ramp, erc20) = setup();
+
+    // off-ramper
+    let liquidity_owner = constants::CALLER();
+    let offchain_id = constants::REVOLUT_ID();
+    let amount = 42;
+
+    // on-ramper
+    let withdrawer = constants::OTHER();
+    let withdrawer_offchain_id = constants::REVOLUT_ID2();
+
+    // fund the account
+    fund_and_approve(token: erc20, recipient: liquidity_owner, spender: revolut_ramp.contract_address, amount: amount);
+
+    // register offchain ID
+    start_cheat_caller_address(revolut_ramp.contract_address, liquidity_owner);
+    revolut_ramp.register(:offchain_id);
+
+    // add liquidity
+    revolut_ramp.add_liquidity(:amount, :offchain_id);
+
+    // withdrawer initiates withdrawal
+    start_cheat_caller_address(revolut_ramp.contract_address, withdrawer);
+    revolut_ramp.register(offchain_id: withdrawer_offchain_id);
+
+    // assert empty liquidity_share_request is None
+    let maybe_liquidity_share_request = revolut_ramp.liquidity_share_request(withdrawer_offchain_id);
+    assert!(maybe_liquidity_share_request.is_none());
 }
 
-// #[test]
+#[test]
 fn test_liquidity_share_request_expired() {
-    panic!("Not implemented yet");
+    let (revolut_ramp, erc20) = setup();
+
+    // off-ramper
+    let liquidity_owner = constants::CALLER();
+    let offchain_id = constants::REVOLUT_ID();
+    let amount = 42;
+
+    // on-ramper
+    let withdrawer = constants::OTHER();
+    let withdrawer_offchain_id = constants::REVOLUT_ID2();
+
+    let liquidity_key = LiquidityKey { owner: liquidity_owner, offchain_id };
+
+    // fund the account
+    fund_and_approve(token: erc20, recipient: liquidity_owner, spender: revolut_ramp.contract_address, amount: amount);
+
+    // register offchain ID
+    start_cheat_caller_address(revolut_ramp.contract_address, liquidity_owner);
+    revolut_ramp.register(:offchain_id);
+
+    // add liquidity
+    revolut_ramp.add_liquidity(:amount, :offchain_id);
+
+    // withdrawer initiates withdrawal
+    start_cheat_caller_address(revolut_ramp.contract_address, withdrawer);
+    revolut_ramp.register(offchain_id: withdrawer_offchain_id);
+    revolut_ramp.initiate_liquidity_withdrawal(:liquidity_key, :amount, offchain_id: withdrawer_offchain_id);
+
+    // offer expires
+    start_cheat_block_timestamp_global(MINIMUM_LOCK_DURATION);
+
+    // assert expired liquidity_share_request is None
+    let maybe_liquidity_share_request = revolut_ramp.liquidity_share_request(withdrawer_offchain_id);
+    assert!(maybe_liquidity_share_request.is_none());
 }
 
-// #[test]
+#[test]
 fn test_liquidity_share_request_valid() {
-    panic!("Not implemented yet");
+    let (revolut_ramp, erc20) = setup();
+
+    // off-ramper
+    let liquidity_owner = constants::CALLER();
+    let offchain_id = constants::REVOLUT_ID();
+    let amount = 42;
+
+    // on-ramper
+    let withdrawer = constants::OTHER();
+    let withdrawer_offchain_id = constants::REVOLUT_ID2();
+
+    let liquidity_key = LiquidityKey { owner: liquidity_owner, offchain_id };
+
+    // fund the account
+    fund_and_approve(token: erc20, recipient: liquidity_owner, spender: revolut_ramp.contract_address, amount: amount);
+
+    // register offchain ID
+    start_cheat_caller_address(revolut_ramp.contract_address, liquidity_owner);
+    revolut_ramp.register(:offchain_id);
+
+    // add liquidity
+    revolut_ramp.add_liquidity(:amount, :offchain_id);
+
+    // withdrawer initiates withdrawal
+    start_cheat_caller_address(revolut_ramp.contract_address, withdrawer);
+    revolut_ramp.register(offchain_id: withdrawer_offchain_id);
+    revolut_ramp.initiate_liquidity_withdrawal(:liquidity_key, :amount, offchain_id: withdrawer_offchain_id);
+
+    // assert liquidity_share_request
+    let maybe_liquidity_share_request = revolut_ramp.liquidity_share_request(withdrawer_offchain_id);
+    let liquidity_share_request = maybe_liquidity_share_request.expect('liquidity_share_req expected');
+
+    assert_eq!(liquidity_share_request.requestor, withdrawer);
+    assert_eq!(liquidity_share_request.amount, amount);
+    assert_eq!(liquidity_share_request.liquidity_key.owner, liquidity_owner);
+    assert_eq!(liquidity_share_request.liquidity_key.offchain_id, offchain_id);
+    assert_eq!(liquidity_share_request.expiration_date, MINIMUM_LOCK_DURATION);
 }
 
-// #[test]
+#[test]
 fn test_liquidity_share_request_withdrawn() {
-    panic!("Not implemented yet");
+    let (revolut_ramp, erc20) = setup();
+
+    // off-ramper
+    let liquidity_owner = constants::CALLER();
+    let offchain_id = constants::REVOLUT_ID();
+    let amount = 42;
+
+    // on-ramper
+    let withdrawer = constants::OTHER();
+    let withdrawer_offchain_id = constants::REVOLUT_ID2();
+
+    let liquidity_key = LiquidityKey { owner: liquidity_owner, offchain_id };
+    let proof = constants::PROOF();
+
+    // fund the account
+    fund_and_approve(token: erc20, recipient: liquidity_owner, spender: revolut_ramp.contract_address, amount: amount);
+
+    // register offchain ID
+    start_cheat_caller_address(revolut_ramp.contract_address, liquidity_owner);
+    revolut_ramp.register(:offchain_id);
+
+    // add liquidity
+    revolut_ramp.add_liquidity(:amount, :offchain_id);
+
+    // withdrawer initiates withdrawal
+    start_cheat_caller_address(revolut_ramp.contract_address, withdrawer);
+    revolut_ramp.register(offchain_id: withdrawer_offchain_id);
+    revolut_ramp.initiate_liquidity_withdrawal(:liquidity_key, :amount, offchain_id: withdrawer_offchain_id);
+
+    // withdrawer withdraws
+    revolut_ramp.withdraw_liquidity(:liquidity_key, offchain_id: withdrawer_offchain_id, :proof);
+
+    // assert withdrawned liquidity_share_request is None
+    let maybe_liquidity_share_request = revolut_ramp.liquidity_share_request(withdrawer_offchain_id);
+    assert!(maybe_liquidity_share_request.is_none());
 }
 
 //
