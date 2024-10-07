@@ -1172,8 +1172,10 @@ fn test_withdraw_liquidity_twice() {
 fn test__get_next_timestamp_key_basic() {
     // setup
     let state = RevolutRamp::contract_state_for_testing();
+
     // test a value between 0 and LOCK_DURATION_STEP
-    let after = 10;
+    let after = 42;
+
     // should be rounded to the next threshold
     assert_eq!(state._get_next_timestamp_key(:after), LOCK_DURATION_STEP);
 }
@@ -1182,18 +1184,22 @@ fn test__get_next_timestamp_key_basic() {
 fn test__get_next_timestamp_key_for_timestamp_key() {
     // setup
     let state = RevolutRamp::contract_state_for_testing();
+
     // test a multiple of LOCK_DURATION_STEP
-    let after = MINIMUM_LOCK_DURATION;
+    let after = LOCK_DURATION_STEP * 42;
+
     // should return the same value
-    assert_eq!(state._get_next_timestamp_key(:after), MINIMUM_LOCK_DURATION);
+    assert_eq!(state._get_next_timestamp_key(:after), after);
 }
 
 #[test]
 fn test__get_next_timestamp_key_from_zero() {
     // setup
     let state = RevolutRamp::contract_state_for_testing();
+
     // test with 0
     let after = 0;
+
     // should return the same value
     assert_eq!(state._get_next_timestamp_key(:after), 0);
 }
