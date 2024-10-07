@@ -6,7 +6,9 @@ use snforge_std::{
     EventSpyAssertionsTrait, spy_events, declare, DeclareResultTrait, ContractClassTrait, start_cheat_caller_address,
     stop_cheat_caller_address, test_address, start_cheat_block_timestamp_global
 };
-use zkramp::contracts::ramps::revolut::interface::{ZKRampABIDispatcher, ZKRampABIDispatcherTrait, LiquidityKey};
+use zkramp::contracts::ramps::revolut::interface::{
+    ZKRampABIDispatcher, ZKRampABIDispatcherTrait, LiquidityKey, LiquidityShareRequest
+};
 use zkramp::contracts::ramps::revolut::revolut::RevolutRamp::{
     Event, LiquidityAdded, LiquidityRetrieved, LiquidityLocked, LiquidityShareRequested, LiquidityShareWithdrawn,
     InternalImpl as RevolutRampInternalImpl, MINIMUM_LOCK_DURATION, LOCK_DURATION_STEP
@@ -1481,7 +1483,7 @@ fn test_liquidity_share_request_empty() {
     revolut_ramp.register(offchain_id: withdrawer_offchain_id);
 
     // assert empty liquidity_share_request is None
-    let maybe_liquidity_share_request = revolut_ramp.liquidity_share_request(withdrawer_offchain_id);
+    let maybe_liquidity_share_request = revolut_ramp.liquidity_share_request(offchain_id: withdrawer_offchain_id);
     assert!(maybe_liquidity_share_request.is_none());
 }
 
@@ -1519,7 +1521,7 @@ fn test_liquidity_share_request_expired() {
     start_cheat_block_timestamp_global(MINIMUM_LOCK_DURATION);
 
     // assert expired liquidity_share_request is None
-    let maybe_liquidity_share_request = revolut_ramp.liquidity_share_request(withdrawer_offchain_id);
+    let maybe_liquidity_share_request = revolut_ramp.liquidity_share_request(offchain_id: withdrawer_offchain_id);
     assert!(maybe_liquidity_share_request.is_none());
 }
 
@@ -1537,6 +1539,9 @@ fn test_liquidity_share_request_valid() {
     let withdrawer_offchain_id = constants::REVOLUT_ID2();
 
     let liquidity_key = LiquidityKey { owner: liquidity_owner, offchain_id };
+    let expected_liquidity_share_request = LiquidityShareRequest {
+        requestor: withdrawer, amount, liquidity_key, expiration_date: MINIMUM_LOCK_DURATION,
+    };
 
     // fund the account
     fund_and_approve(token: erc20, recipient: liquidity_owner, spender: revolut_ramp.contract_address, amount: amount);
@@ -1554,14 +1559,11 @@ fn test_liquidity_share_request_valid() {
     revolut_ramp.initiate_liquidity_withdrawal(:liquidity_key, :amount, offchain_id: withdrawer_offchain_id);
 
     // assert liquidity_share_request
-    let maybe_liquidity_share_request = revolut_ramp.liquidity_share_request(withdrawer_offchain_id);
-    let liquidity_share_request = maybe_liquidity_share_request.expect('liquidity_share_req expected');
+    let liquidity_share_request = revolut_ramp
+        .liquidity_share_request(withdrawer_offchain_id)
+        .expect('liquidity_share_req expected');
 
-    assert_eq!(liquidity_share_request.requestor, withdrawer);
-    assert_eq!(liquidity_share_request.amount, amount);
-    assert_eq!(liquidity_share_request.liquidity_key.owner, liquidity_owner);
-    assert_eq!(liquidity_share_request.liquidity_key.offchain_id, offchain_id);
-    assert_eq!(liquidity_share_request.expiration_date, MINIMUM_LOCK_DURATION);
+    assert_eq!(liquidity_share_request, expected_liquidity_share_request);
 }
 
 #[test]
