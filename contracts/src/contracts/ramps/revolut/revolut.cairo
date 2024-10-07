@@ -347,7 +347,7 @@ pub mod RevolutRamp {
     //
 
     #[generate_trait]
-    impl InternalImpl of InternalTrait {
+    pub impl InternalImpl of InternalTrait {
         fn _get_available_liquidity(self: @ContractState, liquidity_key: LiquidityKey) -> u256 {
             let mut amount = self.liquidity.read(liquidity_key);
             let current_timestamp = get_block_timestamp();
@@ -362,8 +362,14 @@ pub mod RevolutRamp {
         }
 
         fn _get_next_timestamp_key(self: @ContractState, after: u64) -> u64 {
-            // minus 1 in order to return `after` if it's already a valid key timestamp.
-            after - 1 + LOCK_DURATION_STEP - ((after - 1) % LOCK_DURATION_STEP)
+            if after.is_zero() {
+                0
+            } else {
+                // minus 1 in order to return `after` if it's already a valid key timestamp.
+                let increment_step = (after - 1) / LOCK_DURATION_STEP + 1;
+                // returns a multiple of LOCK_DURATION_STEP
+                LOCK_DURATION_STEP * increment_step
+            }
         }
     }
 }

@@ -9,8 +9,9 @@ use snforge_std::{
 use zkramp::contracts::ramps::revolut::interface::{ZKRampABIDispatcher, ZKRampABIDispatcherTrait, LiquidityKey};
 use zkramp::contracts::ramps::revolut::revolut::RevolutRamp::{
     Event, LiquidityAdded, LiquidityRetrieved, LiquidityLocked, LiquidityShareRequested, LiquidityShareWithdrawn,
-    MINIMUM_LOCK_DURATION
+    InternalImpl as RevolutRampInternalImpl, MINIMUM_LOCK_DURATION, LOCK_DURATION_STEP
 };
+use zkramp::contracts::ramps::revolut::revolut::RevolutRamp;
 use zkramp::tests::constants;
 use zkramp::tests::utils;
 
@@ -1167,19 +1168,40 @@ fn test_withdraw_liquidity_twice() {
 // _get_next_timestamp_key
 //
 
-// #[test]
+#[test]
 fn test__get_next_timestamp_key_basic() {
-    panic!("Not implemented yet");
+    // setup
+    let state = RevolutRamp::contract_state_for_testing();
+
+    // test a value between 0 and LOCK_DURATION_STEP
+    let after = 42;
+
+    // should be rounded to the next threshold
+    assert_eq!(state._get_next_timestamp_key(:after), LOCK_DURATION_STEP);
 }
 
-// #[test]
+#[test]
 fn test__get_next_timestamp_key_for_timestamp_key() {
-    panic!("Not implemented yet");
+    // setup
+    let state = RevolutRamp::contract_state_for_testing();
+
+    // test a multiple of LOCK_DURATION_STEP
+    let after = LOCK_DURATION_STEP * 42;
+
+    // should return the same value
+    assert_eq!(state._get_next_timestamp_key(:after), after);
 }
 
-// #[test]
+#[test]
 fn test__get_next_timestamp_key_from_zero() {
-    panic!("Not implemented yet");
+    // setup
+    let state = RevolutRamp::contract_state_for_testing();
+
+    // test with 0
+    let after = 0;
+
+    // should return the same value
+    assert_eq!(state._get_next_timestamp_key(:after), 0);
 }
 
 // #[test]
