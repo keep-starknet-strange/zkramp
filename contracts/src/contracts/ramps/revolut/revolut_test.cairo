@@ -1204,18 +1204,12 @@ fn test__get_next_timestamp_key_from_zero() {
     assert_eq!(state._get_next_timestamp_key(:after), 0);
 }
 
-// #[test]
-fn test_get_available_liquidity_basic() {
-    panic!("Not implemented yet");
-}
-
 //
 // available_liquidity & _get_available_liquidity
 //
 
 #[test]
 fn test_available_liquidity_empty() {
-    // setup
     let (revolut_ramp, _) = setup();
     let liquidity_owner = constants::CALLER();
     let offchain_id = constants::REVOLUT_ID();
@@ -1241,7 +1235,7 @@ fn test_available_liquidity_without_requests() {
     revolut_ramp.register(:offchain_id);
 
     // add liquidity
-    revolut_ramp.add_liquidity(amount, offchain_id);
+    revolut_ramp.add_liquidity(:amount, :offchain_id);
 
     // assert liquidity is available
     assert_eq!(revolut_ramp.available_liquidity(:liquidity_key), amount);
