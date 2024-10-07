@@ -10,13 +10,13 @@ pub struct Proof {
     pub foo: felt252
 }
 
-#[derive(Drop, Copy, Hash, Serde, starknet::Store)]
+#[derive(Drop, Copy, Hash, Serde, starknet::Store, Debug, PartialEq)]
 pub struct LiquidityKey {
     pub owner: ContractAddress,
     pub offchain_id: OffchainId,
 }
 
-#[derive(Drop, Copy, Serde, starknet::Store)]
+#[derive(Drop, Copy, Serde, starknet::Store, Debug, PartialEq)]
 pub struct LiquidityShareRequest {
     pub requestor: ContractAddress,
     pub liquidity_key: LiquidityKey,
