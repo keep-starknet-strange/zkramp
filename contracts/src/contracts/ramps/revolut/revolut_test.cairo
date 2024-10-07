@@ -1446,7 +1446,7 @@ fn test_all_liquidity_empty() {
     revolut_ramp.register(:offchain_id);
 
     // assert all_liquidity is empty
-    assert_eq!(revolut_ramp.all_liquidity(liquidity_key), 0);
+    assert_eq!(revolut_ramp.all_liquidity(:liquidity_key), 0);
 }
 
 #[test]
