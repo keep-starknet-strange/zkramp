@@ -1,61 +1,54 @@
-import { bigint, index, pgEnum, pgTable, text, timestamp } from 'drizzle-orm/pg-core'
+import { sql } from 'drizzle-orm'
+import { bigint, boolean, foreignKey, pgEnum, pgTable, primaryKey, text, timestamp } from 'drizzle-orm/pg-core'
+
+import { int8range } from './int8range'
 
 export const networkEnum = pgEnum('network_type', ['mainnet', 'sepolia'])
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const indexerCommonSchema = {
-  cursor: bigint('_cursor', { mode: 'number' }),
-  createdAt: timestamp('created_at', { mode: 'date', withTimezone: false }),
+export const rampEnum = pgEnum('ramp_type', ['Revolut'])
 
-  network: networkEnum('network'),
-  blockHash: text('block_hash'),
-  blockNumber: bigint('block_number', { mode: 'number' }),
-  blockTimestamp: timestamp('block_timestamp', {
-    mode: 'date',
-    withTimezone: false,
-  }),
-  transactionHash: text('transaction_hash'),
-  indexInBlock: bigint('index_in_block', { mode: 'number' }),
-}
+export const registration = pgTable('registration', {
+  address: text('address').primaryKey(),
+  revolut: text('revolut')
+    .array()
+    .notNull()
+    .default(sql`ARRAY[]::text[]`),
+})
 
-export const locked = pgTable(
-  'indexer_locked',
+export const liquidity = pgTable(
+  'liquidity',
   {
-    ...indexerCommonSchema,
-
-    id: text('id').primaryKey(),
-
-    token: text('token_address'),
-    from: text('from_address'),
-    amount: text('amount'),
+    owner: text('owner'),
+    offchainId: text('offchain_id'),
+    locked: boolean('locked').default(false),
+    amount: bigint('amount', { mode: 'bigint' }),
+    cursor: int8range('_cursor').notNull(),
   },
   (table) => {
     return {
-      cursorIdx: index('locked_cursor_idx').on(table.cursor),
-      tokenIdx: index('locked_token_idx').on(table.token),
-      fromIdx: index('locked_from_idx').on(table.from),
+      liquidityKey: primaryKey({ name: 'liquidity_key', columns: [table.owner, table.offchainId] }),
     }
   },
 )
 
-export const unlocked = pgTable(
-  'indexer_unlocked',
+export const liquidityRequest = pgTable(
+  'liquidity_request',
   {
-    ...indexerCommonSchema,
-
-    id: text('id').primaryKey(),
-
-    token: text('token_address'),
-    from: text('from_address'),
-    to: text('to_address'),
-    amount: text('amount'),
+    owner: text('owner'),
+    offchainId: text('offchain_id'),
+    requestor: text('requestor'),
+    requestorOffchainId: text('requestor_offchain_id'),
+    amount: bigint('amount', { mode: 'bigint' }).notNull(),
+    expiresAt: timestamp('expires_at').notNull(),
+    cursor: bigint('_cursor', { mode: 'number' }),
   },
   (table) => {
     return {
-      cursorIdx: index('unlocked_cursor_idx').on(table.cursor),
-      tokenIdx: index('unlocked_token_idx').on(table.token),
-      fromIdx: index('unlocked_from_idx').on(table.from),
-      toIdx: index('unlocked_to_idx').on(table.to),
+      liquidityKey: foreignKey({
+        columns: [table.owner, table.offchainId],
+        foreignColumns: [liquidity.owner, liquidity.offchainId],
+        name: 'liquidity_key',
+      }),
     }
   },
 )

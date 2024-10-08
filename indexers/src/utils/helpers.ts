@@ -1,22 +1,13 @@
-import { apibara } from './deps.ts'
+import { STORAGE_ADDRESS_BOUND } from './constants.ts'
+import { starknet } from './deps.ts'
+import { LiquidityKey } from './types.ts'
 
-export const getCommonValues = (
-  header: apibara.BlockHeader,
-  event: apibara.Event,
-  transaction: apibara.Transaction,
-) => {
-  const { blockNumber, blockHash, timestamp } = header
+export function getLiquidityKeyMapStorageLocation(varName: string, liquidityKey: LiquidityKey) {
+  const hashedVarName = starknet.hash.getSelectorFromName(varName)
+  const serializedLiquidityKey = [liquidityKey.owner, liquidityKey.offchainId.plateform, liquidityKey.offchainId.id]
 
-  const transactionHash = transaction.meta.hash
-  const IndexInBlock = (transaction.meta.transactionIndex ?? 0) * 1_000 + (event.index ?? 0)
+  const location = BigInt([serializedLiquidityKey.length, ...serializedLiquidityKey]
+    .reduce<string>((x, y) => starknet.ec.starkCurve.pedersen(x, y), hashedVarName))
 
-  return {
-    created_at: new Date().toISOString(),
-    network: 'mainnet',
-    block_hash: blockHash,
-    block_number: +(blockNumber ?? 0),
-    block_timestamp: timestamp,
-    transaction_hash: transactionHash,
-    index_in_block: IndexInBlock,
-  }
+  return location >= STORAGE_ADDRESS_BOUND ? location - STORAGE_ADDRESS_BOUND : location
 }
