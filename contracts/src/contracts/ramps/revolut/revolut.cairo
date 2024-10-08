@@ -45,11 +45,11 @@ pub mod RevolutRamp {
     #[storage]
     struct Storage {
         #[substorage(v0)]
-        ownable: OwnableComponent::Storage,
+        pub ownable: OwnableComponent::Storage,
         #[substorage(v0)]
-        registry: RegistryComponent::Storage,
+        pub registry: RegistryComponent::Storage,
         #[substorage(v0)]
-        escrow: EscrowComponent::Storage,
+        pub escrow: EscrowComponent::Storage,
         token: ContractAddress,
         // liquidity_key -> amount
         liquidity: Map::<LiquidityKey, u256>,
@@ -150,7 +150,7 @@ pub mod RevolutRamp {
         // initialize owner
         self.ownable.initializer(:owner);
 
-        self.token.write(token);
+        self.initializer(:token);
     }
 
     //
@@ -348,6 +348,10 @@ pub mod RevolutRamp {
 
     #[generate_trait]
     pub impl InternalImpl of InternalTrait {
+        fn initializer(ref self: ContractState, token: ContractAddress) {
+            self.token.write(token);
+        }
+
         fn _get_available_liquidity(self: @ContractState, liquidity_key: LiquidityKey) -> u256 {
             let mut amount = self.liquidity.read(liquidity_key);
             let current_timestamp = get_block_timestamp();

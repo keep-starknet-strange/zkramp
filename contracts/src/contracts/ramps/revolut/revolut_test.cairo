@@ -6,8 +6,9 @@ use snforge_std::{
     EventSpyAssertionsTrait, spy_events, declare, DeclareResultTrait, ContractClassTrait, start_cheat_caller_address,
     stop_cheat_caller_address, test_address, start_cheat_block_timestamp_global
 };
+use zkramp::components::registry::interface::IRegistry;
 use zkramp::contracts::ramps::revolut::interface::{
-    ZKRampABIDispatcher, ZKRampABIDispatcherTrait, LiquidityKey, LiquidityShareRequest
+    ZKRampABIDispatcher, ZKRampABIDispatcherTrait, LiquidityKey, LiquidityShareRequest, IZKRampLiquidity
 };
 use zkramp::contracts::ramps::revolut::revolut::RevolutRamp::{
     Event, LiquidityAdded, LiquidityRetrieved, LiquidityLocked, LiquidityShareRequested, LiquidityShareWithdrawn,
@@ -1402,29 +1403,191 @@ fn test_available_liquidity_with_withdrawn_requests() {
     assert_eq!(revolut_ramp.available_liquidity(:liquidity_key), amount - requested_amount);
 }
 
-// #[test]
+#[test]
 fn test__get_available_liquidity_empty() {
-    panic!("Not implemented yet");
+    let state = RevolutRamp::contract_state_for_testing();
+    let liquidity_owner = constants::CALLER();
+    let offchain_id = constants::REVOLUT_ID();
+    let liquidity_key = LiquidityKey { owner: liquidity_owner, offchain_id };
+
+    // assert no liquidity available
+    assert_eq!(state._get_available_liquidity(:liquidity_key), 0);
 }
 
-// #[test]
+#[test]
 fn test__get_available_liquidity_without_requests() {
-    panic!("Not implemented yet");
+    let (_, erc20) = setup();
+    let mut revolut_ramp = RevolutRamp::contract_state_for_testing();
+    let liquidity_owner = constants::CALLER();
+    let offchain_id = constants::REVOLUT_ID();
+    let amount = 42;
+    let liquidity_key = LiquidityKey { owner: liquidity_owner, offchain_id };
+    let contract_address = test_address();
+
+    // initialize ramp state
+    revolut_ramp.initializer(token: erc20.contract_address);
+
+    // fund the account
+    fund_and_approve(token: erc20, recipient: liquidity_owner, spender: contract_address, :amount);
+
+    // register offchain ID
+    start_cheat_caller_address(contract_address, liquidity_owner);
+    revolut_ramp.registry.register(:offchain_id);
+
+    // add liquidity
+    revolut_ramp.add_liquidity(:amount, :offchain_id);
+
+    // assert liquidity is available
+    assert_eq!(revolut_ramp._get_available_liquidity(:liquidity_key), amount);
 }
 
-// #[test]
+#[test]
 fn test__get_available_liquidity_with_expired_requests() {
-    panic!("Not implemented yet");
+    let (_, erc20) = setup();
+    let mut revolut_ramp = RevolutRamp::contract_state_for_testing();
+    let contract_address = test_address();
+
+    // off-ramper
+    let liquidity_owner = constants::CALLER();
+    let offchain_id = constants::REVOLUT_ID();
+    let liquidity_key = LiquidityKey { owner: liquidity_owner, offchain_id };
+    let amount = 100;
+
+    // on-ramper
+    let withdrawer = constants::OTHER();
+    let withdrawer_offchain_id = constants::REVOLUT_ID2();
+    let requested_amount = 42;
+
+    // initialize ramp state
+    revolut_ramp.initializer(token: erc20.contract_address);
+
+    // fund the account
+    fund_and_approve(token: erc20, recipient: liquidity_owner, spender: contract_address, amount: amount);
+
+    // register offchain ID
+    start_cheat_caller_address(contract_address, liquidity_owner);
+    revolut_ramp.register(:offchain_id);
+
+    // add liquidity
+    revolut_ramp.add_liquidity(:amount, :offchain_id);
+
+    // withdrawer initiates withdrawal
+    start_cheat_caller_address(contract_address, withdrawer);
+    revolut_ramp.register(offchain_id: withdrawer_offchain_id);
+    revolut_ramp
+        .initiate_liquidity_withdrawal(:liquidity_key, amount: requested_amount, offchain_id: withdrawer_offchain_id);
+
+    // assert state before expiration
+    assert_eq!(revolut_ramp.all_liquidity(:liquidity_key), amount);
+    assert_eq!(revolut_ramp.available_liquidity(:liquidity_key), amount - requested_amount);
+
+    // offer expires
+    start_cheat_block_timestamp_global(MINIMUM_LOCK_DURATION);
+
+    // assert state after expiration
+    assert_eq!(revolut_ramp.all_liquidity(:liquidity_key), amount);
+    assert_eq!(revolut_ramp.available_liquidity(:liquidity_key), amount);
 }
 
-// #[test]
+#[test]
 fn test__get_available_liquidity_with_pending_requests() {
-    panic!("Not implemented yet");
+    let (_, erc20) = setup();
+    let mut revolut_ramp = RevolutRamp::contract_state_for_testing();
+    let contract_address = test_address();
+
+    // off-ramper
+    let liquidity_owner = constants::CALLER();
+    let offchain_id = constants::REVOLUT_ID();
+    let liquidity_key = LiquidityKey { owner: liquidity_owner, offchain_id };
+    let amount = 100;
+
+    // on-ramper
+    let withdrawer = constants::OTHER();
+    let withdrawer_offchain_id = constants::REVOLUT_ID2();
+    let requested_amount = 42;
+
+    // initialize ramp state
+    revolut_ramp.initializer(token: erc20.contract_address);
+
+    // fund the account
+    fund_and_approve(token: erc20, recipient: liquidity_owner, spender: contract_address, amount: amount);
+
+    // register offchain ID
+    start_cheat_caller_address(contract_address, liquidity_owner);
+    revolut_ramp.register(:offchain_id);
+
+    // add liquidity
+    revolut_ramp.add_liquidity(:amount, :offchain_id);
+
+    // assert state before withdrawal initiated
+    assert_eq!(revolut_ramp.all_liquidity(:liquidity_key), amount);
+    assert_eq!(revolut_ramp._get_available_liquidity(:liquidity_key), amount);
+
+    // withdrawer initiates withdrawal
+    start_cheat_caller_address(contract_address, withdrawer);
+    revolut_ramp.register(offchain_id: withdrawer_offchain_id);
+    revolut_ramp
+        .initiate_liquidity_withdrawal(:liquidity_key, amount: requested_amount, offchain_id: withdrawer_offchain_id);
+
+    // assert state after withdrawal initiated
+    assert_eq!(revolut_ramp.all_liquidity(:liquidity_key), amount);
+    assert_eq!(revolut_ramp._get_available_liquidity(:liquidity_key), amount - requested_amount);
+
+    // offer almost expires
+    start_cheat_block_timestamp_global(MINIMUM_LOCK_DURATION - 1);
+
+    // assert state when offer is close to expiration
+    assert_eq!(revolut_ramp.all_liquidity(:liquidity_key), amount);
+    assert_eq!(revolut_ramp._get_available_liquidity(:liquidity_key), amount - requested_amount);
 }
 
-// #[test]
+#[test]
 fn test__get_available_liquidity_with_withdrawn_requests() {
-    panic!("Not implemented yet");
+    let (_, erc20) = setup();
+    let mut revolut_ramp = RevolutRamp::contract_state_for_testing();
+    let contract_address = test_address();
+
+    // off-ramper
+    let liquidity_owner = constants::CALLER();
+    let offchain_id = constants::REVOLUT_ID();
+    let liquidity_key = LiquidityKey { owner: liquidity_owner, offchain_id };
+    let amount = 100;
+
+    // on-ramper
+    let withdrawer = constants::OTHER();
+    let withdrawer_offchain_id = constants::REVOLUT_ID2();
+    let requested_amount = 42;
+    let proof = constants::PROOF();
+
+    // initialize ramp state
+    revolut_ramp.initializer(token: erc20.contract_address);
+
+    // fund the account
+    fund_and_approve(token: erc20, recipient: liquidity_owner, spender: contract_address, amount: amount);
+
+    // register offchain ID
+    start_cheat_caller_address(contract_address, liquidity_owner);
+    revolut_ramp.register(:offchain_id);
+
+    // add liquidity
+    revolut_ramp.add_liquidity(:amount, :offchain_id);
+
+    // withdrawer initiates withdrawal
+    start_cheat_caller_address(contract_address, withdrawer);
+    revolut_ramp.register(offchain_id: withdrawer_offchain_id);
+    revolut_ramp
+        .initiate_liquidity_withdrawal(:liquidity_key, amount: requested_amount, offchain_id: withdrawer_offchain_id);
+
+    // assert state before withdrawal
+    assert_eq!(revolut_ramp.all_liquidity(:liquidity_key), amount);
+    assert_eq!(revolut_ramp._get_available_liquidity(:liquidity_key), amount - requested_amount);
+
+    // withdrawers withdraws liquidity
+    revolut_ramp.withdraw_liquidity(:liquidity_key, offchain_id: withdrawer_offchain_id, :proof);
+
+    // assert state after withdrawal
+    assert_eq!(revolut_ramp.all_liquidity(:liquidity_key), amount - requested_amount);
+    assert_eq!(revolut_ramp._get_available_liquidity(:liquidity_key), amount - requested_amount);
 }
 
 //
